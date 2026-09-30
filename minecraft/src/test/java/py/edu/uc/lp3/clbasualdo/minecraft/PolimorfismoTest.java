@@ -26,7 +26,7 @@ class PolimorfismoTest {
     @Test
     void laListaDeEntidadesSeComportaPorHija() {
         List<Entidad> entidades = List.of(
-                new Zombie(), new Esqueleto(), new Creeper(),
+                new Zombie(), new Esqueleto(), new Creeper(), new Enderman(),
                 new Aldeano(), new Animal("Vaca", "Vaca"), new Jugador("Steve", 20, 1)
         );
 
@@ -36,7 +36,7 @@ class PolimorfismoTest {
             assertTrue(reaccion.contains(e.getNombre()) || reaccion.contains("Steve"),
                     "la reaccion deberia mencionar a la entidad");
         }
-        assertEquals(6, entidades.size());
+        assertEquals(7, entidades.size());
     }
 
     /**
@@ -46,7 +46,7 @@ class PolimorfismoTest {
      */
     @Test
     void todasLasHijasCumplenLosAbstractos() {
-        List<Entidad> hostiles = List.of(new Zombie(), new Esqueleto(), new Creeper());
+        List<Entidad> hostiles = List.of(new Zombie(), new Esqueleto(), new Creeper(), new Enderman());
         for (Entidad e : hostiles) {
             assertTrue(e instanceof EntidadHostil);
             ((EntidadHostil) e).atacar();
