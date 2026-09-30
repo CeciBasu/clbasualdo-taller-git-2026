@@ -1,11 +1,11 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.demo;
 
-import py.edu.uc.lp3.clbasualdo.minecraft.Aldeano;
-import py.edu.uc.lp3.clbasualdo.minecraft.Animal;
-import py.edu.uc.lp3.clbasualdo.minecraft.Creeper;
-import py.edu.uc.lp3.clbasualdo.minecraft.Esqueleto;
-import py.edu.uc.lp3.clbasualdo.minecraft.Jugador;
-import py.edu.uc.lp3.clbasualdo.minecraft.Zombie;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Aldeano;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Animal;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Creeper;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Esqueleto;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Jugador;
+import py.edu.uc.lp3.clbasualdo.minecraft.domain.Zombie;
 
 import java.util.List;
 

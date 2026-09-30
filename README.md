@@ -31,10 +31,14 @@ java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
 
 | Paquete | Qué contiene |
 |---|---|
-| `py.edu.uc.lp3.clbasualdo.minecraft` | El dominio: `Entidad` y sus hijas. No depende de nada externo. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.controller` | La entrada HTTP: arma y devuelve datos, no decide reglas. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad` y sus hijas. No depende de nada externo. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.repository` | El contrato para guardar y recuperar entidades. `.impl` es la versión en memoria. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos). `.impl` tiene las implementaciones. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.rest.controller` | La entrada HTTP: recibe los datos, delega en los servicios y arma la respuesta. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.constants` | `ApiPaths`, con las rutas de la API en un solo lugar. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.exceptions` | Excepciones propias del juego (`MinecraftException` y `DatosInvalidosException`). |
 | `py.edu.uc.lp3.clbasualdo.minecraft.demo` | `Main`, la demostración en consola. Vive aparte del dominio. |
-| `MinecraftApplication` | Arranque de Spring Boot. Se queda en la raíz porque desde ahí sale el barrido de controladores. |
+| `MinecraftApplication` | Arranque de Spring Boot. Se queda en la raíz porque desde ahí sale el barrido de componentes. |
 
 ## Modelo de dominio
 

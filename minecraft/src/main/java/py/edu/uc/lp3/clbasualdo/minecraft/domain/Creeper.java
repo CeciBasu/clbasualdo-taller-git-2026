@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.clbasualdo.minecraft;
+package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
 import java.util.List;
 
