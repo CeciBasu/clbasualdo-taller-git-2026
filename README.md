@@ -1,13 +1,13 @@
 # Minecraft API — Taller de Git 2026
 
 API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
-visto en las clases(herencia, sobreescritura y
-ocultamiento de la información), como parte del Taller de Git.
+visto en las clases (herencia, sobreescritura y ocultamiento de la
+información), como parte del Taller de Git.
 
 ## Tecnologías
 
 - Java 21
-- Spring Boot 3 (Spring Web)
+- Spring Boot 4 (Spring Web MVC)
 - Maven
 
 ## Cómo correr el proyecto
@@ -19,6 +19,22 @@ cd clbasualdo-tplp3-2026/minecraft
 ```
 
 La aplicación queda disponible en `http://localhost:8080`.
+
+Para ver la demostración por consola, sin levantar la API:
+
+```bash
+./mvnw -q compile
+java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
+```
+
+## Estructura
+
+| Paquete | Qué contiene |
+|---|---|
+| `py.edu.uc.lp3.clbasualdo.minecraft` | El dominio: `Entidad` y sus hijas. No depende de nada externo. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.controller` | La entrada HTTP: arma y devuelve datos, no decide reglas. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.demo` | `Main`, la demostración en consola. Vive aparte del dominio. |
+| `MinecraftApplication` | Arranque de Spring Boot. Se queda en la raíz porque desde ahí sale el barrido de controladores. |
 
 ## Modelo de dominio
 
@@ -113,7 +129,7 @@ classDiagram
 |---|---|---|
 | `GET` | `/` | Confirma que el servicio está vivo. |
 | `GET` | `/esqueleto?nombre=...&vida=...` | Construye un `Esqueleto` con los parámetros de la URL y devuelve su estado en JSON. |
-| `GET` | `/comportamiento` | Devuelve, en JSON, la reacción de un `Creeper` y un `Aldeano` frente al jugador. Ambos se tratan como `Entidad`: no hay ningún `if` por tipo, cada objeto informa lo suyo. |
+| `GET` | `/comportamiento` | Devuelve, en JSON, la reacción de una entidad de cada tipo frente al jugador. Todas se tratan como `Entidad`: no hay ningún `if` por tipo, cada objeto informa lo suyo. |
 
 ### Ejemplo — `GET /esqueleto?nombre=Bony&vida=15`
 
@@ -121,8 +137,17 @@ classDiagram
 {
   "nombre": "Bony",
   "vida": 15,
-  "vivo": true
+  "vivo": true,
+  "flechas": 16,
+  "posicion": { "x": 0.0, "y": 64.0, "z": 0.0 }
 }
+```
+
+Los parámetros `x`, `y` y `z` son opcionales y por defecto `(0, 64, 0)`. Si un dato no
+es válido, la API responde `400` con el mensaje del dominio, sin tirar la excepción:
+
+```json
+{ "error": "La vida inicial debe ser mayor a 0." }
 ```
 
 ### Ejemplo — `GET /comportamiento`
@@ -130,15 +155,49 @@ classDiagram
 ```json
 [
   {
+    "tipo": "Zombie",
+    "reaccion": "Zombie gruñe y persigue al jugador.",
+    "vida": 20,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
+  },
+  {
+    "tipo": "Esqueleto",
+    "reaccion": "Esqueleto retrocede y dispara una flecha.",
+    "vida": 20,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
+  },
+  {
     "tipo": "Creeper",
-    "reaccion": "Creeper se acerca silbando y está a punto de explotar."
+    "reaccion": "Creeper se acerca silbando y está a punto de explotar.",
+    "vida": 20,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
   },
   {
     "tipo": "Aldeano",
-    "reaccion": "Aldeano se asusta y corre a esconderse."
+    "reaccion": "Aldeano se asusta y corre a esconderse.",
+    "vida": 20,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
+  },
+  {
+    "tipo": "Animal",
+    "reaccion": "Vaca sigue comiendo, no le presta atencion al jugador.",
+    "vida": 10,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
   }
 ]
 ```
+
+## Pruebas
+
+```bash
+./mvnw test
+```
+
+39 pruebas sobre el dominio: los límites de vida y el ocultamiento de estado
+(`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
+el borde exacto de peligro (`EntidadPasivaTest`), la munición y el alcance del
+esqueleto (`EsqueletoTest`), el inventario y la experiencia (`JugadorTest`), y que
+la jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`).
 
 ## Licencia
 

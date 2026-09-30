@@ -1,10 +1,18 @@
-package py.edu.uc.lp3.clbasualdo.minecraft;
+package py.edu.uc.lp3.clbasualdo.minecraft.demo;
+
+import py.edu.uc.lp3.clbasualdo.minecraft.Aldeano;
+import py.edu.uc.lp3.clbasualdo.minecraft.Animal;
+import py.edu.uc.lp3.clbasualdo.minecraft.Creeper;
+import py.edu.uc.lp3.clbasualdo.minecraft.Esqueleto;
+import py.edu.uc.lp3.clbasualdo.minecraft.Jugador;
+import py.edu.uc.lp3.clbasualdo.minecraft.Zombie;
 
 import java.util.List;
 
 /**
  * Descripcion:
- * Clase principal que sirve para probar todas las clases del juego.
+ * Demostracion que prueba todas las clases del juego. Vive en el paquete demo
+ * para que el dominio (Entidad y sus hijas) no dependa de ella.
  *
  * Responsabilidad:
  * Crea al jugador y a las entidades, las pone en el mundo y muestra por pantalla
