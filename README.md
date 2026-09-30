@@ -53,7 +53,8 @@ regenera): es una herramienta interna de la jerarquía que usa `Jugador`.
 `reaccionar()` es un método abstracto declarado en `Entidad`: expresa un
 comportamiento que todas las hijas deben saber responder, pero cuya forma
 concreta no puede escribir el padre porque cada tipo se comporta distinto
-(un `Creeper` explota, un `Esqueleto` dispara, un `Aldeano` huye).
+(un `Creeper` explota, un `Esqueleto` dispara, un `Enderman` se teletransporta,
+un `Aldeano` huye).
 
 ```mermaid
 classDiagram
@@ -96,6 +97,12 @@ classDiagram
         +reaccionar() String
     }
 
+    class Enderman {
+        +atacar()
+        +teletransportarse()
+        +reaccionar() String
+    }
+
     class Aldeano {
         +reaccionar() String
     }
@@ -119,6 +126,7 @@ classDiagram
     EntidadHostil <|-- Creeper
     EntidadHostil <|-- Zombie
     EntidadHostil <|-- Esqueleto
+    EntidadHostil <|-- Enderman
     EntidadPasiva <|-- Aldeano
     EntidadPasiva <|-- Animal
 ```
@@ -173,6 +181,12 @@ es válido, la API responde `400` con el mensaje del dominio, sin tirar la excep
     "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
   },
   {
+    "tipo": "Enderman",
+    "reaccion": "Enderman se teletransporta al ser observado.",
+    "vida": 40,
+    "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
+  },
+  {
     "tipo": "Aldeano",
     "reaccion": "Aldeano se asusta y corre a esconderse.",
     "vida": 20,
@@ -193,11 +207,12 @@ es válido, la API responde `400` con el mensaje del dominio, sin tirar la excep
 ./mvnw test
 ```
 
-39 pruebas sobre el dominio: los límites de vida y el ocultamiento de estado
+44 pruebas sobre el dominio: los límites de vida y el ocultamiento de estado
 (`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
 el borde exacto de peligro (`EntidadPasivaTest`), la munición y el alcance del
-esqueleto (`EsqueletoTest`), el inventario y la experiencia (`JugadorTest`), y que
-la jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`).
+esqueleto (`EsqueletoTest`), el ataque y la reacción del Enderman (`EndermanTest`),
+el inventario y la experiencia (`JugadorTest`), y que la jerarquía se use sin
+preguntar por el tipo (`PolimorfismoTest`).
 
 ## Licencia
 
