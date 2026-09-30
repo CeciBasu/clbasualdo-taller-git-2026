@@ -1,20 +1,58 @@
+# .gitignore unico del proyecto.
+#
+# Fusion de las dos plantillas que venia usando el repo:
+#   - la de Spring Initializr (IDE, target/, HELP.md)
+#   - la de toptal.com/developers/gitignore?templates=java,visualstudiocode,maven
+#     (compilados, artefactos, Maven y VS Code)
+#
+# Se deja solo este archivo en la raiz: los .gitignore de los subproyectos se
+# acumulan con este y no hacen falta.
+
+### Generado por Spring ###
 HELP.md
 
 ### Compilados y artefactos ###
 *.class
 *.jar
 *.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
 *.log
+hs_err_pid*
+replay_pid*
+
+### Maven ###
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-### STS ###
-.apt_generated
+### BlueJ ###
+*.ctxt
+
+### J2ME ###
+.mtj.tmp/
+
+### Eclipse y STS ###
+# .classpath y .project los generan Eclipse y STS por igual
 .classpath
-.factorypath
 .project
+.factorypath
+.apt_generated
 .settings
 .springBeans
 .sts4-cache
@@ -31,9 +69,15 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+### Visual Studio Code ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+*.vsix
+.history/
+.history
+.ionide
