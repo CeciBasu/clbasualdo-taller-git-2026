@@ -7,6 +7,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.Entidad;
 import py.edu.uc.lp3.clbasualdo.minecraft.Zombie;
 import py.edu.uc.lp3.clbasualdo.minecraft.Esqueleto;
 import py.edu.uc.lp3.clbasualdo.minecraft.Creeper;
+import py.edu.uc.lp3.clbasualdo.minecraft.Enderman;
 import py.edu.uc.lp3.clbasualdo.minecraft.Aldeano;
 import py.edu.uc.lp3.clbasualdo.minecraft.Animal;
 
@@ -26,8 +27,8 @@ public class ComportamientoController {
 
     /**
      * Descripcion:
-     * Responde a la ruta "/comportamiento". Crea un Zombie, un Esqueleto, un Creeper, un Aldeano y una Vaca,
-     * y por cada uno arma un mapa con su tipo, su reaccion, su vida y su posicion.
+     * Responde a la ruta "/comportamiento". Crea un Zombie, un Esqueleto, un Creeper, un Enderman,
+     * un Aldeano y una Vaca, y por cada uno arma un mapa con su tipo, su reaccion, su vida y su posicion.
      * Todas las entidades se tratan como Entidad, y cada una responde con su propia reaccion.
      *
      * Retorno:
@@ -36,7 +37,8 @@ public class ComportamientoController {
     @GetMapping("/comportamiento")
     public List<Map<String, Object>> comportamiento() {
         List<Entidad> entidades = List.of(
-                new Zombie(), new Esqueleto(), new Creeper(), new Aldeano(), new Animal("Vaca", "Vaca")
+                new Zombie(), new Esqueleto(), new Creeper(), new Enderman(),
+                new Aldeano(), new Animal("Vaca", "Vaca")
         );
 
         return entidades.stream()
