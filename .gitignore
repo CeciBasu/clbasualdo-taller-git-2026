@@ -1,4 +1,10 @@
 HELP.md
+
+### Compilados y artefactos ###
+*.class
+*.jar
+*.war
+*.log
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
