@@ -218,6 +218,54 @@ esqueleto (`EsqueletoTest`), el ataque y la reacción del Enderman (`EndermanTes
 el inventario y la experiencia (`JugadorTest`), y que la jerarquía se use sin
 preguntar por el tipo (`PolimorfismoTest`).
 
+## Resumen de chat con el agente
+
+**1. Endurecimiento del proyecto Minecraft (POO)**
+Mejoramos toda la jerarquía de clases para que dejara de ser "solo prints" y tuviera comportamiento real:
+- **`Entidad`**: se le agregaron coordenadas `x, y, z`, métodos de movimiento (`moverse`, `teletransportar`), cálculo de distancia entre entidades (`distanciaHacia`), `vidaMaxima`, y `toString()`/`equals()`/`hashCode()`.
+- **`EntidadHostil`**: ataque real con `danioAtaque` y `rangoAtaque` — el método `golpear(objetivo)` valida rango y vida antes de aplicar daño.
+- **`EntidadPasiva`**: huida real (`huir(amenaza)`) que se mueve en base a la posición de la amenaza, y detección de peligro (`estaEnPeligro`).
+- **Subclases específicas**: `Zombie` rompe puertas, `Esqueleto` tiene munición de flechas y recarga, `Creeper` explota en área y se autodestruye, `Aldeano` comercia con esmeraldas, `Animal` se domestica y reproduce.
+- **`Jugador`**: inventario, experiencia con subida de nivel, y ataque real con chequeo de rango.
+- **Controllers**: `EsqueletoController` ahora acepta posición por parámetros de URL y devuelve error 400 con `ResponseEntity` ante datos inválidos; `ComportamientoController` devuelve vida y posición de más entidades.
+- Te entregué todos los `.java` actualizados más un `.zip` con la estructura de paquetes lista para copiar.
+
+**2. Cómo probar la API**
+EL agente me explico que con la app corriendo (`MinecraftApplication`), se accede por `http://localhost:8080/`, `/comportamiento` y `/esqueleto` (este último acepta `?nombre=&vida=&x=&y=&z=`), y que no hace falta ningún otro link salvo que quiera exponerlo fuera de mi red local.
+
+**3. Git: ramas divergentes**
+Resolvimos un caso real de mi repo donde mi rama local y `origin/main` habían divergido (mi commit de las entidades vs. 2 commits de README subidos por mi compañera). EL agente me explicò por qué pasó, y la solución fue `git pull --rebase origin main` para reordenar mi commit arriba de los del remoto sin conflictos, seguido de `git push`.
+
+**4. README, diagrama de clases y comentarios en el código** 
+Armamos el README explicando el código y agregamos el diagrama de clases. Además, me ayudo a comentar todo el código(como para que pudiera entender mejor todo lo que iba haciendo).
+
+**5. Estado y entrega**
+- Verificamos que `main` remoto quedaba igual a mi local tras el push.
+- Cloné el repo desde cero (como el corrector) y confirmé que compila y arranca sin `target/` ni archivo basura.
+
+**6. Enderman / PR**
+- Corregí el Enderman (`super("Enderman", 40, 7, 16.0)`) y lo sumé a `/comportamiento`.
+- Lo dejé en la rama de la compañera; y mergee el PR #1 (fast-forward, sin conflictos).
+- Agregué `EndermanTest` (5 tests) → total 44 tests.
+
+**7. Documentación**
+- Actualicé el README: Enderman en el diagrama, 6.ª entidad en el ejemplo, y "44 pruebas".
+- Commiteado y subido.
+
+**8. Refactor estilo template (lo que pediste)**
+- El agente movio el proyecto a capas: `domain`, `repository` (+impl), `service` (+impl), `rest.controller`, `constants` y `exceptions`.
+- Dejo `MinecraftApplication` en la raíz y el dominio puro (sin Spring).
+- Movio los tests del dominio a su paquete espejo.
+- Todo commiteado y subido en `a1ca752`.
+
+**9. Verificaciones que pasaron**
+- `./mvnw test` → 44 tests, BUILD SUCCESS.
+- Endpoints iguales: `/`, `/comportamiento` (6 entidades), `/esqueleto` y el error 400 de `vida=0`.
+- El demo de consola (`Main`) corre bien.
+
+**10. Rúbricas**
+- Paquetes mejoró con el refactor; el resto se mantuvo OK.
+
 ## Licencia
 
 Este proyecto está bajo licencia Apache 2.0. Ver [LICENSE](./LICENSE).
