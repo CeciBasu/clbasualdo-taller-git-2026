@@ -10,9 +10,34 @@ import py.edu.uc.lp3.clbasualdo.minecraft.Esqueleto;
 
 import java.util.Map;
 
+/**
+ * Descripcion:
+ * Controlador que permite crear un esqueleto desde la API.
+ *
+ * Responsabilidad:
+ * Se encarga de recibir los datos por la direccion, crear el esqueleto en la posicion pedida
+ * y devolver su informacion o un mensaje de error si los datos no sirven.
+ */
 @RestController
 public class EsqueletoController {
 
+    /**
+     * Descripcion:
+     * Responde a la ruta "/esqueleto". Crea un esqueleto, lo ubica en la posicion pedida y devuelve sus datos.
+     * Si algun dato no es valido (por ejemplo una vida de 0), devuelve un error 400 con el mensaje.
+     * Todos los parametros son opcionales y tienen un valor por defecto.
+     *
+     * Parametros:
+     * nombre - Nombre del esqueleto (por defecto "Esqueleto").
+     * vida - Vida inicial del esqueleto (por defecto 20).
+     * x - Posicion en X (por defecto 0).
+     * y - Posicion en Y (por defecto 64).
+     * z - Posicion en Z (por defecto 0).
+     *
+     * Retorno:
+     * Una respuesta con el nombre, vida, si esta vivo, flechas y posicion del esqueleto,
+     * o una respuesta de error con el mensaje si los datos no son validos.
+     */
     @GetMapping("/esqueleto")
     public ResponseEntity<Map<String, Object>> crear(
             @RequestParam(defaultValue = "Esqueleto") String nombre,

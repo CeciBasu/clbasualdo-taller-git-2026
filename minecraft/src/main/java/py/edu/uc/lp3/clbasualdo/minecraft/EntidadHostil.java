@@ -1,9 +1,28 @@
 package py.edu.uc.lp3.clbasualdo.minecraft;
 
+/**
+ * Descripcion:
+ * Clase base de las entidades enemigas, como el Zombie, el Esqueleto y el Creeper.
+ *
+ * Responsabilidad:
+ * Guarda el danio y el rango de ataque de los enemigos y se encarga de golpear a otras entidades.
+ */
 public abstract class EntidadHostil extends Entidad {
+    /** Cantidad de vida que quita cada golpe. */
     private final int danioAtaque;
+    /** Distancia maxima a la que puede golpear. */
     private final double rangoAtaque;
 
+    /**
+     * Descripcion:
+     * Crea una entidad hostil. Lanza un error si el danio o el rango no son mayores a 0.
+     *
+     * Parametros:
+     * nombre - Nombre del enemigo.
+     * vida - Vida inicial del enemigo.
+     * danioAtaque - Danio que hace cada golpe.
+     * rangoAtaque - Distancia maxima de ataque.
+     */
     public EntidadHostil(String nombre, int vida, int danioAtaque, double rangoAtaque) {
         super(nombre, vida);
         if (danioAtaque <= 0) {
@@ -16,13 +35,39 @@ public abstract class EntidadHostil extends Entidad {
         this.rangoAtaque = rangoAtaque;
     }
 
+    /**
+     * Descripcion:
+     * Devuelve el danio que hace el enemigo al atacar.
+     *
+     * Retorno:
+     * El danio de ataque.
+     */
     public int getDanioAtaque() { return danioAtaque; }
+
+    /**
+     * Descripcion:
+     * Devuelve la distancia maxima a la que el enemigo puede atacar.
+     *
+     * Retorno:
+     * El rango de ataque.
+     */
     public double getRangoAtaque() { return rangoAtaque; }
 
-    /** Gesto/sonido de ataque, distinto para cada hija. */
+    /**
+     * Descripcion:
+     * Metodo abstracto que muestra el gesto o sonido del ataque. Cada enemigo lo hace a su manera.
+     */
     public abstract void atacar();
 
-    /** Ataque real: valida que ambas partes estén vivas y dentro de rango antes de aplicar daño. */
+    /**
+     * Descripcion:
+     * Ataque de verdad: revisa que el enemigo y el objetivo esten vivos y que el objetivo este dentro del rango.
+     * Si todo esta bien, hace el gesto de ataque y le quita vida al objetivo.
+     * Si el enemigo esta muerto o el objetivo es nulo, lanza un error.
+     *
+     * Parametros:
+     * objetivo - La entidad que se quiere golpear.
+     */
     public void golpear(Entidad objetivo) {
         if (!estaVivo()) {
             throw new IllegalStateException(getNombre() + " no puede atacar: está muerto.");

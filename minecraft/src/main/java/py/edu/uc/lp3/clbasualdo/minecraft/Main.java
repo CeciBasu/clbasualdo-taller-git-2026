@@ -2,7 +2,22 @@ package py.edu.uc.lp3.clbasualdo.minecraft;
 
 import java.util.List;
 
+/**
+ * Descripcion:
+ * Clase principal que sirve para probar todas las clases del juego.
+ *
+ * Responsabilidad:
+ * Crea al jugador y a las entidades, las pone en el mundo y muestra por pantalla
+ * distintas situaciones como combate, huida y explosion.
+ */
 public class Main {
+    /**
+     * Descripcion:
+     * Metodo donde empieza el programa. Crea las entidades, las ubica y prueba sus acciones.
+     *
+     * Parametros:
+     * args - Argumentos que se reciben al ejecutar el programa (no se usan).
+     */
     public static void main(String[] args) {
         Jugador jugador = new Jugador("Steve", 20, 1);
         jugador.teletransportar(0, 64, 0);
