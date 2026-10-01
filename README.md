@@ -13,8 +13,8 @@ información), como parte del Taller de Git.
 ## Cómo correr el proyecto
 
 ```bash
-git clone https://github.com/CeciBasu/clbasualdo-tplp3-2026.git
-cd clbasualdo-tplp3-2026/minecraft
+git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
+cd clbasualdo-taller-git-2026/minecraft
 ./mvnw spring-boot:run
 ```
 
@@ -33,7 +33,7 @@ java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
 |---|---|
 | `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad` y sus hijas. No depende de nada externo. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.repository` | El contrato para guardar y recuperar entidades. `.impl` es la versión en memoria. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos). `.impl` tiene las implementaciones. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos, ejecutar las dos versiones de `disparar()` y devolver un `DisparoResultado`). `.impl` tiene las implementaciones. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.rest.controller` | La entrada HTTP: recibe los datos, delega en los servicios y arma la respuesta. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.constants` | `ApiPaths`, con las rutas de la API en un solo lugar. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.exceptions` | Excepciones propias del juego (`MinecraftException` y `DatosInvalidosException`). |
@@ -71,6 +71,7 @@ classDiagram
         +recibirDanio(int danio)
         +estaVivo() bool
         +moverse()
+        +moverse(double dx, double dy, double dz)
         +desaparecer()
         #curar(int cantidad)
         +reaccionar()* String
@@ -84,6 +85,7 @@ classDiagram
     class EntidadPasiva {
         <<abstract>>
         +huir()
+        +huir(Entidad amenaza)
     }
 
     class Creeper {
@@ -97,7 +99,11 @@ classDiagram
     }
 
     class Esqueleto {
+        -int flechas
         +atacar()
+        +disparar() String
+        +disparar(double distancia) String
+        +recargar(int cantidad)
         +reaccionar() String
     }
 
@@ -108,18 +114,22 @@ classDiagram
     }
 
     class Aldeano {
+        +comerciar()
+        +comerciar(int esmeraldasOfrecidas)
         +reaccionar() String
     }
 
     class Animal {
         +comer()
+        +comer(int puntosAlimento)
         +reaccionar() String
     }
 
     class Jugador {
         -int nivel
-        +atacar()
+        +atacar(Entidad objetivo)
         +construir()
+        +construir(String bloque)
         +regenerar(int cantidad)
         +reaccionar() String
     }
@@ -135,12 +145,91 @@ classDiagram
     EntidadPasiva <|-- Animal
 ```
 
+## Sobrecarga y sobreescritura
+
+Las dos están en el modelo, y conviene no confundirlas: son mecanismos distintos que se
+resuelven en momentos distintos de la ejecución.
+
+### Qué se agregó
+
+**Sobreescritura.** `Entidad` declara el método abstracto
+
+```java
+public abstract String reaccionar();
+```
+
+porque sabe que toda entidad tiene que saber responder ante el jugador, pero no sabe *cómo*:
+eso solo lo sabe cada tipo. Lo sobreescriben las siete clases concretas con la misma firma
+exacta y su propio cuerpo: `Zombie`, `Esqueleto`, `Creeper`, `Enderman`, `Aldeano`, `Animal` y
+`Jugador`. Lo mismo pasa con `EntidadHostil.atacar()`, abstracto, que sobreescriben `Creeper`,
+`Zombie`, `Esqueleto` y `Enderman`.
+
+```java
+// Entidad.java — la base no puede resolverlo
+public abstract String reaccionar();
+
+// Creeper.java — misma firma, cuerpo propio
+@Override
+public String reaccionar() {
+    return getNombre() + " se acerca silbando y está a punto de explotar.";
+}
+
+// Aldeano.java — misma firma, otro cuerpo
+@Override
+public String reaccionar() {
+    return getNombre() + " se asusta y corre a esconderse.";
+}
+```
+
+**Sobrecarga.** El mismo nombre, otra lista de argumentos, todo en la misma clase. La más
+nueva es `Esqueleto.disparar()`, que es el caso que pide la consigna: la misma acción de
+disparar, con y sin distancia.
+
+```java
+// Sin datos: no hay nada que revisar, siempre gasta flecha si le queda alguna.
+public String disparar() {
+    return disparar(0.0);
+}
+
+// Con datos: aparece el contexto. Fuera del rango la flecha se pierde y no se gasta,
+// y una distancia negativa se rechaza.
+public String disparar(double distancia) { /* ... */ }
+```
+
+Las demás sobrecargas del modelo, para que se vea que el patrón ya venía usándose:
+
+| Clase | Versión simple | Versión sobrecargada |
+|---|---|---|
+| `Esqueleto` | `disparar()` | `disparar(double distancia)` |
+| `Entidad` | `moverse()` | `moverse(double dx, double dy, double dz)` |
+| `EntidadPasiva` | `huir()` | `huir(Entidad amenaza)` |
+| `Aldeano` | `comerciar()` | `comerciar(int esmeraldasOfrecidas)` |
+| `Animal` | `comer()` | `comer(int puntosAlimento)` |
+| `Jugador` | `construir()` | `construir(String bloque)` |
+
+### Cómo se distingue una de la otra
+
+|  | Sobrecarga | Sobreescritura |
+|---|---|---|
+| **Dónde** | En la misma clase | En clases distintas de la jerarquía |
+| **Qué cambia** | La lista de argumentos | El cuerpo, con la misma firma |
+| **Cómo se marca** | No lleva nada especial | Con `@Override` |
+| **Cuándo se resuelve** | Al compilar, por la firma | Al ejecutar, por el tipo real del objeto |
+| **Para qué sirve** | Darle una versión corta a una acción que tiene una versión completa | Cambiar un comportamiento que el padre no puede saber |
+
+La diferencia clave: si `ComportamientoController` recorre una `List<Entidad>` y llama a
+`reaccionar()`, Java no sabe de antemano qué clase es cada elemento. Eso es sobreescritura,
+y funciona sin un solo `if` por tipo. En cambio, cuando dentro de `Esqueleto` se llama a
+`disparar(5.0)`, el compilador ya sabe que es la versión con `double`: eso es sobrecarga, y
+no tiene nada que ver con la herencia.
+
 ## Endpoints
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | `GET` | `/` | Confirma que el servicio está vivo. |
 | `GET` | `/esqueleto?nombre=...&vida=...` | Construye un `Esqueleto` con los parámetros de la URL y devuelve su estado en JSON. |
+| `GET` | `/esqueleto/disparar` | Muestra la **sobrecarga** de `disparar()` en acción: crea un `Esqueleto` desde la URL, ejecuta `disparar()` y `disparar(double distancia)` y devuelve los dos resultados en el mismo JSON. |
 | `GET` | `/comportamiento` | Devuelve, en JSON, la reacción de una entidad de cada tipo frente al jugador. Todas se tratan como `Entidad`: no hay ningún `if` por tipo, cada objeto informa lo suyo. |
 
 ### Ejemplo — `GET /esqueleto?nombre=Bony&vida=15`
@@ -160,6 +249,43 @@ es válido, la API responde `400` con el mensaje del dominio, sin tirar la excep
 
 ```json
 { "error": "La vida inicial debe ser mayor a 0." }
+```
+
+### Ejemplo — `GET /esqueleto/disparar?nombre=Bony&distancia=5`
+
+Acá se ve la sobrecarga: las dos versiones del mismo mensaje, en el mismo JSON.
+
+```json
+{
+  "nombre": "Bony",
+  "flechasIniciales": 16,
+  "flechasRestantes": 14,
+  "rango": 8.0,
+  "distanciaPedida": 5.0,
+  "disparoSinDistancia": "Bony dispara una flecha a 0.0. Le quedan 15.",
+  "disparoConDistancia": "Bony dispara una flecha a 5.0. Le quedan 14."
+}
+```
+
+Y con una distancia fuera del rango se ve la diferencia entre las dos versiones: el disparo
+sin distancia gasta la flecha igual, el que lleva distancia no, porque la flecha se pierde.
+
+```json
+{
+  "nombre": "Bony",
+  "flechasIniciales": 16,
+  "flechasRestantes": 15,
+  "rango": 8.0,
+  "distanciaPedida": 20.0,
+  "disparoSinDistancia": "Bony dispara una flecha a 0.0. Le quedan 15.",
+  "disparoConDistancia": "Bony no alcanza a disparar a 20.0 (rango 8.0) y no gasta flecha."
+}
+```
+
+Una distancia negativa la rechaza el dominio y la API la avisa con `400`:
+
+```json
+{ "error": "La distancia no puede ser negativa." }
 ```
 
 ### Ejemplo — `GET /comportamiento`
@@ -211,12 +337,20 @@ es válido, la API responde `400` con el mensaje del dominio, sin tirar la excep
 ./mvnw test
 ```
 
-44 pruebas sobre el dominio: los límites de vida y el ocultamiento de estado
+56 pruebas. Sobre el dominio: los límites de vida y el ocultamiento de estado
 (`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
-el borde exacto de peligro (`EntidadPasivaTest`), la munición y el alcance del
-esqueleto (`EsqueletoTest`), el ataque y la reacción del Enderman (`EndermanTest`),
-el inventario y la experiencia (`JugadorTest`), y que la jerarquía se use sin
-preguntar por el tipo (`PolimorfismoTest`).
+el borde exacto de peligro (`EntidadPasivaTest`), la munición, el alcance del
+esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el ataque y la reacción
+del Enderman (`EndermanTest`), el inventario y la experiencia (`JugadorTest`), y que la
+jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`). Sobre la entrada HTTP,
+`ApiControllerTest` levanta el contexto con MockMvc y prueba las cuatro rutas, incluido
+que un dato inválido termine en `400` y no en un `500`.
+
+## Bitácora y documentación
+
+- **[`docs/BITACORA.md`](docs/BITACORA.md)** — bitácora de la entrega: con qué asistentes y
+  qué modelos de LLM se trabajó, el resumen de los prompts, y el relato de cómo se fue
+  tocando la jerarquía.
 
 ## Resumen de chat con el agente
 
@@ -265,6 +399,11 @@ Armamos el README explicando el código y agregamos el diagrama de clases. Adem�
 
 **10. Rúbricas**
 - Paquetes mejoró con el refactor; el resto se mantuvo OK.
+
+**Después de este resumen (revisión final).** Se agregó la sobrecarga
+`Esqueleto.disparar()` con su ruta `/esqueleto/disparar`, el apartado de sobrecarga y
+sobreescritura de este README y las pruebas de la entrada HTTP. Las pruebas pasaron de
+44 a **56**. El detalle de esa revisión está en [`docs/BITACORA.md`](docs/BITACORA.md).
 
 ## Licencia
 
