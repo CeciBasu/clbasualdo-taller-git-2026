@@ -7,10 +7,14 @@ trabajó, así que van los dos.
 
 | # | Asistente / agente | Modelo exacto del LLM | Qué se hizo con esa herramienta |
 |---|---|---|---|
-| 1 | **Claude** (Anthropic) | Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
+| 1 | **Claude** (Anthropic) | ⚠️ **COMPLETAR** | Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
 | 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final: `docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas, el renombre del repositorio y la actualización del README. |
 
-
+> ⚠️ **Pendiente antes de entregar:** la fila 1 necesita el **modelo exacto** de Claude.
+> No lo completé a propósito porque la rúbrica pide el modelo *tal como lo muestra la
+> herramienta*, y escribirlo de memoria sería peor que dejarlo en blanco. Aparece en el
+> pie o en el encabezado de la conversación con Claude. Reemplazá el `⚠️ **COMPLETAR**` por
+> ese nombre y borrá esta nota.
 
 ### Resumen de los prompts
 
