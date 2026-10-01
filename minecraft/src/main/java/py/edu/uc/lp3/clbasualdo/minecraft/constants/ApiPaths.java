@@ -13,6 +13,8 @@ public final class ApiPaths {
     public static final String INDEX = "/";
     /** Ruta para crear un esqueleto. */
     public static final String ESQUELETO = "/esqueleto";
+    /** Ruta para ver las dos versiones del mensaje disparar(). */
+    public static final String ESQUELETO_DISPARAR = "/esqueleto/disparar";
     /** Ruta que muestra la reaccion de cada tipo de entidad. */
     public static final String COMPORTAMIENTO = "/comportamiento";
 
