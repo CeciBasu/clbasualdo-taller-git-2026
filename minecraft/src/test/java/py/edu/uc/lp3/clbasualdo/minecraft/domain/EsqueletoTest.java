@@ -108,4 +108,80 @@ class EsqueletoTest {
         assertTrue(new Esqueleto().estaVivo());
         assertEquals("Esqueleto", new Esqueleto().getNombre());
     }
+
+    /**
+     * Descripcion:
+     * Sobrecarga de disparar(): la version sin distancia gasta una flecha y lo dice.
+     */
+    @Test
+    void dispararSinDistanciaGastaUnaFlecha() {
+        Esqueleto esqueleto = new Esqueleto("Bony", 20);
+
+        String texto = esqueleto.disparar();
+
+        assertEquals(15, esqueleto.getFlechas());
+        assertTrue(texto.contains("dispara una flecha"), texto);
+    }
+
+    /**
+     * Descripcion:
+     * La version con distancia, si el objetivo esta dentro del rango (8.0), se
+     * comporta igual que la version sin distancia.
+     */
+    @Test
+    void dispararConDistanciaDentroDelRangoGastaFlecha() {
+        Esqueleto esqueleto = new Esqueleto("Bony", 20);
+
+        String texto = esqueleto.disparar(5.0);
+
+        assertEquals(15, esqueleto.getFlechas());
+        assertTrue(texto.contains("dispara una flecha"), texto);
+    }
+
+    /**
+     * Descripcion:
+     * Esta es la diferencia entre las dos versiones: con distancia se puede fallar
+     * el disparo. Si el objetivo esta fuera del rango, la flecha se pierde y no se
+     * gasta, cosa que la version sin distancia no puede hacer.
+     */
+    @Test
+    void dispararFueraDelRangoNoGastaFlecha() {
+        Esqueleto esqueleto = new Esqueleto("Bony", 20);
+
+        String texto = esqueleto.disparar(20.0);
+
+        assertEquals(16, esqueleto.getFlechas(), "si no alcanza, no gasta flecha");
+        assertTrue(texto.contains("no alcanza"), texto);
+    }
+
+    /**
+     * Descripcion:
+     * Una distancia negativa se rechaza, igual que en el resto de los mensajes.
+     * La version sin distancia no puede dar este error.
+     */
+    @Test
+    void dispararConDistanciaNegativaSeRechaza() {
+        Esqueleto esqueleto = new Esqueleto("Bony", 20);
+
+        assertThrows(IllegalArgumentException.class, () -> esqueleto.disparar(-1.0));
+        assertEquals(16, esqueleto.getFlechas(), "un disparo rechazado no gasta flecha");
+    }
+
+    /**
+     * Descripcion:
+     * Sin flechas, las dos versiones avisan que ataca cuerpo a cuerpo y no dejan
+     * la municion en negativo.
+     */
+    @Test
+    void dispararSinFlechasAtaqueCuerpoACuerpo() {
+        Esqueleto esqueleto = new Esqueleto("Bony", 20);
+        for (int i = 0; i < 16; i++) {
+            esqueleto.disparar();
+        }
+
+        assertEquals(0, esqueleto.getFlechas());
+        assertTrue(esqueleto.disparar().contains("cuerpo a cuerpo"));
+        assertTrue(esqueleto.disparar(3.0).contains("cuerpo a cuerpo"));
+        assertEquals(0, esqueleto.getFlechas(), "no puede quedar con flechas negativas");
+    }
 }
