@@ -4,6 +4,9 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
+**Commit de la solución (POO-06):**
+<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/9b9fa62536850aa072ddda183e68c94871fb2eca>
+
 ## Tecnologías
 
 - Java 21
