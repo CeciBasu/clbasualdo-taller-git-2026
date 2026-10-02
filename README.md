@@ -69,35 +69,60 @@ classDiagram
         <<abstract>>
         -String nombre
         -int vida
+        -int vidaMaxima
+        -double x
+        -double y
+        -double z
         +getNombre() String
         +getVida() int
-        +recibirDanio(int danio)
+        +getVidaMaxima() int
+        +getX() double
+        +getY() double
+        +getZ() double
         +estaVivo() bool
+        +recibirDanio(int danio)
+        #curar(int cantidad)
         +moverse()
         +moverse(double dx, double dy, double dz)
+        +teletransportar(double x, double y, double z)
+        +distanciaHacia(Entidad otra) double
+        +mostrarInfo()
         +desaparecer()
-        #curar(int cantidad)
         +reaccionar()* String
     }
 
     class EntidadHostil {
         <<abstract>>
+        -int danioAtaque
+        -double rangoAtaque
+        +getDanioAtaque() int
+        +getRangoAtaque() double
+        +golpear(Entidad objetivo)
         +atacar()*
     }
 
     class EntidadPasiva {
         <<abstract>>
+        -DISTANCIA_SEGURA
         +huir()
         +huir(Entidad amenaza)
+        +estaEnPeligro(Entidad amenaza) bool
     }
 
     class Creeper {
+        -RADIO_EXPLOSION
+        -boolean detonado
         +atacar()
+        +explotar(List~Entidad~ cercanas)
+        +isDetonado() bool
         +reaccionar() String
     }
 
     class Zombie {
+        -boolean puertaRota
         +atacar()
+        +romperPuerta()
+        +isPuertaRota() bool
         +reaccionar() String
     }
 
@@ -107,6 +132,7 @@ classDiagram
         +disparar() String
         +disparar(double distancia) String
         +recargar(int cantidad)
+        +getFlechas() int
         +reaccionar() String
     }
 
@@ -117,23 +143,44 @@ classDiagram
     }
 
     class Aldeano {
+        -String profesion
+        -int esmeraldas
         +comerciar()
         +comerciar(int esmeraldasOfrecidas)
+        +getProfesion() String
+        +getEsmeraldas() int
         +reaccionar() String
     }
 
     class Animal {
+        -String especie
+        -boolean domesticado
         +comer()
         +comer(int puntosAlimento)
+        +domesticar()
+        +reproducirse(Animal pareja) Animal
+        +isDomesticado() bool
+        +getEspecie() String
         +reaccionar() String
     }
 
     class Jugador {
+        -DANIO_BASE
+        -RANGO_ATAQUE
         -int nivel
+        -int experiencia
+        -List~String~ inventario
         +atacar(Entidad objetivo)
         +construir()
         +construir(String bloque)
         +regenerar(int cantidad)
+        +agregarItem(String item)
+        +usarItem(String item) bool
+        +ganarExperiencia(int puntos)
+        +mostrarNivel()
+        +getNivel() int
+        +getExperiencia() int
+        +getInventario() List~String~
         +reaccionar() String
     }
 
