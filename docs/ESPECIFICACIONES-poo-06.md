@@ -2,7 +2,7 @@
 
 **Ejercicio:** `ejercicio-poo-06-revision-paquetes-constructores-2026-09-30`
 **Dominio elegido:** Minecraft
-**Alumno:** clbasualdo
+**Alumno:** Cecilia Basualdo
 **Repositorio:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026>
 **Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/9b9fa62536850aa072ddda183e68c94871fb2eca>
 
