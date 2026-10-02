@@ -7,12 +7,9 @@ trabajó, así que van los dos.
 
 | # | Asistente / agente | Modelo exacto del LLM | Qué se hizo con esa herramienta |
 |---|---|---|---|
-| 1 | **Claude** (Anthropic) | No anotado en la sesión | Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
+| 1 | **Claude** (Anthropic) | Sonet 5.5| Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
 | 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final: `docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas, el renombre del repositorio y la actualización del README. |
 
-Sobre la fila 1: la marca anotada es **Claude**, pero el nombre exacto del modelo con el que
-se trabajó en esa sesión no quedó registrado, así que se anota como no informado en vez de
-inventarlo. La fila 2 sí tiene el modelo exacto, tal como lo muestra la herramienta.
 
 
 ### Resumen de los prompts
