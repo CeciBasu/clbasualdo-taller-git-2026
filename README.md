@@ -5,7 +5,7 @@ visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
 **Commit de la solución (POO-06):**
-<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/9b9fa62536850aa072ddda183e68c94871fb2eca>
+<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/94a8bd0fcb63b926b1b281c76a46029bd0abbe71>
 
 ## Tecnologías
 
