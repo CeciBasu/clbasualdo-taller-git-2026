@@ -1,13 +1,16 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
+import java.util.Locale;
+
 /**
  * Descripcion:
  * Representa a un aldeano del juego, que es una entidad pasiva con una profesion.
  *
  * Responsabilidad:
  * Guarda la profesion y las esmeraldas del aldeano, y se encarga de comerciar y de reaccionar ante el peligro.
+ * Tambien es UICapable para poder dibujarse en la UI.
  */
-public class Aldeano extends EntidadPasiva {
+public class Aldeano extends EntidadPasiva implements UICapable {
     /** Trabajo del aldeano, por ejemplo Herrero. */
     private final String profesion;
     /** Esmeraldas que el aldeano fue juntando al comerciar. */
@@ -85,5 +88,53 @@ public class Aldeano extends EntidadPasiva {
     @Override
     public String reaccionar() {
         return getNombre() + " se asusta y corre a esconderse.";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la imagen con la que la UI dibuja al Aldeano.
+     *
+     * Retorno:
+     * El nombre de la imagen del Aldeano.
+     */
+    @Override
+    public String imagen() {
+        return "aldeano.png";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la posicion del Aldeano formateada para la UI.
+     *
+     * Retorno:
+     * Un texto con las coordenadas del Aldeano.
+     */
+    @Override
+    public String posicion() {
+        return String.format(Locale.ROOT, "(%.1f, %.1f, %.1f)", getX(), getY(), getZ());
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la velocidad con la que se mueve el Aldeano.
+     *
+     * Retorno:
+     * La velocidad del Aldeano.
+     */
+    @Override
+    public double velocidad() {
+        return 0.20;
+    }
+
+    /**
+     * Descripcion:
+     * Reemplaza el sonido generico del default con el propio del Aldeano.
+     *
+     * Retorno:
+     * Un texto que describe el sonido del Aldeano.
+     */
+    @Override
+    public String sonido() {
+        return getNombre() + " murmura: hmm...";
     }
 }

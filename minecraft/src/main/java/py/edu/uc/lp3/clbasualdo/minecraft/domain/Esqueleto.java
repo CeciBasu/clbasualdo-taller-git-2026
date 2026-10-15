@@ -8,9 +8,10 @@ import java.util.Locale;
  *
  * Responsabilidad:
  * Lleva la cuenta de sus flechas, las gasta al atacar y permite recargarlas.
- * Tambien tiene el mensaje disparar() sobrecargado: sin distancia y con distancia.
+ * Tambien tiene el mensaje disparar() sobrecargado: sin distancia y con distancia,
+ * y es UICapable para poder dibujarse en la UI.
  */
-public class Esqueleto extends EntidadHostil {
+public class Esqueleto extends EntidadHostil implements UICapable {
     /** Flechas que le quedan al esqueleto. */
     private int flechas;
 
@@ -124,5 +125,53 @@ public class Esqueleto extends EntidadHostil {
     @Override
     public String reaccionar() {
         return getNombre() + " retrocede y dispara una flecha.";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la imagen con la que la UI dibuja al Esqueleto.
+     *
+     * Retorno:
+     * El nombre de la imagen del Esqueleto.
+     */
+    @Override
+    public String imagen() {
+        return "esqueleto.png";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la posicion del Esqueleto formateada para la UI.
+     *
+     * Retorno:
+     * Un texto con las coordenadas del Esqueleto.
+     */
+    @Override
+    public String posicion() {
+        return String.format(Locale.ROOT, "(%.1f, %.1f, %.1f)", getX(), getY(), getZ());
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la velocidad con la que se mueve el Esqueleto.
+     *
+     * Retorno:
+     * La velocidad del Esqueleto.
+     */
+    @Override
+    public double velocidad() {
+        return 0.25;
+    }
+
+    /**
+     * Descripcion:
+     * Reemplaza el sonido generico del default con el propio del Esqueleto.
+     *
+     * Retorno:
+     * Un texto que describe el sonido del Esqueleto.
+     */
+    @Override
+    public String sonido() {
+        return getNombre() + " tensa el arco: creak...";
     }
 }

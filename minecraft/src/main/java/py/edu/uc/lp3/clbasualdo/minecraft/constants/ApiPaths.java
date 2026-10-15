@@ -17,6 +17,8 @@ public final class ApiPaths {
     public static final String ESQUELETO_DISPARAR = "/esqueleto/disparar";
     /** Ruta que muestra la reaccion de cada tipo de entidad. */
     public static final String COMPORTAMIENTO = "/comportamiento";
+    /** Ruta que muestra los datos de UI de las entidades UICapable. */
+    public static final String UI = "/ui";
 
     private ApiPaths() {
     }

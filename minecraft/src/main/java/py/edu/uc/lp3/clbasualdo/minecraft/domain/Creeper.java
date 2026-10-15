@@ -1,6 +1,7 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Descripcion:
@@ -8,8 +9,9 @@ import java.util.List;
  *
  * Responsabilidad:
  * Se encarga de explotar, lastimar a las entidades que esten cerca y destruirse a si mismo.
+ * Tambien es UICapable para poder dibujarse en la UI.
  */
-public class Creeper extends EntidadHostil {
+public class Creeper extends EntidadHostil implements UICapable {
     /** Distancia maxima a la que la explosion lastima a otras entidades. */
     private static final double RADIO_EXPLOSION = 3.0;
     /** Indica si el Creeper ya exploto. */
@@ -80,5 +82,53 @@ public class Creeper extends EntidadHostil {
     @Override
     public String reaccionar() {
         return getNombre() + " se acerca silbando y está a punto de explotar.";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la imagen con la que la UI dibuja al Creeper.
+     *
+     * Retorno:
+     * El nombre de la imagen del Creeper.
+     */
+    @Override
+    public String imagen() {
+        return "creeper.png";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la posicion del Creeper formateada para la UI.
+     *
+     * Retorno:
+     * Un texto con las coordenadas del Creeper.
+     */
+    @Override
+    public String posicion() {
+        return String.format(Locale.ROOT, "(%.1f, %.1f, %.1f)", getX(), getY(), getZ());
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la velocidad con la que se mueve el Creeper.
+     *
+     * Retorno:
+     * La velocidad del Creeper.
+     */
+    @Override
+    public double velocidad() {
+        return 0.25;
+    }
+
+    /**
+     * Descripcion:
+     * Reemplaza el sonido generico del default con el propio del Creeper.
+     *
+     * Retorno:
+     * Un texto que describe el sonido del Creeper.
+     */
+    @Override
+    public String sonido() {
+        return getNombre() + " chisporrotea: ssssss...";
     }
 }

@@ -1,13 +1,16 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
+import java.util.Locale;
+
 /**
  * Descripcion:
  * Representa a un animal del juego, como una vaca. Es una entidad pasiva.
  *
  * Responsabilidad:
  * Se encarga de que el animal pueda comer, ser domesticado y tener crias con otro de su misma especie.
+ * Tambien es UICapable y no reemplaza el sonido, asi que usa el comportamiento por defecto de la interfaz.
  */
-public class Animal extends EntidadPasiva {
+public class Animal extends EntidadPasiva implements UICapable {
     /** Tipo de animal, sirve para saber si dos animales se pueden reproducir. */
     private final String especie;
     /** Indica si el animal ya fue domesticado. */
@@ -129,5 +132,41 @@ public class Animal extends EntidadPasiva {
     @Override
     public String reaccionar() {
         return getNombre() + " sigue comiendo, no le presta atencion al jugador.";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la imagen con la que la UI dibuja al animal, segun su especie.
+     *
+     * Retorno:
+     * El nombre de la imagen del animal.
+     */
+    @Override
+    public String imagen() {
+        return getEspecie() + ".png";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la posicion del animal formateada para la UI.
+     *
+     * Retorno:
+     * Un texto con las coordenadas del animal.
+     */
+    @Override
+    public String posicion() {
+        return String.format(Locale.ROOT, "(%.1f, %.1f, %.1f)", getX(), getY(), getZ());
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la velocidad con la que se mueve el animal.
+     *
+     * Retorno:
+     * La velocidad del animal.
+     */
+    @Override
+    public double velocidad() {
+        return 0.25;
     }
 }

@@ -2,6 +2,7 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Descripcion:
@@ -9,8 +10,9 @@ import java.util.List;
  *
  * Responsabilidad:
  * Se encarga de atacar, construir, guardar items en el inventario y subir de nivel al ganar experiencia.
+ * Tambien es UICapable para poder dibujarse en la UI.
  */
-public class Jugador extends Entidad {
+public class Jugador extends Entidad implements UICapable {
     /** Distancia maxima a la que el jugador puede atacar. */
     private static final double RANGO_ATAQUE = 3.0;
     /** Danio que hace el jugador en cada ataque. */
@@ -206,5 +208,53 @@ public class Jugador extends Entidad {
     @Override
     public String reaccionar() {
         return getNombre() + " evalua si combatir o retroceder segun su vida restante.";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la imagen con la que la UI dibuja al Jugador.
+     *
+     * Retorno:
+     * El nombre de la imagen del Jugador.
+     */
+    @Override
+    public String imagen() {
+        return "jugador.png";
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la posicion del Jugador formateada para la UI.
+     *
+     * Retorno:
+     * Un texto con las coordenadas del Jugador.
+     */
+    @Override
+    public String posicion() {
+        return String.format(Locale.ROOT, "(%.1f, %.1f, %.1f)", getX(), getY(), getZ());
+    }
+
+    /**
+     * Descripcion:
+     * Devuelve la velocidad con la que se mueve el Jugador.
+     *
+     * Retorno:
+     * La velocidad del Jugador.
+     */
+    @Override
+    public double velocidad() {
+        return 0.20;
+    }
+
+    /**
+     * Descripcion:
+     * Reemplaza el sonido generico del default con el propio del Jugador.
+     *
+     * Retorno:
+     * Un texto que describe el sonido del Jugador.
+     */
+    @Override
+    public String sonido() {
+        return getNombre() + " respira y golpea bloques.";
     }
 }
