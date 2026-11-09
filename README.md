@@ -4,13 +4,18 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-06):**
-<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/94a8bd0fcb63b926b1b281c76a46029bd0abbe71>
+**Commit de la solución (POO-08):**
+<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/fbf5f524d4dad41f39d51d212347165dc89b0f8d>
+
+La entrega anterior (POO-06) quedó documentada en
+[`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md).
 
 ## Tecnologías
 
 - Java 21
 - Spring Boot 4 (Spring Web MVC)
+- Spring Data JPA
+- H2 (archivo local y consola web)
 - Maven
 
 ## Cómo correr el proyecto
@@ -34,12 +39,13 @@ java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
 
 | Paquete | Qué contiene |
 |---|---|
-| `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad` y sus hijas. No depende de nada externo. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.repository` | El contrato para guardar y recuperar entidades. `.impl` es la versión en memoria. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos, ejecutar las dos versiones de `disparar()` y devolver un `DisparoResultado`). `.impl` tiene las implementaciones. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.rest.controller` | La entrada HTTP: recibe los datos, delega en los servicios y arma la respuesta. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad`, sus hijas y la interface `UICapable`. No depende de nada externo. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.entity` | La familia JPA que mapea la tabla `entidades`: `EntidadEntity` (padre) y `CreeperEntity`, `ZombieEntity`, `JugadorEntity` (hijas). `SimulacionExplosionEntity` guarda el resultado de cada explosión. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.repository` | El contrato para guardar y recuperar entidades. `.impl` es la versión en memoria y `.jpa` es Spring Data JPA. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos, ejecutar las dos versiones de `disparar()` y simular explosiones persistidas). `.impl` tiene las implementaciones y `.entidad` el servicio del CRUD. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.rest.controller` | La entrada HTTP: recibe los datos, delega en los servicios y arma la respuesta. `.handler` tiene el `@RestControllerAdvice` que traduce cada excepción de dominio a su código HTTP. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.constants` | `ApiPaths`, con las rutas de la API en un solo lugar. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.exceptions` | Excepciones propias del juego (`MinecraftException` y `DatosInvalidosException`). |
+| `py.edu.uc.lp3.clbasualdo.minecraft.exceptions` | Excepciones propias del juego: `MinecraftException` como base, `RecursoNoEncontradoException`, `DatosInvalidosException`, `CreeperMuertoException` y `CreeperYaDetonadoException`. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.demo` | `Main`, la demostración en consola. Vive aparte del dominio. |
 | `MinecraftApplication` | Arranque de Spring Boot. Se queda en la raíz porque desde ahí sale el barrido de componentes. |
 
@@ -281,6 +287,19 @@ no tiene nada que ver con la herencia.
 | `GET` | `/esqueleto?nombre=...&vida=...` | Construye un `Esqueleto` con los parámetros de la URL y devuelve su estado en JSON. |
 | `GET` | `/esqueleto/disparar` | Muestra la **sobrecarga** de `disparar()` en acción: crea un `Esqueleto` desde la URL, ejecuta `disparar()` y `disparar(double distancia)` y devuelve los dos resultados en el mismo JSON. |
 | `GET` | `/comportamiento` | Devuelve, en JSON, la reacción de una entidad de cada tipo frente al jugador. Todas se tratan como `Entidad`: no hay ningún `if` por tipo, cada objeto informa lo suyo. |
+| `GET` | `/ui` | Devuelve los datos de las entidades que implementan la interface `UICapable`. |
+| `GET` | `/entidades` | Lista todas las entidades persistidas en H2. |
+| `POST` | `/entidades` | Crea una entidad y la guarda en H2. El JSON lleva `"tipo"` (`Creeper`, `Zombie` o `Jugador`). |
+| `GET` | `/entidades/{id}` | Busca una entidad por id; si no existe responde `404`. |
+| `GET` | `/entidades/nombre/{nombre}` | Busca una entidad por nombre; si no existe responde `404`. |
+| `PUT` | `/entidades/{id}` | Actualiza una entidad por id; no permite cambiar su subtipo. |
+| `PUT` | `/entidades/nombre/{nombre}` | Actualiza una entidad por nombre. |
+| `DELETE` | `/entidades/{id}` | Elimina una entidad por id; responde `204`. |
+| `DELETE` | `/entidades/nombre/{nombre}` | Elimina una entidad por nombre; responde `204`. |
+| `POST` | `/simulacion/explosion` | Ejecuta y persiste la simulación de explosión entre un `Creeper`, un `Zombie` y un `Jugador`. Responde `201`. |
+| `GET` | `/simulacion/explosion` | Devuelve la última simulación persistida. |
+| `GET` | `/simulacion/explosion/{id}` | Devuelve una simulación persistida por id; si no existe responde `404`. |
+| `GET` | `/simulacion/explosiones` | Lista todas las simulaciones persistidas. |
 
 ### Ejemplo — `GET /esqueleto?nombre=Bony&vida=15`
 
@@ -381,26 +400,288 @@ Una distancia negativa la rechaza el dominio y la API la avisa con `400`:
 ]
 ```
 
+## Persistencia H2 y CRUD
+
+La familia persistida tiene un padre y tres hijas. El mapeo usa una sola tabla con un
+discriminador, así que las filas de distinto subtipo comparten los datos comunes y cada una
+aporta sus columnas propias:
+
+```text
+EntidadEntity (abstracta, tabla ENTIDADES, columna TIPO)
+├── CreeperEntity   -> TIPO = "Creeper"  (detonado)
+├── ZombieEntity    -> TIPO = "Zombie"   (puertaRota)
+└── JugadorEntity   -> TIPO = "Jugador"  (nivel, experiencia)
+```
+
+En el JSON, `@JsonTypeInfo` y `@JsonSubTypes` usan la propiedad `"tipo"` para elegir la clase
+concreta. Por eso un mismo `POST /entidades` puede crear cualquiera de los tres subtipos, y un
+`GET` devuelve el objeto con su tipo y sus datos propios. El CRUD completo es:
+
+- `POST /entidades`: crea y persiste una entidad; responde `201`.
+- `GET /entidades`, `GET /entidades/{id}` y `GET /entidades/nombre/{nombre}`: consultan.
+- `PUT /entidades/{id}` y `PUT /entidades/nombre/{nombre}`: actualizan sin permitir cambiar el subtipo.
+- `DELETE /entidades/{id}` y `DELETE /entidades/nombre/{nombre}`: eliminan; responden `204`.
+
+Invariantes que aplica el servicio antes de guardar:
+
+- nombre obligatorio y único;
+- `vidaMaxima > 0` (si no viene, se toma igual a `vida`);
+- `vida >= 0` y `vida <= vidaMaxima`;
+- al crear, `vida > 0`;
+- el subtipo de una fila existente no cambia en un `PUT`;
+- en un `Jugador`, `nivel` y `experiencia` no pueden ser negativos.
+
+La configuración está en `minecraft/src/main/resources/application.properties` y apunta a
+`jdbc:h2:file:./data/entidades`, con `ddl-auto=update`. La consola H2 queda disponible en:
+
+- URL: `http://localhost:8080/h2-console`
+- JDBC URL: `jdbc:h2:file:./data/entidades`
+- Usuario: `sa`
+- Contraseña: vacía
+- Tablas: `ENTIDADES` y `SIMULACIONES_EXPLOSION`
+
+La ruta relativa `./data/entidades` se resuelve desde la carpeta `minecraft`, que es donde se
+ejecuta Maven. Esa carpeta está ignorada en `.gitignore` porque es un archivo local generado.
+Las pruebas usan una base H2 en memoria (`src/test/resources/application.properties`) para no
+bloquear ni modificar la base real del proyecto.
+
+## Simulación de explosiones
+
+La simulación usa tres clases del modelo y después guarda el estado final de las tres:
+
+| Clase | Rol en la simulación |
+|---|---|
+| `Creeper` | Es la fuente de la explosión. Se autodestruye y daña a las entidades dentro de su radio de 3 bloques. |
+| `Zombie` | Entidad hostil ubicada a 2 bloques del Creeper: queda dentro del radio y recibe 25 de daño. |
+| `Jugador` | Entidad ubicada a 5 bloques del Creeper: queda fuera del radio y no recibe daño. |
+
+La lista de alcanzables se maneja como `List<Entidad>`, así que la explosión no pregunta por el
+tipo concreto de cada víctima: recorre la lista y cada objeto responde con su propia vida y
+posición. La lógica de la detonación está en `Creeper.detonar(...)`. El servicio
+`SimulacionExplosionServiceImpl` arma el escenario, ejecuta la regla, persiste el estado final
+de las tres entidades (`Creeper Simulado`, `Zombie Simulado` y `Steve Simulado`) y guarda una
+fila en `SIMULACIONES_EXPLOSION` con la foto completa del resultado.
+
+### Las dos reglas del dominio
+
+1. **Un Creeper solo puede detonar si está vivo:** si recibe daño letal antes de la explosión, el dominio rechaza la detonación con `CreeperMuertoException`.
+2. **Un Creeper solo puede detonar una vez:** un segundo intento sobre el mismo Creeper se rechaza con `CreeperYaDetonadoException`.
+
+Las dos reglas ya existían en el comportamiento de `Creeper.explotar(...)`; la nueva
+`Creeper.detonar(...)` las hace explícitas con excepciones de dominio propias sin cambiar el
+comportamiento anterior de `explotar(...)`.
+
+### Endpoints
+
+| Método | Ruta | Uso |
+|---|---|---|
+| `POST` | `/simulacion/explosion` | Ejecuta y persiste la simulación; responde `201`. |
+| `GET` | `/simulacion/explosion` | Devuelve la última simulación guardada. |
+| `GET` | `/simulacion/explosion/{id}` | Devuelve una simulación por id; si no existe responde `404`. |
+| `GET` | `/simulacion/explosiones` | Lista todas las simulaciones guardadas. |
+
+Parámetros del `POST`:
+
+| Parámetro | Por defecto | Uso |
+|---|---|---|
+| `vidaCreeper` | `20` | Vida inicial del Creeper. Con `0` o menos se prueba la regla del Creeper muerto. |
+| `repetirDetonacion` | `false` | Con `true` se simula un segundo intento sobre el mismo Creeper para probar la regla de una sola detonación. |
+
+Ejemplo exitoso:
+
+```bash
+curl -X POST http://localhost:8080/simulacion/explosion
+```
+
+```json
+{
+  "simulacionId": 1,
+  "fecha": "2026-11-09T20:24:26.123",
+  "radioExplosion": 3.0,
+  "creeper": {
+    "nombre": "Creeper Simulado",
+    "vidaInicial": 20,
+    "vidaFinal": 0,
+    "detonado": true,
+    "vivo": false,
+    "x": 0.0,
+    "y": 64.0,
+    "z": 0.0
+  },
+  "afectados": [
+    {
+      "tipo": "Zombie",
+      "nombre": "Zombie Simulado",
+      "vidaInicial": 20,
+      "vidaFinal": 0,
+      "distanciaAlCreeper": 2.0,
+      "alcanzada": true
+    }
+  ],
+  "noAfectados": [
+    {
+      "tipo": "Jugador",
+      "nombre": "Steve Simulado",
+      "vidaInicial": 20,
+      "vidaFinal": 20,
+      "distanciaAlCreeper": 5.0,
+      "alcanzada": false
+    }
+  ]
+}
+```
+
+Después del `POST`, un `GET /simulacion/explosion/{simulacionId}` devuelve el mismo resultado
+leído de H2, y `GET /entidades/nombre/Creeper Simulado` muestra que la entidad persistida quedó
+con vida `0` y `detonado: true`.
+
+### Jerarquía de excepciones y handlers
+
+```text
+MinecraftException
+├── RecursoNoEncontradoException     -> HTTP 404
+├── DatosInvalidosException          -> HTTP 400
+├── CreeperMuertoException           -> HTTP 422
+└── CreeperYaDetonadoException       -> HTTP 409
+```
+
+`MinecraftExceptionHandler` usa `@RestControllerAdvice` y tiene un `@ExceptionHandler` por cada
+excepción concreta. No hay un handler genérico de `Exception`, para que un error de programación
+no se convierta en un `400` y siga viéndose como un `500`. Todas las respuestas de error tienen
+la misma forma (`timestamp`, `status`, `error`, `tipo`, `mensaje`).
+
+Creeper muerto (`POST /simulacion/explosion?vidaCreeper=0`):
+
+```json
+{
+  "status": 422,
+  "error": "Unprocessable Entity",
+  "tipo": "CreeperMuertoException",
+  "mensaje": "Creeper no puede detonar: está muerto."
+}
+```
+
+Creeper ya detonado (`POST /simulacion/explosion?repetirDetonacion=true`):
+
+```json
+{
+  "status": 409,
+  "error": "Conflict",
+  "tipo": "CreeperYaDetonadoException",
+  "mensaje": "Creeper ya detonó y no puede volver a explotar."
+}
+```
+
+Datos inválidos (`POST /entidades` con `vida` negativa) responde `400` con
+`"tipo": "DatosInvalidosException"`, y un id inexistente responde `404` con
+`"tipo": "RecursoNoEncontradoException"`. La colección de Insomnia tiene un pedido para cada
+uno de esos casos.
+
+### Interface `UICapable`
+
+`UICapable` es una interface del dominio que declara los datos que una entidad puede mostrar en
+una interfaz gráfica. La implementan `Creeper`, `Zombie`, `Esqueleto`, `Enderman`, `Aldeano`,
+`Animal` y `Jugador`. `GET /ui` arma una `List<UICapable>` y le pide los datos a cada elemento:
+el controller no pregunta por el tipo concreto y cada clase responde lo suyo.
+
+## Preguntas para pensar
+
+**¿Por qué separar `domain` de `entity`?**
+
+Porque el dominio modela el juego y no debe depender de JPA ni de Jackson. `Entidad` y sus
+hijas sirven para el demo de consola y para la simulación, mientras que `EntidadEntity` y sus
+hijas son el mapeo de la tabla. Así las reglas del juego no se mezclan con detalles de
+persistencia.
+
+**¿Por qué `SINGLE_TABLE` y no una tabla por clase?**
+
+Porque las tres entidades comparten casi todos los datos y la API las trata como una sola
+familia en `/entidades`. Una tabla con un discriminador `tipo` permite listar todo junto y
+devolver el subtipo correcto sin hacer uniones. El costo es que las columnas propias de cada
+subtipo quedan nulas en las otras filas, algo aceptable para este tamaño.
+
+**¿Por qué la simulación guarda también las entidades y no solo el resultado?**
+
+Porque el pedido es que la simulación se pueda consultar después y que el estado final de las
+entidades quede persistido. Guardar la foto en `SIMULACIONES_EXPLOSION` permite responder un
+`GET` sin volver a ejecutar la explosión, y guardar las entidades permite ver el efecto en el
+CRUD.
+
+**¿Por qué una excepción por regla y no un `if` que devuelva `400`?**
+
+Porque cada error tiene un significado distinto: un recurso inexistente es `404`, un dato
+inválido es `400`, un Creeper muerto es `422` y una segunda detonación es `409`. La jerarquía
+`MinecraftException` permite que el dominio lance la excepción correcta y que el handler decida
+el código HTTP, sin que el controller conozca las reglas.
+
+**¿Qué pasa si el controller arma el JSON a mano?**
+
+Se pierde el polimorfismo: habría que preguntar por el tipo con `if` o `instanceof`. Con
+`@JsonTypeInfo` y `@JsonSubTypes`, Jackson elige la clase concreta a partir de `"tipo"` y el
+controller solo devuelve `EntidadEntity`.
+
+## Colección Insomnia
+
+La colección exportable está en
+[`docs/insomnia/minecraft-explosiones.json`](docs/insomnia/minecraft-explosiones.json).
+
+Para importarla:
+
+1. Abrir Insomnia.
+2. Ir a `Application` → `Import` → `From File`.
+3. Elegir `docs/insomnia/minecraft-explosiones.json`.
+4. Seleccionar el environment `Base local` y verificar que `base_url` sea
+   `http://localhost:8080`.
+5. Arrancar la aplicación con `./mvnw spring-boot:run` y ejecutar las solicitudes en orden.
+
+La colección incluye:
+
+- simulación exitosa y sus tres consultas posteriores (`GET` por id, última y lista);
+- error de Creeper muerto (`422`);
+- error de Creeper ya detonado (`409`);
+- CRUD: listar, crear, obtener por nombre, actualizar por nombre y eliminar por nombre;
+- POST ilegal (`400`, `DatosInvalidosException`);
+- id inexistente (`404`, `RecursoNoEncontradoException`);
+- `GET /ui` para ver la interface `UICapable` en acción.
+
+Para el CRUD, si se ejecuta `Crear entidad` más de una vez, el nombre duplicado responde `400`.
+Eliminar la entidad antes de volver a crearla, o cambiar `entidad_nombre` en el environment.
+Para `Consultar simulación por id`, copiar el `simulacionId` que devuelve la simulación exitosa
+en la variable `simulacion_id` del environment.
+
+**Aclaración de verificación:** la colección se entrega lista para importar, pero en esta
+entrega las pruebas automatizadas se ejecutaron con Maven y MockMvc, y la aplicación se verificó
+con `curl` y una consulta directa a H2. No se afirma que las solicitudes se hayan ejecutado desde
+la interfaz de Insomnia.
+
 ## Pruebas
 
 ```bash
 ./mvnw test
 ```
 
-56 pruebas. Sobre el dominio: los límites de vida y el ocultamiento de estado
+67 pruebas. Sobre el dominio: los límites de vida y el ocultamiento de estado
 (`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
 el borde exacto de peligro (`EntidadPasivaTest`), la munición, el alcance del
 esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el ataque y la reacción
 del Enderman (`EndermanTest`), el inventario y la experiencia (`JugadorTest`), y que la
 jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`). Sobre la entrada HTTP,
-`ApiControllerTest` levanta el contexto con MockMvc y prueba las cuatro rutas, incluido
+`ApiControllerTest` levanta el contexto con MockMvc y prueba las rutas anteriores, incluido
 que un dato inválido termine en `400` y no en un `500`.
+
+Las pruebas de esta entrega son:
+
+- `SimulacionExplosionServiceImplTest`: caso exitoso persistido y las dos excepciones de dominio.
+- `SimulacionExplosionControllerTest`: POST exitoso, GET por id, última, lista, `422` y `409` con su JSON.
+- `EntidadCrudControllerTest`: CRUD completo, subtipos, POST ilegal, id inexistente y cambio de tipo prohibido.
 
 ## Bitácora y documentación
 
 - **[`docs/BITACORA.md`](docs/BITACORA.md)** — bitácora de la entrega: con qué asistentes y
   qué modelos de LLM se trabajó, el resumen de los prompts, y el relato de cómo se fue
   tocando la jerarquía.
+- **[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md)** — consignas de
+  POO-08 y dónde se cumple cada una.
 
 ## Resumen de chat con el agente
 
@@ -454,6 +735,29 @@ Armamos el README explicando el código y agregamos el diagrama de clases. Adem�
 `Esqueleto.disparar()` con su ruta `/esqueleto/disparar`, el apartado de sobrecarga y
 sobreescritura de este README y las pruebas de la entrada HTTP. Las pruebas pasaron de
 44 a **56**. El detalle de esa revisión está en [`docs/BITACORA.md`](docs/BITACORA.md).
+
+**11. Nueva consigna: explosiones, excepciones, H2 e Insomnia**
+- Se mantuvo el CRUD de `/entidades` con Spring Data JPA y H2.
+- Se agregó la simulación de explosiones con `Creeper`, `Zombie` y `Jugador` en
+  `POST /simulacion/explosion`.
+- Se formalizaron las dos reglas del Creeper con `CreeperMuertoException` y
+  `CreeperYaDetonadoException`, atendidas por `MinecraftExceptionHandler`.
+- Se agregaron pruebas de simulación, de los dos errores y del CRUD completo contra H2.
+- Se agregó la colección exportable de Insomnia y las instrucciones de importación.
+
+**12. POO-08: familia JPA, simulaciones persistidas y documentación**
+- La tabla `ENTIDADES` pasó a una familia `SINGLE_TABLE` con `EntidadEntity` como padre y
+  `CreeperEntity`, `ZombieEntity` y `JugadorEntity` como hijas.
+- El CRUD de `/entidades` valida los invariantes, no permite cambiar el subtipo y usa
+  `@JsonTypeInfo` / `@JsonSubTypes` para discriminar el `"tipo"` en el JSON.
+- La simulación persiste el estado final de las tres entidades y guarda una foto en
+  `SIMULACIONES_EXPLOSION`; se agregaron `GET` por id, última y lista.
+- La jerarquía de excepciones quedó con `MinecraftException` como base y un handler por tipo:
+  `404`, `400`, `422` y `409`.
+- La colección de Insomnia cubre el CRUD, `/ui`, la simulación, un POST ilegal, un id
+  inexistente y cada excepción hija.
+- Se agregaron `docs/ESPECIFICACIONES-poo-08.md` y el detalle de esta entrega en la bitácora.
+- `./mvnw test` → **67 pruebas**, BUILD SUCCESS.
 
 ## Licencia
 

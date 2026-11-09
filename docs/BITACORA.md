@@ -8,7 +8,7 @@ trabajó, así que van los dos.
 | # | Asistente / agente | Modelo exacto del LLM | Qué se hizo con esa herramienta |
 |---|---|---|---|
 | 1 | **Claude** (Anthropic) | Sonet 5.5| Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
-| 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final: `docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas, el renombre del repositorio y la actualización del README. |
+| 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final de POO-06 (`docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas y el README) y, en POO-08, la familia JPA, el CRUD, la simulación persistida, la jerarquía de excepciones, la colección de Insomnia y la documentación de esta entrega. |
 
 
 
@@ -76,6 +76,15 @@ lleva la herramienta con la que se hizo.
    contra lo que ya estaba hecho, para detectar los huecos: faltaba la bitácora, faltaba el
    apartado del README que explica sobrecarga y sobreescritura, y las sobrecargas que había no
    eran de una acción de dominio visible por la API.
+
+10. **[OpenCode] POO-08: persistencia de una familia, CRUD, reglas y excepciones.** Pedir que
+    la API dejara de guardar una sola entidad y pasara a persistir una familia con un padre y
+    tres hijas (`EntidadEntity`, `CreeperEntity`, `ZombieEntity`, `JugadorEntity`) en una tabla
+    con discriminador. Además del CRUD completo, se pidió que la simulación de explosión
+    guardara el estado final de las tres entidades y una foto en `SIMULACIONES_EXPLOSION`, con
+    `GET` por id, última y lista. También se pidió una jerarquía de excepciones con un handler
+    por tipo (`404`, `400`, `422`, `409`), una colección de Insomnia con un pedido por cada
+    error y la documentación de la entrega.
 
 Algo muy gracioso que me paso con opencode fue que al limpiar el worktree borro la rama por error pero pudo recuperar los objetos, verifico los contenidos y nada se perdio por suerte pero fue muy gracioso cuando lei.
 
