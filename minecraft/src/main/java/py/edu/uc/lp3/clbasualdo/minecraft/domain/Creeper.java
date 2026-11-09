@@ -3,6 +3,9 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.List;
 import java.util.Locale;
 
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
+
 /**
  * Descripcion:
  * Representa al Creeper, un enemigo que se acerca al jugador y explota.
@@ -40,6 +43,38 @@ public class Creeper extends EntidadHostil implements UICapable {
      * true si ya exploto, false si no.
      */
     public boolean isDetonado() { return detonado; }
+
+    /**
+     * Descripcion:
+     * Devuelve el radio maximo que alcanza la explosion del Creeper.
+     *
+     * Retorno:
+     * El radio de explosion.
+     */
+    public double getRadioExplosion() { return RADIO_EXPLOSION; }
+
+    /**
+     * Descripcion:
+     * Detona el Creeper aplicando las dos reglas del dominio de explosiones:
+     * solo puede detonar si esta vivo y solo puede hacerlo una vez.
+     * Si todo esta bien, delega la explosion en explotar().
+     *
+     * Parametros:
+     * cercanas - Lista de entidades que pueden ser alcanzadas por la explosion.
+     *
+     * Errores:
+     * CreeperYaDetonadoException - Si el Creeper ya exploto antes.
+     * CreeperMuertoException - Si el Creeper ya esta muerto.
+     */
+    public void detonar(List<Entidad> cercanas) {
+        if (detonado) {
+            throw new CreeperYaDetonadoException(getNombre() + " ya detonó y no puede volver a explotar.");
+        }
+        if (!estaVivo()) {
+            throw new CreeperMuertoException(getNombre() + " no puede detonar: está muerto.");
+        }
+        explotar(cercanas);
+    }
 
     /**
      * Descripcion:

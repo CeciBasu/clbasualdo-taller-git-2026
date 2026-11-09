@@ -11,6 +11,8 @@ package py.edu.uc.lp3.clbasualdo.minecraft.constants;
 public final class ApiPaths {
     /** Ruta de la pagina de inicio. */
     public static final String INDEX = "/";
+    /** Ruta base del CRUD de la familia de entidades. */
+    public static final String ENTIDADES = "/entidades";
     /** Ruta para crear un esqueleto. */
     public static final String ESQUELETO = "/esqueleto";
     /** Ruta para ver las dos versiones del mensaje disparar(). */
@@ -19,6 +21,12 @@ public final class ApiPaths {
     public static final String COMPORTAMIENTO = "/comportamiento";
     /** Ruta que muestra los datos de UI de las entidades UICapable. */
     public static final String UI = "/ui";
+    /** Ruta que ejecuta la simulacion de una explosion. */
+    public static final String SIMULACION_EXPLOSION = "/simulacion/explosion";
+    /** Ruta que devuelve una simulacion persistida por su id. */
+    public static final String SIMULACION_EXPLOSION_ID = "/simulacion/explosion/{id}";
+    /** Ruta que lista todas las simulaciones persistidas. */
+    public static final String SIMULACION_EXPLOSIONES = "/simulacion/explosiones";
 
     private ApiPaths() {
     }

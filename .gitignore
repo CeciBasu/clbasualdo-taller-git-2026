@@ -24,6 +24,10 @@ HELP.md
 hs_err_pid*
 replay_pid*
 
+### H2 local ###
+# Archivos generados por la base H2 en archivo (no se versionan).
+minecraft/data/
+
 ### Maven ###
 target/
 !**/src/main/**/target/
