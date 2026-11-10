@@ -683,81 +683,39 @@ Las pruebas de esta entrega son:
 - **[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md)** — consignas de
   POO-08 y dónde se cumple cada una.
 
-## Resumen de chat con el agente
+## Resumen de la evolución del proyecto
 
-**1. Endurecimiento del proyecto Minecraft (POO)**
-Mejoramos toda la jerarquía de clases para que dejara de ser "solo prints" y tuviera comportamiento real:
-- **`Entidad`**: se le agregaron coordenadas `x, y, z`, métodos de movimiento (`moverse`, `teletransportar`), cálculo de distancia entre entidades (`distanciaHacia`), `vidaMaxima`, y `toString()`/`equals()`/`hashCode()`.
-- **`EntidadHostil`**: ataque real con `danioAtaque` y `rangoAtaque` — el método `golpear(objetivo)` valida rango y vida antes de aplicar daño.
-- **`EntidadPasiva`**: huida real (`huir(amenaza)`) que se mueve en base a la posición de la amenaza, y detección de peligro (`estaEnPeligro`).
-- **Subclases específicas**: `Zombie` rompe puertas, `Esqueleto` tiene munición de flechas y recarga, `Creeper` explota en área y se autodestruye, `Aldeano` comercia con esmeraldas, `Animal` se domestica y reproduce.
-- **`Jugador`**: inventario, experiencia con subida de nivel, y ataque real con chequeo de rango.
-- **Controllers**: `EsqueletoController` ahora acepta posición por parámetros de URL y devuelve error 400 con `ResponseEntity` ante datos inválidos; `ComportamientoController` devuelve vida y posición de más entidades.
-- Te entregué todos los `.java` actualizados más un `.zip` con la estructura de paquetes lista para copiar.
+1. **Endurecimiento del modelo.** `Entidad` sumó posición (`x, y, z`), `moverse`,
+   `teletransportar`, `distanciaHacia`, `vidaMaxima` y `toString`/`equals`/`hashCode`.
+   `EntidadHostil` ganó ataque real con daño y rango, `EntidadPasiva` aprendió a huir y las
+   subclases concretas recibieron su comportamiento propio.
+2. **Primeros controllers.** `GET /` confirmaba que el servicio estaba vivo,
+   `GET /esqueleto` construía un esqueleto desde la URL y `GET /comportamiento` mostraba la
+   reacción polimórfica de cada tipo.
+3. **Git.** Se resolvió un caso real de ramas divergentes con `git pull --rebase origin main`
+   y se verificó que el remoto quedara igual al local.
+4. **README y diagrama.** Se documentó el código y se agregó el diagrama Mermaid de la
+   jerarquía.
+5. **Refactor a capas.** El proyecto se ordenó en `domain`, `repository` (+ `impl`),
+   `service` (+ `impl`), `rest.controller`, `constants` y `exceptions`, con
+   `MinecraftApplication` en la raíz y el dominio sin Spring.
+6. **Enderman.** Se corrigió su constructor, se sumó a `/comportamiento` y se agregaron sus
+   pruebas.
+7. **Sobrecarga y sobreescritura.** Se agregó `Esqueleto.disparar()` /
+   `disparar(double distancia)`, su ruta `/esqueleto/disparar` y el apartado del README que
+   explica ambos mecanismos.
+8. **Explosiones, H2 e Insomnia.** Se agregó la simulación con `Creeper`, `Zombie` y
+   `Jugador`, las excepciones `CreeperMuertoException` y `CreeperYaDetonadoException`, el
+   handler HTTP y la colección de Insomnia.
+9. **POO-08.** La tabla `ENTIDADES` pasó a una familia `SINGLE_TABLE` con `EntidadEntity`
+   como padre y `CreeperEntity`, `ZombieEntity` y `JugadorEntity` como hijas. El CRUD valida
+   los invariantes y usa `@JsonTypeInfo` / `@JsonSubTypes` para discriminar el `"tipo"`. La
+   simulación persiste el estado final de las tres entidades y guarda una foto en
+   `SIMULACIONES_EXPLOSION`, con `GET` por id, última y lista. La jerarquía de excepciones
+   quedó con `MinecraftException` como base y un handler por tipo: `404`, `400`, `422` y
+   `409`.
 
-**2. Cómo probar la API**
-EL agente me explico que con la app corriendo (`MinecraftApplication`), se accede por `http://localhost:8080/`, `/comportamiento` y `/esqueleto` (este último acepta `?nombre=&vida=&x=&y=&z=`), y que no hace falta ningún otro link salvo que quiera exponerlo fuera de mi red local.
-
-**3. Git: ramas divergentes**
-Resolvimos un caso real de mi repo donde mi rama local y `origin/main` habían divergido (mi commit de las entidades vs. 2 commits de README subidos por mi compañera). EL agente me explicò por qué pasó, y la solución fue `git pull --rebase origin main` para reordenar mi commit arriba de los del remoto sin conflictos, seguido de `git push`.
-
-**4. README, diagrama de clases y comentarios en el código** 
-Armamos el README explicando el código y agregamos el diagrama de clases. Además, me ayudo a comentar todo el código(como para que pudiera entender mejor todo lo que iba haciendo).
-
-**5. Estado y entrega**
-- Verificamos que `main` remoto quedaba igual a mi local tras el push.
-- Cloné el repo desde cero (como el corrector) y confirmé que compila y arranca sin `target/` ni archivo basura.
-
-**6. Enderman / PR**
-- Corregí el Enderman (`super("Enderman", 40, 7, 16.0)`) y lo sumé a `/comportamiento`.
-- Lo dejé en la rama de la compañera; y mergee el PR #1 (fast-forward, sin conflictos).
-- Agregué `EndermanTest` (5 tests) → total 44 tests.
-
-**7. Documentación**
-- Actualicé el README: Enderman en el diagrama, 6.ª entidad en el ejemplo, y "44 pruebas".
-- Commiteado y subido.
-
-**8. Refactor estilo template (lo que pediste)**
-- El agente movio el proyecto a capas: `domain`, `repository` (+impl), `service` (+impl), `rest.controller`, `constants` y `exceptions`.
-- Dejo `MinecraftApplication` en la raíz y el dominio puro (sin Spring).
-- Movio los tests del dominio a su paquete espejo.
-- Todo commiteado y subido en `a1ca752`.
-
-**9. Verificaciones que pasaron**
-- `./mvnw test` → 44 tests, BUILD SUCCESS.
-- Endpoints iguales: `/`, `/comportamiento` (6 entidades), `/esqueleto` y el error 400 de `vida=0`.
-- El demo de consola (`Main`) corre bien.
-
-**10. Rúbricas**
-- Paquetes mejoró con el refactor; el resto se mantuvo OK.
-
-**Después de este resumen (revisión final).** Se agregó la sobrecarga
-`Esqueleto.disparar()` con su ruta `/esqueleto/disparar`, el apartado de sobrecarga y
-sobreescritura de este README y las pruebas de la entrada HTTP. Las pruebas pasaron de
-44 a **56**. El detalle de esa revisión está en [`docs/BITACORA.md`](docs/BITACORA.md).
-
-**11. Nueva consigna: explosiones, excepciones, H2 e Insomnia**
-- Se mantuvo el CRUD de `/entidades` con Spring Data JPA y H2.
-- Se agregó la simulación de explosiones con `Creeper`, `Zombie` y `Jugador` en
-  `POST /simulacion/explosion`.
-- Se formalizaron las dos reglas del Creeper con `CreeperMuertoException` y
-  `CreeperYaDetonadoException`, atendidas por `MinecraftExceptionHandler`.
-- Se agregaron pruebas de simulación, de los dos errores y del CRUD completo contra H2.
-- Se agregó la colección exportable de Insomnia y las instrucciones de importación.
-
-**12. POO-08: familia JPA, simulaciones persistidas y documentación**
-- La tabla `ENTIDADES` pasó a una familia `SINGLE_TABLE` con `EntidadEntity` como padre y
-  `CreeperEntity`, `ZombieEntity` y `JugadorEntity` como hijas.
-- El CRUD de `/entidades` valida los invariantes, no permite cambiar el subtipo y usa
-  `@JsonTypeInfo` / `@JsonSubTypes` para discriminar el `"tipo"` en el JSON.
-- La simulación persiste el estado final de las tres entidades y guarda una foto en
-  `SIMULACIONES_EXPLOSION`; se agregaron `GET` por id, última y lista.
-- La jerarquía de excepciones quedó con `MinecraftException` como base y un handler por tipo:
-  `404`, `400`, `422` y `409`.
-- La colección de Insomnia cubre el CRUD, `/ui`, la simulación, un POST ilegal, un id
-  inexistente y cada excepción hija.
-- Se agregaron `docs/ESPECIFICACIONES-poo-08.md` y el detalle de esta entrega en la bitácora.
-- `./mvnw test` → **67 pruebas**, BUILD SUCCESS.
+Estado final verificado: `./mvnw test` → **67 pruebas**, BUILD SUCCESS.
 
 ## Licencia
 

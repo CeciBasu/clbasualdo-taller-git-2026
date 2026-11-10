@@ -7,7 +7,7 @@ trabajó, así que van los dos.
 
 | # | Asistente / agente | Modelo exacto del LLM | Qué se hizo con esa herramienta |
 |---|---|---|---|
-| 1 | **Claude** (Anthropic) | Sonet 5.5| Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
+| 1 | **Claude** (Anthropic) | Sonnet 5.5 | Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
 | 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final de POO-06 (`docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas y el README) y, en POO-08, la familia JPA, el CRUD, la simulación persistida, la jerarquía de excepciones, la colección de Insomnia y la documentación de esta entrega. |
 
 

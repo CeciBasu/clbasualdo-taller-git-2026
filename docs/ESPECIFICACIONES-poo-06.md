@@ -4,7 +4,7 @@
 **Dominio elegido:** Minecraft
 **Alumno:** Cecilia Basualdo
 **Repositorio:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026>
-**Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/94a8bd0fcb63b926b1b281c76a46029bd0abbe71>
+**Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/e1b12a33421f4a6c62f55f99bf3f31c71d6015b0>
 
 ---
 
