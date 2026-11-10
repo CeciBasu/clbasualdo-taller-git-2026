@@ -413,6 +413,131 @@ EntidadEntity (abstracta, tabla ENTIDADES, columna TIPO)
 └── JugadorEntity   -> TIPO = "Jugador"  (nivel, experiencia)
 ```
 
+### Diagrama de la entrega
+
+El diagrama muestra la familia persistida (`EntidadEntity` y sus hijas), la interface de dominio
+`UICapable`, el repositorio Spring Data, los controllers y la jerarquía de excepciones con su
+handler:
+
+```mermaid
+classDiagram
+    direction LR
+
+    class UICapable {
+        <<interface>>
+        +imagen() String
+        +posicion() String
+        +velocidad() double
+        +sonido() String
+    }
+    class Creeper {
+        +detonar(List~Entidad~ cercanas)
+        +reaccionar() String
+    }
+    class Zombie {
+        +romperPuerta()
+        +reaccionar() String
+    }
+    class Jugador {
+        +atacar(Entidad objetivo)
+        +reaccionar() String
+    }
+    UICapable <|.. Creeper : implementa
+    UICapable <|.. Zombie : implementa
+    UICapable <|.. Jugador : implementa
+
+    class EntidadEntity {
+        <<abstract>>
+        -Long id
+        -String nombre
+        -int vida
+        -int vidaMaxima
+        -double x
+        -double y
+        -double z
+    }
+    class CreeperEntity {
+        -boolean detonado
+    }
+    class ZombieEntity {
+        -boolean puertaRota
+    }
+    class JugadorEntity {
+        -int nivel
+        -int experiencia
+    }
+    EntidadEntity <|-- CreeperEntity : herencia JPA
+    EntidadEntity <|-- ZombieEntity : herencia JPA
+    EntidadEntity <|-- JugadorEntity : herencia JPA
+
+    class EntidadJpaRepository {
+        <<interface>>
+        +findAll() List
+        +findById(Long) Optional
+        +findByNombre(String) Optional
+        +save(EntidadEntity) EntidadEntity
+    }
+    class SimulacionExplosionJpaRepository {
+        <<interface>>
+        +findFirstByOrderByIdDesc() Optional
+    }
+    class EntidadCrudServiceImpl {
+        +crear(EntidadEntity) EntidadEntity
+        +actualizar(Long, EntidadEntity) EntidadEntity
+        +listar() List
+    }
+    class EntidadController {
+        +crear(EntidadEntity) ResponseEntity
+        +listar() List
+        +obtenerPorId(Long) EntidadEntity
+        +actualizar(Long, EntidadEntity) EntidadEntity
+        +eliminar(Long) ResponseEntity
+    }
+    class SimulacionExplosionController {
+        +simular(int, boolean) ResponseEntity
+        +ultima() SimulacionExplosionResultado
+    }
+    class UiController {
+        +ui() List
+    }
+
+    EntidadController --> EntidadCrudServiceImpl : delega
+    EntidadCrudServiceImpl --> EntidadJpaRepository : usa el repositorio
+    SimulacionExplosionController --> SimulacionExplosionJpaRepository : usa el repositorio
+    UiController --> UICapable : usa el tipo de la interface
+
+    class MinecraftException {
+        <<RuntimeException>>
+    }
+    class RecursoNoEncontradoException
+    class DatosInvalidosException
+    class CreeperMuertoException
+    class CreeperYaDetonadoException
+    MinecraftException <|-- RecursoNoEncontradoException
+    MinecraftException <|-- DatosInvalidosException
+    MinecraftException <|-- CreeperMuertoException
+    MinecraftException <|-- CreeperYaDetonadoException
+
+    class MinecraftExceptionHandler {
+        +manejarNoEncontrado(...)
+        +manejarDatosInvalidos(...)
+        +manejarCreeperMuerto(...)
+        +manejarCreeperYaDetonado(...)
+    }
+    MinecraftExceptionHandler ..> MinecraftException : traduce a HTTP
+```
+
+Cómo se lee el diagrama:
+
+- **Herencia JPA:** `EntidadEntity <|-- CreeperEntity`, `ZombieEntity` y `JugadorEntity` comparten
+  la tabla `ENTIDADES` y se distinguen por la columna `tipo`.
+- **Implementación de interface:** `UICapable <|.. Creeper`, `Zombie` y `Jugador` (y también
+  `Esqueleto`, `Enderman`, `Aldeano` y `Animal`) cumplen el protocolo del dominio.
+- **Uso del repositorio:** el controller delega en el servicio y el servicio usa
+  `EntidadJpaRepository`; el controller de la simulación usa `SimulacionExplosionJpaRepository`.
+- **Jerarquía de excepciones:** `MinecraftException` es la base y `MinecraftExceptionHandler`
+  traduce cada hija a un código HTTP distinto.
+
 En el JSON, `@JsonTypeInfo` y `@JsonSubTypes` usan la propiedad `"tipo"` para elegir la clase
 concreta. Por eso un mismo `POST /entidades` puede crear cualquiera de los tres subtipos, y un
 `GET` devuelve el objeto con su tipo y sus datos propios. El CRUD completo es:
@@ -431,8 +556,24 @@ Invariantes que aplica el servicio antes de guardar:
 - el subtipo de una fila existente no cambia en un `PUT`;
 - en un `Jugador`, `nivel` y `experiencia` no pueden ser negativos.
 
-La configuración está en `minecraft/src/main/resources/application.properties` y apunta a
-`jdbc:h2:file:./data/entidades`, con `ddl-auto=update`. La consola H2 queda disponible en:
+La configuración está en `minecraft/src/main/resources/application.properties`. Cada propiedad
+y lo que hace:
+
+| Propiedad | Qué significa |
+|---|---|
+| `spring.application.name=minecraft` | Le da un nombre a la aplicación para los logs y la consola de Spring. |
+| `spring.datasource.url=jdbc:h2:file:./data/entidades` | Indica que H2 guarda la base en el archivo `data/entidades.mv.db`, dentro de la carpeta `minecraft`. |
+| `spring.datasource.driverClassName=org.h2.Driver` | Elige el driver JDBC de H2 como puente entre Java y la base. |
+| `spring.datasource.username=sa` | Usa el usuario administrador por defecto de H2; en este taller no se configura seguridad real. |
+| `spring.datasource.password=` | Deja la contraseña vacía, como corresponde al perfil de desarrollo de H2. |
+| `spring.jpa.database-platform=org.hibernate.dialect.H2Dialect` | Le dice a Hibernate que genere el SQL con el dialecto de H2. |
+| `spring.jpa.hibernate.ddl-auto=update` | Hace que Hibernate cree las tablas si no existen y agregue columnas nuevas sin borrar los datos guardados. |
+| `spring.jpa.show-sql=true` | Muestra en la consola el SQL que Hibernate ejecuta, útil para ver la persistencia durante la clase. |
+| `spring.jpa.open-in-view=false` | Cierra la sesión JPA al terminar el controller, para que ninguna vista o respuesta dependa de una sesión abierta. |
+| `spring.h2.console.enabled=true` | Habilita la consola web de H2 para mirar las tablas desde el navegador. |
+| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8080/h2-console`. |
+
+La consola H2 queda disponible en:
 
 - URL: `http://localhost:8080/h2-console`
 - JDBC URL: `jdbc:h2:file:./data/entidades`
@@ -586,6 +727,87 @@ el controller no pregunta por el tipo concreto y cada clase responde lo suyo.
 
 ## Preguntas para pensar
 
+**¿Cuál es el sustantivo de la API? ¿La URL nombra al recurso y el verbo HTTP dice la operación?**
+
+El sustantivo es `entidades` (y `simulacion` para el resultado de la explosión). Las URLs
+nombran el recurso —`/entidades`, `/entidades/{id}`, `/simulacion/explosion`— y el verbo HTTP
+dice qué se hace con él: `POST` crea, `GET` lee, `PUT` actualiza y `DELETE` borra. No hay rutas
+como `/crearEntidad` o `/borrarEntidad`.
+
+**¿Qué campo es la clave? ¿Quién la asigna? ¿El JSON de creación la lleva o la omite?**
+
+La clave es `id`, un `Long` autogenerado con `@GeneratedValue(strategy = GenerationType.IDENTITY)`.
+La asigna H2 al insertar la fila, no el cliente. El JSON de creación la omite: si llegara un
+`id`, la persistencia lo ignora para el alta y el recurso nuevo recibe el número que devuelve
+la base.
+
+**¿Cómo guardaron la herencia? ¿Cómo se distingue el subtipo en el JSON?**
+
+Con `InheritanceType.SINGLE_TABLE`: una sola tabla `ENTIDADES` con la columna discriminadora
+`tipo` y una fila por entidad. En el JSON se distingue con `@JsonTypeInfo(property = "tipo")` y
+`@JsonSubTypes`, así el `POST` y el `GET` hablan de `Creeper`, `Zombie` o `Jugador` sin que el
+controller pregunte por la clase. Se eligió `SINGLE_TABLE` porque las tres clases comparten casi
+todos los datos y la API las lista juntas; el costo es que las columnas propias de un subtipo
+quedan nulas en las filas de los otros.
+
+**¿Qué gana el controller al depender de la interface del repositorio?**
+
+Gana lo mismo que en POO-07: el controller y el servicio hablan con un contrato
+(`EntidadJpaRepository`) y no con una implementación concreta. Spring Data genera la
+implementación en tiempo de arranque, y si mañana cambia el motor de base solo se toca la
+configuración, no el controller.
+
+**¿Qué interface de dominio existe? ¿Qué endpoint la usa? ¿Puede hablar con familias distintas?**
+
+`UICapable` declara `imagen()`, `posicion()`, `velocidad()` y `sonido()`. La usa
+`GET /ui` a través de `UiController` y `UiService`, que trabajan con `List<UICapable>`. Sí habla
+con familias distintas: la implementan los hostiles (`Creeper`, `Zombie`, `Esqueleto`,
+`Enderman`), los pasivos (`Aldeano`, `Animal`) y `Jugador`, que hereda directo de `Entidad`.
+
+**¿Quién sostiene las reglas numéricas del juego? ¿Qué prueba de Insomnia muestra que un `POST` ilegal deja la base igual que antes?**
+
+El dominio sostiene las reglas de vida (`Entidad.recibirDanio`, `curar`, `vidaMaxima`) y el
+servicio de CRUD valida los invariantes antes de llamar a `save(...)`: nombre obligatorio y
+único, `vidaMaxima > 0`, `0 <= vida <= vidaMaxima`, `vida > 0` al crear y valores no negativos
+en `nivel` y `experiencia`. El pedido **12 - Error: POST ilegal (400)** manda `vida: -5`; el
+handler responde `400` con `DatosInvalidosException` y la prueba automatizada comprueba que el
+contador de filas no cambió.
+
+**`PUT` y `PATCH`: ¿reemplazan el recurso entero o un subconjunto? ¿Qué pasa con un campo omitido?**
+
+Se implementó `PUT`, que reemplaza el recurso completo: el cuerpo trae todos los datos de la
+entidad y `copiarDatosDesde(...)` pisa los campos comunes y los propios del subtipo. Un campo
+omitido queda con el valor por defecto del tipo (`0`, `false` o `null`), no conserva el valor
+anterior; por eso la colección de Insomnia manda el objeto completo también en la actualización.
+No se agregó `PATCH` porque el enunciado permite uno de los dos y `PUT` deja la operación clara.
+
+**`DELETE`: ¿qué significa borrar en el modelo? ¿Ese verbo HTTP habla con un mensaje del dominio?**
+
+Borrar significa quitar la fila de `ENTIDADES`; no se marca como eliminada. `DELETE` no es un
+mensaje del dominio del juego: es una operación de persistencia. El controller la traduce a
+`EntidadCrudService.eliminar(...)`, que primero busca la entidad —si no existe lanza
+`RecursoNoEncontradoException` y el handler responde `404`— y después llama a `delete(...)`.
+Cuando borra bien responde `204`, y un `GET` posterior devuelve `404`.
+
+**¿Qué dos hechos del juego cambian el estado de más de un objeto a la vez? ¿Cómo se llama el recurso HTTP de la simulación? ¿Un `GET` posterior muestra el resultado ya persistido?**
+
+La explosión de un Creeper vivo cambia el estado de tres objetos: el Creeper muere y se marca
+como detonado, el Zombie dentro del radio de 3 bloques recibe 25 de daño y muere, y el Jugador
+fuera del radio conserva su vida. El recurso HTTP es `POST /simulacion/explosion`; después,
+`GET /simulacion/explosion/{id}`, `GET /simulacion/explosion` y `GET /simulacion/explosiones`
+leen el resultado desde H2, y `GET /entidades/nombre/Creeper Simulado` muestra el estado final
+de la entidad persistida.
+
+**¿Cómo se llama cada clase de la jerarquía y por qué? ¿Un recurso inexistente y una regla de juego incumplida son tipos distintos? ¿Qué lleva el JSON de error?**
+
+La base es `MinecraftException` y las hijas son `RecursoNoEncontradoException` (el id no
+existe), `DatosInvalidosException` (el cuerpo rompe un invariante), `CreeperMuertoException`
+(se intenta detonar un Creeper sin vida) y `CreeperYaDetonadoException` (segunda detonación).
+Sí, son tipos distintos: recurso inexistente es `404`, dato inválido es `400`, Creeper muerto
+es `422` y segunda detonación es `409`. El JSON de error siempre lleva `timestamp`, `status`,
+`error`, `tipo` y `mensaje`, y `MinecraftExceptionHandler` tiene un `@ExceptionHandler` por
+cada hija.
+
 **¿Por qué separar `domain` de `entity`?**
 
 Porque el dominio modela el juego y no debe depender de JPA ni de Jackson. `Entidad` y sus
@@ -593,26 +815,12 @@ hijas sirven para el demo de consola y para la simulación, mientras que `Entida
 hijas son el mapeo de la tabla. Así las reglas del juego no se mezclan con detalles de
 persistencia.
 
-**¿Por qué `SINGLE_TABLE` y no una tabla por clase?**
-
-Porque las tres entidades comparten casi todos los datos y la API las trata como una sola
-familia en `/entidades`. Una tabla con un discriminador `tipo` permite listar todo junto y
-devolver el subtipo correcto sin hacer uniones. El costo es que las columnas propias de cada
-subtipo quedan nulas en las otras filas, algo aceptable para este tamaño.
-
 **¿Por qué la simulación guarda también las entidades y no solo el resultado?**
 
 Porque el pedido es que la simulación se pueda consultar después y que el estado final de las
 entidades quede persistido. Guardar la foto en `SIMULACIONES_EXPLOSION` permite responder un
 `GET` sin volver a ejecutar la explosión, y guardar las entidades permite ver el efecto en el
 CRUD.
-
-**¿Por qué una excepción por regla y no un `if` que devuelva `400`?**
-
-Porque cada error tiene un significado distinto: un recurso inexistente es `404`, un dato
-inválido es `400`, un Creeper muerto es `422` y una segunda detonación es `409`. La jerarquía
-`MinecraftException` permite que el dominio lance la excepción correcta y que el handler decida
-el código HTTP, sin que el controller conozca las reglas.
 
 **¿Qué pasa si el controller arma el JSON a mano?**
 
