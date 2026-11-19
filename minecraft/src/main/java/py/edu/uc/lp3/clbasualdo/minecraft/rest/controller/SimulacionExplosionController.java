@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
@@ -23,6 +25,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
  * el servicio, para que las reglas del dominio no vivan en el controller.
  */
 @RestController
+@Tag(name = "Simulacion de explosion", description = "Ejecucion y consulta de simulaciones persistidas")
 public class SimulacionExplosionController {
 
     /** Servicio que ejecuta y consulta la simulacion. */
@@ -52,6 +55,7 @@ public class SimulacionExplosionController {
      * Retorno:
      * El resultado completo de la simulacion, con su id persistido.
      */
+    @Operation(summary = "Ejecuta y persiste una simulacion de explosion")
     @PostMapping(ApiPaths.SIMULACION_EXPLOSION)
     public ResponseEntity<SimulacionExplosionResultado> simular(
             @RequestParam(defaultValue = "20") int vidaCreeper,
@@ -67,6 +71,7 @@ public class SimulacionExplosionController {
      * Retorno:
      * El ultimo resultado persistido.
      */
+    @Operation(summary = "Devuelve la ultima simulacion guardada")
     @GetMapping(ApiPaths.SIMULACION_EXPLOSION)
     public SimulacionExplosionResultado ultima() {
         return simulacionExplosionService.ultima();
@@ -82,6 +87,7 @@ public class SimulacionExplosionController {
      * Retorno:
      * El resultado guardado.
      */
+    @Operation(summary = "Devuelve una simulacion por su id")
     @GetMapping(ApiPaths.SIMULACION_EXPLOSION_ID)
     public SimulacionExplosionResultado obtener(@PathVariable Long id) {
         return simulacionExplosionService.obtener(id);
@@ -94,6 +100,7 @@ public class SimulacionExplosionController {
      * Retorno:
      * La lista de resultados guardados.
      */
+    @Operation(summary = "Lista todas las simulaciones persistidas")
     @GetMapping(ApiPaths.SIMULACION_EXPLOSIONES)
     public List<SimulacionExplosionResultado> listar() {
         return simulacionExplosionService.listar();

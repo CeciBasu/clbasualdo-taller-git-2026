@@ -27,6 +27,8 @@ public final class ApiPaths {
     public static final String SIMULACION_EXPLOSION_ID = "/simulacion/explosion/{id}";
     /** Ruta que lista todas las simulaciones persistidas. */
     public static final String SIMULACION_EXPLOSIONES = "/simulacion/explosiones";
+    public static final String API_OBJETOS_EXTERNOS = "/api/objetos-externos";
+    public static final String API_OBJETOS_EXTERNOS_ID = "/api/objetos-externos/{id}";
 
     private ApiPaths() {
     }

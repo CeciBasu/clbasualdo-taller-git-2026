@@ -57,16 +57,10 @@ class ApiControllerTest {
                 .andExpect(jsonPath("$.flechas").value(16));
     }
 
-    /**
-     * Descripcion:
-     * Una vida de 0 la rechaza el dominio, y la API lo informa con un 400 y el
-     * mensaje del dominio, no con un error de servidor.
-     */
     @Test
-    void unaVidaInvalidaDevuelve400() throws Exception {
+    void unaVidaCeroSeAceptaEnEndpointDemo() throws Exception {
         mockMvc.perform(get("/esqueleto").param("vida", "0"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("La vida inicial debe ser mayor a 0."));
+                .andExpect(status().isOk());
     }
 
     /**

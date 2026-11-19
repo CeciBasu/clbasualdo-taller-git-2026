@@ -493,6 +493,9 @@ classDiagram
         +actualizar(Long, EntidadEntity) EntidadEntity
         +eliminar(Long) ResponseEntity
     }
+    class SimulacionExplosionServiceImpl {
+        +simular(int, boolean) SimulacionExplosionResultado
+    }
     class SimulacionExplosionController {
         +simular(int, boolean) ResponseEntity
         +ultima() SimulacionExplosionResultado
@@ -502,9 +505,11 @@ classDiagram
     }
 
     EntidadController --> EntidadCrudServiceImpl : delega
-    EntidadCrudServiceImpl --> EntidadJpaRepository : usa el repositorio
-    SimulacionExplosionController --> SimulacionExplosionJpaRepository : usa el repositorio
-    UiController --> UICapable : usa el tipo de la interface
+    EntidadCrudServiceImpl --> EntidadJpaRepository : usa
+    SimulacionExplosionController --> SimulacionExplosionServiceImpl : delega
+    SimulacionExplosionServiceImpl --> SimulacionExplosionJpaRepository : usa
+    SimulacionExplosionServiceImpl --> EntidadJpaRepository : usa
+    UiController --> UICapable : usa interface
 
     class MinecraftException {
         <<RuntimeException>>
@@ -533,8 +538,7 @@ Cómo se lee el diagrama:
   la tabla `ENTIDADES` y se distinguen por la columna `tipo`.
 - **Implementación de interface:** `UICapable <|.. Creeper`, `Zombie` y `Jugador` (y también
   `Esqueleto`, `Enderman`, `Aldeano` y `Animal`) cumplen el protocolo del dominio.
-- **Uso del repositorio:** el controller delega en el servicio y el servicio usa
-  `EntidadJpaRepository`; el controller de la simulación usa `SimulacionExplosionJpaRepository`.
+- **Uso del repositorio:** el controller delega en el servicio y el servicio usa los repositorios (`EntidadJpaRepository`, `SimulacionExplosionJpaRepository`).
 - **Jerarquía de excepciones:** `MinecraftException` es la base y `MinecraftExceptionHandler`
   traduce cada hija a un código HTTP distinto.
 
@@ -599,8 +603,8 @@ La simulación usa tres clases del modelo y después guarda el estado final de l
 La lista de alcanzables se maneja como `List<Entidad>`, así que la explosión no pregunta por el
 tipo concreto de cada víctima: recorre la lista y cada objeto responde con su propia vida y
 posición. La lógica de la detonación está en `Creeper.detonar(...)`. El servicio
-`SimulacionExplosionServiceImpl` arma el escenario, ejecuta la regla, persiste el estado final
-de las tres entidades (`Creeper Simulado`, `Zombie Simulado` y `Steve Simulado`) y guarda una
+`SimulacionExplosionServiceImpl` carga/gestiona entidades persistidas en H2, ejecuta la simulación, persiste el estado final
+de las tres entidades (`Creeper`, `Zombie` y `Steve`) y guarda una
 fila en `SIMULACIONES_EXPLOSION` con la foto completa del resultado.
 
 ### Las dos reglas del dominio
@@ -640,7 +644,7 @@ curl -X POST http://localhost:8080/simulacion/explosion
   "fecha": "2026-11-09T20:24:26.123",
   "radioExplosion": 3.0,
   "creeper": {
-    "nombre": "Creeper Simulado",
+    "nombre": "Creeper",
     "vidaInicial": 20,
     "vidaFinal": 0,
     "detonado": true,
@@ -652,7 +656,7 @@ curl -X POST http://localhost:8080/simulacion/explosion
   "afectados": [
     {
       "tipo": "Zombie",
-      "nombre": "Zombie Simulado",
+      "nombre": "Zombie",
       "vidaInicial": 20,
       "vidaFinal": 0,
       "distanciaAlCreeper": 2.0,
@@ -662,7 +666,7 @@ curl -X POST http://localhost:8080/simulacion/explosion
   "noAfectados": [
     {
       "tipo": "Jugador",
-      "nombre": "Steve Simulado",
+      "nombre": "Steve",
       "vidaInicial": 20,
       "vidaFinal": 20,
       "distanciaAlCreeper": 5.0,
@@ -673,7 +677,7 @@ curl -X POST http://localhost:8080/simulacion/explosion
 ```
 
 Después del `POST`, un `GET /simulacion/explosion/{simulacionId}` devuelve el mismo resultado
-leído de H2, y `GET /entidades/nombre/Creeper Simulado` muestra que la entidad persistida quedó
+leído de H2, y `GET /entidades/nombre/Creeper` muestra que la entidad persistida quedó
 con vida `0` y `detonado: true`.
 
 ### Jerarquía de excepciones y handlers
@@ -791,12 +795,7 @@ Cuando borra bien responde `204`, y un `GET` posterior devuelve `404`.
 
 **¿Qué dos hechos del juego cambian el estado de más de un objeto a la vez? ¿Cómo se llama el recurso HTTP de la simulación? ¿Un `GET` posterior muestra el resultado ya persistido?**
 
-La explosión de un Creeper vivo cambia el estado de tres objetos: el Creeper muere y se marca
-como detonado, el Zombie dentro del radio de 3 bloques recibe 25 de daño y muere, y el Jugador
-fuera del radio conserva su vida. El recurso HTTP es `POST /simulacion/explosion`; después,
-`GET /simulacion/explosion/{id}`, `GET /simulacion/explosion` y `GET /simulacion/explosiones`
-leen el resultado desde H2, y `GET /entidades/nombre/Creeper Simulado` muestra el estado final
-de la entidad persistida.
+La explosión de un Creeper vivo cambia el estado de tres objetos: el Creeper muere y queda detonado, el Zombie dentro del radio de 3 bloques recibe daño y puede morir, y el Jugador fuera del radio conserva su vida (según distancia). El recurso HTTP es `POST /simulacion/explosion`; luego `GET /simulacion/explosion/{id}`, `GET /simulacion/explosion` y `GET /simulacion/explosiones` leen desde H2, y `GET /entidades/nombre/Creeper` muestra el estado final persistido.
 
 **¿Cómo se llama cada clase de la jerarquía y por qué? ¿Un recurso inexistente y una regla de juego incumplida son tipos distintos? ¿Qué lleva el JSON de error?**
 

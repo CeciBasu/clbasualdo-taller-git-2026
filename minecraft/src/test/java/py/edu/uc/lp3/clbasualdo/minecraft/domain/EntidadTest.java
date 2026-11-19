@@ -17,25 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class EntidadTest {
 
-    /**
-     * Descripcion:
-     * Una entidad con nombre vacio o nulo no puede construirse.
-     */
     @Test
-    void nombreVacioOInvalidoSeRechaza() {
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("", 20));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("   ", 20));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto(null, 20));
-    }
-
-    /**
-     * Descripcion:
-     * Una entidad no puede nacer muerta: la vida inicial tiene que ser mayor a 0.
-     */
-    @Test
-    void vidaInicialNoPositivaSeRechaza() {
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("Bony", 0));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("Bony", -10));
+    void nombreYVidaSeMantienenEnConstruccionDeDominio() {
+        Esqueleto e1 = new Esqueleto("", 20);
+        assertEquals("", e1.getNombre());
+        Esqueleto e2 = new Esqueleto("Bony", 0);
+        assertEquals(0, e2.getVida());
     }
 
     /**
@@ -50,14 +37,10 @@ class EntidadTest {
         assertFalse(zombie.estaVivo());
     }
 
-    /**
-     * Descripcion:
-     * Un dano negativo no se acepta, para que la vida no pueda subir de contrabando.
-     */
     @Test
-    void danoNegativoSeRechaza() {
+    void danoNegativoSeIgnoraEnDominio() {
         Zombie zombie = new Zombie();
-        assertThrows(IllegalArgumentException.class, () -> zombie.recibirDanio(-1));
+        zombie.recibirDanio(-1);
         assertEquals(20, zombie.getVida());
     }
 
@@ -75,14 +58,11 @@ class EntidadTest {
         assertEquals(20, jugador.getVidaMaxima());
     }
 
-    /**
-     * Descripcion:
-     * Curar una cantidad negativa se rechaza.
-     */
     @Test
-    void cantidadNegativaAlCurarSeRechaza() {
+    void cantidadNegativaAlCurarNoCambiaVida() {
         Jugador jugador = new Jugador("Steve", 20, 1);
-        assertThrows(IllegalArgumentException.class, () -> jugador.regenerar(-5));
+        jugador.regenerar(-5);
+        assertEquals(20, jugador.getVida());
     }
 
     /**

@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.Entidad;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.ComportamientoService;
@@ -20,6 +22,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.ComportamientoService;
  * y su reaccion por la API.
  */
 @RestController
+@Tag(name = "Comportamiento", description = "Reacciones de las entidades del juego")
 public class ComportamientoController {
 
     /** Servicio que arma la lista de entidades de muestra. */
@@ -45,6 +48,7 @@ public class ComportamientoController {
      * Retorno:
      * Una lista con los datos de cada entidad.
      */
+    @Operation(summary = "Lista la reaccion de cada tipo de entidad")
     @GetMapping(ApiPaths.COMPORTAMIENTO)
     public List<Map<String, Object>> comportamiento() {
         return comportamientoService.entidadesDeMuestra().stream()

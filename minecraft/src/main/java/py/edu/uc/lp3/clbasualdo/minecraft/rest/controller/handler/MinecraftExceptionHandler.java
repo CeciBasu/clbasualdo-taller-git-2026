@@ -14,6 +14,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.MinecraftException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RecursoNoEncontradoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.ServicioExternoException;
 
 /**
  * Descripcion:
@@ -39,6 +40,11 @@ public class MinecraftExceptionHandler {
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> manejarNoEncontrado(RecursoNoEncontradoException ex) {
         return respuesta(HttpStatus.NOT_FOUND, ex);
+    }
+
+    @ExceptionHandler(ServicioExternoException.class)
+    public ResponseEntity<Map<String, Object>> manejarServicioExterno(ServicioExternoException ex) {
+        return respuesta(HttpStatus.BAD_GATEWAY, ex);
     }
 
     /**

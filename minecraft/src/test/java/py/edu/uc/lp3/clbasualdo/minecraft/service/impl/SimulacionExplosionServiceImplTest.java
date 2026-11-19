@@ -82,15 +82,15 @@ class SimulacionExplosionServiceImplTest {
         assertEquals(resultado.simulacionId(), guardado.simulacionId());
         assertEquals(resultado.radioExplosion(), guardado.radioExplosion(), 0.0001);
 
-        EntidadEntity creeper = entidadJpaRepository.findByNombre("Creeper Simulado").orElseThrow();
+        EntidadEntity creeper = entidadJpaRepository.findByNombre("Creeper").orElseThrow();
         assertTrue(creeper instanceof CreeperEntity);
         assertEquals(0, creeper.getVida());
         assertTrue(((CreeperEntity) creeper).isDetonado());
 
-        EntidadEntity zombieGuardado = entidadJpaRepository.findByNombre("Zombie Simulado").orElseThrow();
+        EntidadEntity zombieGuardado = entidadJpaRepository.findByNombre("Zombie").orElseThrow();
         assertEquals(0, zombieGuardado.getVida());
 
-        EntidadEntity jugadorGuardado = entidadJpaRepository.findByNombre("Steve Simulado").orElseThrow();
+        EntidadEntity jugadorGuardado = entidadJpaRepository.findByNombre("Steve").orElseThrow();
         assertEquals(20, jugadorGuardado.getVida());
     }
 

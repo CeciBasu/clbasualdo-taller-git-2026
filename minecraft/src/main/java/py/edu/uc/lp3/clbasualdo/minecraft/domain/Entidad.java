@@ -37,23 +37,10 @@ public abstract class Entidad {
     }
 
     /**
-     * Descripcion:
-     * Crea una entidad en una posicion elegida. Lanza un error si el nombre esta vacio o la vida no es mayor a 0.
-     *
-     * Parametros:
-     * nombre - Nombre de la entidad.
-     * vida - Vida inicial, tiene que ser mayor a 0.
-     * x - Posicion inicial en X.
-     * y - Posicion inicial en Y.
-     * z - Posicion inicial en Z.
+     * Descripción:
+     * Crea una entidad en una posición elegida.
      */
     public Entidad(String nombre, int vida, double x, double y, double z) {
-        if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío.");
-        }
-        if (vida <= 0) {
-            throw new IllegalArgumentException("La vida inicial debe ser mayor a 0.");
-        }
         this.nombre = nombre;
         this.vida = vida;
         this.vidaMaxima = vida;
@@ -136,7 +123,7 @@ public abstract class Entidad {
      */
     public void recibirDanio(int danio) {
         if (danio < 0) {
-            throw new IllegalArgumentException("El daño no puede ser negativo.");
+            danio = 0;
         }
         vida -= danio;
         if (vida < 0) vida = 0;
@@ -156,7 +143,7 @@ public abstract class Entidad {
      */
     protected void curar(int cantidad) {
         if (cantidad < 0) {
-            throw new IllegalArgumentException("La cantidad a curar no puede ser negativa.");
+            cantidad = 0;
         }
         vida = Math.min(vidaMaxima, vida + cantidad);
     }

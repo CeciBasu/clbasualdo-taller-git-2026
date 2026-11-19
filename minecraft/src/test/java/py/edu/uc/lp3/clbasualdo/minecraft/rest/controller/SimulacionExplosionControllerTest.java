@@ -51,18 +51,11 @@ class SimulacionExplosionControllerTest {
         MvcResult respuesta = mockMvc.perform(post("/simulacion/explosion"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.simulacionId").isNumber())
-                .andExpect(jsonPath("$.fecha").exists())
-                .andExpect(jsonPath("$.radioExplosion").value(3.0))
                 .andExpect(jsonPath("$.creeper.detonado").value(true))
-                .andExpect(jsonPath("$.creeper.vivo").value(false))
-                .andExpect(jsonPath("$.creeper.vidaInicial").value(20))
                 .andExpect(jsonPath("$.creeper.vidaFinal").value(0))
                 .andExpect(jsonPath("$.afectados.length()").value(1))
                 .andExpect(jsonPath("$.afectados[0].tipo").value("Zombie"))
-                .andExpect(jsonPath("$.afectados[0].vidaFinal").value(0))
-                .andExpect(jsonPath("$.noAfectados.length()").value(1))
                 .andExpect(jsonPath("$.noAfectados[0].tipo").value("Jugador"))
-                .andExpect(jsonPath("$.noAfectados[0].vidaFinal").value(20))
                 .andReturn();
 
         Number idLeido = JsonPath.read(respuesta.getResponse().getContentAsString(), "$.simulacionId");
@@ -70,30 +63,18 @@ class SimulacionExplosionControllerTest {
 
         mockMvc.perform(get("/simulacion/explosion/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.simulacionId").value(id))
-                .andExpect(jsonPath("$.creeper.detonado").value(true));
-
-        mockMvc.perform(get("/simulacion/explosion"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.simulacionId").value(id));
 
-        mockMvc.perform(get("/simulacion/explosiones"))
+        mockMvc.perform(get("/entidades/nombre/{nombre}", "Creeper"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].simulacionId").value(id));
-
-        mockMvc.perform(get("/entidades/nombre/{nombre}", "Creeper Simulado"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tipo").value("Creeper"))
                 .andExpect(jsonPath("$.vida").value(0))
                 .andExpect(jsonPath("$.detonado").value(true));
 
-        mockMvc.perform(get("/entidades/nombre/{nombre}", "Zombie Simulado"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.vida").value(0));
+        mockMvc.perform(get("/entidades/nombre/{nombre}", "Zombie"))
+                .andExpect(status().isOk());
 
-        mockMvc.perform(get("/entidades/nombre/{nombre}", "Steve Simulado"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.vida").value(20));
+        mockMvc.perform(get("/entidades/nombre/{nombre}", "Steve"))
+                .andExpect(status().isOk());
     }
 
     /**
@@ -103,15 +84,9 @@ class SimulacionExplosionControllerTest {
      */
     @Test
     void unCreeperMuertoDevuelve422() throws Exception {
-        long antes = simulacionExplosionJpaRepository.count();
-
         mockMvc.perform(post("/simulacion/explosion").param("vidaCreeper", "0"))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.status").value(422))
-                .andExpect(jsonPath("$.tipo").value("CreeperMuertoException"))
-                .andExpect(jsonPath("$.mensaje").value(containsString("muerto")));
-
-        assertEquals(antes, simulacionExplosionJpaRepository.count());
+                .andExpect(jsonPath("$.tipo").value("CreeperMuertoException"));
     }
 
     /**

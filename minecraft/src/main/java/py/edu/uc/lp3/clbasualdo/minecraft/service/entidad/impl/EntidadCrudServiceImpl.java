@@ -225,11 +225,8 @@ public class EntidadCrudServiceImpl implements EntidadCrudService {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Valida los invariantes comunes a todos los subtipos.
-     *
-     * Parametros:
-     * entidad - Entidad a validar.
      */
     private void validarComun(EntidadEntity entidad) {
         if (entidad.getNombre() == null || entidad.getNombre().isBlank()) {
@@ -243,6 +240,14 @@ public class EntidadCrudServiceImpl implements EntidadCrudService {
         }
         if (entidad.getVida() > entidad.getVidaMaxima()) {
             throw new DatosInvalidosException("La vida no puede superar la vida máxima.");
+        }
+        if (entidad instanceof py.edu.uc.lp3.clbasualdo.minecraft.entity.CreeperEntity creeper) {
+            if (creeper.isDetonado() && creeper.getVida() > 0) {
+                throw new DatosInvalidosException("Un Creeper detonado no puede tener vida mayor a 0.");
+            }
+            if (creeper.isDetonado() && creeper.getVida() != 0) {
+                throw new DatosInvalidosException("Un Creeper detonado debe tener vida 0.");
+            }
         }
         if (entidad instanceof JugadorEntity jugador) {
             if (jugador.getNivel() < 0) {

@@ -67,43 +67,27 @@ public class Creeper extends EntidadHostil implements UICapable {
      * CreeperMuertoException - Si el Creeper ya esta muerto.
      */
     public void detonar(List<Entidad> cercanas) {
-        if (detonado) {
-            throw new CreeperYaDetonadoException(getNombre() + " ya detonó y no puede volver a explotar.");
-        }
-        if (!estaVivo()) {
-            throw new CreeperMuertoException(getNombre() + " no puede detonar: está muerto.");
-        }
         explotar(cercanas);
     }
 
     /**
-     * Descripcion:
-     * El Creeper explota y lastima a todas las entidades vivas que esten dentro del radio de explosion.
-     * Despues de explotar se muere. Si ya exploto no hace nada, y si esta muerto lanza un error.
-     *
-     * Parametros:
-     * cercanas - Lista de entidades que pueden ser alcanzadas por la explosion.
+     * Descripción:
+     * El Creeper explota y daña a las entidades dentro del radio. Después de explotar queda detonado y sin vida.
      */
     public void explotar(List<Entidad> cercanas) {
         if (detonado) {
-            System.out.println(getNombre() + " ya explotó.");
             return;
-        }
-        if (!estaVivo()) {
-            throw new IllegalStateException(getNombre() + " no puede explotar: está muerto.");
         }
         System.out.println(getNombre() + " explota!");
         if (cercanas != null) {
             for (Entidad e : cercanas) {
-                // No se lastima a si mismo aca, eso se hace al final
                 if (e != this && e.estaVivo() && distanciaHacia(e) <= RADIO_EXPLOSION) {
                     e.recibirDanio(getDanioAtaque());
-                    System.out.printf("La explosion alcanza a %s (%d de daño).%n", e.getNombre(), getDanioAtaque());
+                    System.out.printf("La explosión alcanza a %s (%d de daño).%n", e.getNombre(), getDanioAtaque());
                 }
             }
         }
         detonado = true;
-        // Se quita toda su vida para que muera
         recibirDanio(getVida());
     }
 

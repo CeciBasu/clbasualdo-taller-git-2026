@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.Esqueleto;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
@@ -25,6 +27,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.EsqueletoService;
  * Las reglas del juego quedan en el dominio: el controller solo arma la respuesta.
  */
 @RestController
+@Tag(name = "Esqueleto", description = "Creacion de esqueletos y sobrecarga de disparar")
 public class EsqueletoController {
 
     /** Servicio que arma el esqueleto con las reglas del dominio. */
@@ -59,6 +62,7 @@ public class EsqueletoController {
      * Una respuesta con el nombre, vida, si esta vivo, flechas y posicion del esqueleto,
      * o una respuesta de error con el mensaje si los datos no son validos.
      */
+    @Operation(summary = "Crea un esqueleto con los datos de la URL")
     @GetMapping(ApiPaths.ESQUELETO)
     public ResponseEntity<Map<String, Object>> crear(
             @RequestParam(defaultValue = "Esqueleto") String nombre,
@@ -107,6 +111,7 @@ public class EsqueletoController {
      * el rango del esqueleto; o una respuesta de error con el mensaje si los datos no
      * son validos.
      */
+    @Operation(summary = "Muestra las dos versiones del disparo del esqueleto")
     @GetMapping(ApiPaths.ESQUELETO_DISPARAR)
     public ResponseEntity<Object> disparar(
             @RequestParam(defaultValue = "Bony") String nombre,

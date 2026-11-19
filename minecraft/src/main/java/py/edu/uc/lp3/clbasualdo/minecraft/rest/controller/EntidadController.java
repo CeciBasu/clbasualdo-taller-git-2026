@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.EntidadEntity;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.entidad.EntidadCrudService;
@@ -28,6 +30,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.entidad.EntidadCrudService;
  */
 @RestController
 @RequestMapping(ApiPaths.ENTIDADES)
+@Tag(name = "Entidades", description = "CRUD de la familia de entidades persistidas")
 public class EntidadController {
 
     /** Servicio de negocios para el CRUD de entidades. */
@@ -54,6 +57,7 @@ public class EntidadController {
      * Retorno:
      * Respuesta con la entidad creada.
      */
+    @Operation(summary = "Crea una entidad")
     @PostMapping
     public ResponseEntity<EntidadEntity> crear(@RequestBody EntidadEntity entidad) {
         EntidadEntity creada = entidadCrudService.crear(entidad);
@@ -67,6 +71,7 @@ public class EntidadController {
      * Retorno:
      * Lista con todas las entidades y su "tipo".
      */
+    @Operation(summary = "Lista todas las entidades")
     @GetMapping
     public List<EntidadEntity> listar() {
         return entidadCrudService.listar();
@@ -82,6 +87,7 @@ public class EntidadController {
      * Retorno:
      * La entidad encontrada.
      */
+    @Operation(summary = "Obtiene una entidad por id")
     @GetMapping("/{id}")
     public EntidadEntity obtenerPorId(@PathVariable Long id) {
         return entidadCrudService.obtenerPorId(id);
@@ -97,6 +103,7 @@ public class EntidadController {
      * Retorno:
      * La entidad encontrada.
      */
+    @Operation(summary = "Obtiene una entidad por nombre")
     @GetMapping("/nombre/{nombre}")
     public EntidadEntity obtenerPorNombre(@PathVariable String nombre) {
         return entidadCrudService.obtenerPorNombre(nombre);
@@ -113,6 +120,7 @@ public class EntidadController {
      * Retorno:
      * La entidad actualizada.
      */
+    @Operation(summary = "Actualiza una entidad por id")
     @PutMapping("/{id}")
     public EntidadEntity actualizar(@PathVariable Long id, @RequestBody EntidadEntity entidad) {
         return entidadCrudService.actualizar(id, entidad);
@@ -129,6 +137,7 @@ public class EntidadController {
      * Retorno:
      * La entidad actualizada.
      */
+    @Operation(summary = "Actualiza una entidad por nombre")
     @PutMapping("/nombre/{nombre}")
     public EntidadEntity actualizarPorNombre(@PathVariable String nombre, @RequestBody EntidadEntity entidad) {
         return entidadCrudService.actualizarPorNombre(nombre, entidad);
@@ -144,6 +153,7 @@ public class EntidadController {
      * Retorno:
      * Respuesta sin contenido.
      */
+    @Operation(summary = "Elimina una entidad por id")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         entidadCrudService.eliminar(id);
@@ -160,6 +170,7 @@ public class EntidadController {
      * Retorno:
      * Respuesta sin contenido.
      */
+    @Operation(summary = "Elimina una entidad por nombre")
     @DeleteMapping("/nombre/{nombre}")
     public ResponseEntity<Void> eliminarPorNombre(@PathVariable String nombre) {
         entidadCrudService.eliminarPorNombre(nombre);

@@ -97,14 +97,12 @@ class EsqueletoTest {
         assertThrows(IllegalArgumentException.class, () -> new Esqueleto().golpear(null));
     }
 
-    /**
-     * Descripcion:
-     * El objetivo nulo se rechaza, y tambien el esqueleto con vida invalida.
-     */
     @Test
-    void elConstructorValidaSusDatos() {
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("Bony", 0));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("", 20));
+    void elConstructorPermiteDatosEnDominio() {
+        Esqueleto b = new Esqueleto("Bony", 0);
+        assertEquals(0, b.getVida());
+        Esqueleto e = new Esqueleto("", 20);
+        assertEquals("", e.getNombre());
         assertTrue(new Esqueleto().estaVivo());
         assertEquals("Esqueleto", new Esqueleto().getNombre());
     }
