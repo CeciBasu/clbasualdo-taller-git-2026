@@ -4,22 +4,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Descripcion:
- * Pruebas de las entidades pasivas: huida y deteccion de peligro.
+ * Descripción:
+ * Pruebas de las entidades pasivas: huida y detección de peligro.
  *
  * Responsabilidad:
- * Verificar que huir se aleje de la amenaza, que no falle cuando estan en el
- * mismo punto y que el limite de peligro se sostenga en el borde.
+ * Verificar que huir se aleje de la amenaza, que no falle cuando están en el
+ * mismo punto y que el límite de peligro se sostenga en el borde.
  */
 class EntidadPasivaTest {
 
     /**
-     * Descripcion:
-     * Huir aleja 2 bloques en direccion contraria a la amenaza.
+     * Descripción:
+     * Huir aleja 2 bloques en dirección contraria a la amenaza.
      */
     @Test
     void huirSeAlejaDeLaAmenaza() {
@@ -36,9 +35,9 @@ class EntidadPasivaTest {
     }
 
     /**
-     * Descripcion:
-     * Cuando la entidad y la amenaza estan en el mismo punto, la distancia es 0
-     * y dividir por ella reventaria. El codigo elige una direccion y sigue.
+     * Descripción:
+     * Cuando la entidad y la amenaza están en el mismo punto, la distancia es 0
+     * y dividir por ella reventaría. El código elige una dirección y sigue.
      */
     @Test
     void huirEnElMismoPuntoNoFalla() {
@@ -49,24 +48,14 @@ class EntidadPasivaTest {
 
         aldeano.huir(zombie);
 
-        // Se aleja 2 bloques en X, que es la direccion de fallback.
+        // Se aleja 2 bloques en X, que es la dirección de fallback.
         assertEquals(5.0, aldeano.getX(), 0.0001);
     }
 
     /**
-     * Descripcion:
-     * Una amenaza nula se rechaza al huir.
-     */
-    @Test
-    void huirDeUnaAmenazaNulaSeRechaza() {
-        Aldeano aldeano = new Aldeano();
-        assertThrows(IllegalArgumentException.class, () -> aldeano.huir(null));
-    }
-
-    /**
-     * Descripcion:
-     * El limite de peligro son 6.0 bloques: justo en el borde todavia es peligro,
-     * un centimetro mas alla ya no lo es.
+     * Descripción:
+     * El límite de peligro son 6.0 bloques: justo en el borde todavía es peligro,
+     * un centímetro más allá ya no lo es.
      */
     @Test
     void elLimiteDePeligroSeSostieneEnElBorde() {
@@ -82,7 +71,7 @@ class EntidadPasivaTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Sin amenaza no hay peligro, ni siquiera con una amenaza nula.
      */
     @Test

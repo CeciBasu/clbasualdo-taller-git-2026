@@ -9,12 +9,13 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.DisparoResultado;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.EsqueletoService;
 
 /**
- * Descripcion:
- * Implementacion del servicio del Esqueleto.
+ * Descripción:
+ * Implementación del servicio del Esqueleto.
  *
  * Responsabilidad:
- * Crear el esqueleto con las reglas del dominio, traducir los errores de datos
- * a una excepcion propia y guardarlo en el repositorio.
+ * Validar los datos que llegan (nombre, vida y distancia), crear el esqueleto con esos
+ * datos y guardarlo en el repositorio. El dominio ya no valida: si un dato no sirve,
+ * este servicio lanza DatosInvalidosException antes de crear el objeto.
  */
 @Service
 public class EsqueletoServiceImpl implements EsqueletoService {
@@ -23,10 +24,10 @@ public class EsqueletoServiceImpl implements EsqueletoService {
     private final EntidadRepository entidadRepository;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el servicio con el repositorio que va a usar.
      *
-     * Parametros:
+     * Parámetros:
      * entidadRepository - El repositorio de entidades.
      */
     public EsqueletoServiceImpl(EntidadRepository entidadRepository) {
@@ -44,55 +45,52 @@ public class EsqueletoServiceImpl implements EsqueletoService {
     public DisparoResultado disparar(String nombre, int vida, double x, double y, double z, double distancia)
             throws DatosInvalidosException {
         Esqueleto esqueleto = construir(nombre, vida, x, y, z);
+        if (distancia < 0) {
+            throw new DatosInvalidosException("La distancia no puede ser negativa.");
+        }
         int flechasIniciales = esqueleto.getFlechas();
 
-        // Se llaman las dos versiones del mismo mensaje del dominio, una con distancia
-        // y otra sin distancia, para que la diferencia se vea en la respuesta.
-        // Los dos disparos van dentro del try porque disparar(double) tambien puede
-        // rechazar un dato (una distancia negativa), y eso tambien es un error del
-        // usuario que hay que terminar en un 400, no en un 500.
-        try {
-            String sinDistancia = esqueleto.disparar();
-            String conDistancia = esqueleto.disparar(distancia);
+        // Se llaman las dos versiones del mismo mensaje del dominio, una sin distancia
+        // y otra con distancia, para que la diferencia se vea en la respuesta.
+        String sinDistancia = esqueleto.disparar();
+        String conDistancia = esqueleto.disparar(distancia);
 
-            return new DisparoResultado(
-                    esqueleto.getNombre(),
-                    flechasIniciales,
-                    esqueleto.getFlechas(),
-                    esqueleto.getRangoAtaque(),
-                    distancia,
-                    sinDistancia,
-                    conDistancia);
-        } catch (IllegalArgumentException ex) {
-            throw new DatosInvalidosException(ex.getMessage(), ex);
-        }
+        return new DisparoResultado(
+                esqueleto.getNombre(),
+                flechasIniciales,
+                esqueleto.getFlechas(),
+                esqueleto.getRangoAtaque(),
+                distancia,
+                sinDistancia,
+                conDistancia);
     }
 
     /**
-     * Descripcion:
-     * Arma un esqueleto con los datos recibidos y lo ubica en la posicion pedida.
-     * Traduce los errores del dominio a una excepcion propia.
+     * Descripción:
+     * Valida el nombre y la vida, arma un esqueleto y lo ubica en la posición pedida.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre del esqueleto.
      * vida - Vida inicial.
-     * x - Posicion en X.
-     * y - Posicion en Y.
-     * z - Posicion en Z.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      *
      * Retorno:
-     * El esqueleto recien creado y ubicado.
+     * El esqueleto recién creado y ubicado.
      *
      * Errores:
-     * DatosInvalidosException - Si el dominio rechaza algun dato.
+     * DatosInvalidosException - Si el nombre está vacío o la vida no es mayor a 0.
      */
     private Esqueleto construir(String nombre, int vida, double x, double y, double z) throws DatosInvalidosException {
-        try {
-            Esqueleto esqueleto = new Esqueleto(nombre, vida);
-            esqueleto.teletransportar(x, y, z);
-            return esqueleto;
-        } catch (IllegalArgumentException ex) {
-            throw new DatosInvalidosException(ex.getMessage(), ex);
+        if (nombre == null || nombre.isBlank()) {
+            throw new DatosInvalidosException("El nombre no puede estar vacío.");
         }
+        if (vida <= 0) {
+            throw new DatosInvalidosException("La vida inicial debe ser mayor a 0.");
+        }
+        Esqueleto esqueleto = new Esqueleto(nombre, vida);
+        esqueleto.teletransportar(x, y, z);
+        return esqueleto;
     }
 }

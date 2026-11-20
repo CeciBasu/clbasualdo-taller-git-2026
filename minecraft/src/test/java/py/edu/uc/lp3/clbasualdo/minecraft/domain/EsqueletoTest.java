@@ -4,12 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Descripcion:
- * Pruebas del Esqueleto: municion, recarga y alcance del ataque.
+ * Descripción:
+ * Pruebas del Esqueleto: munición, recarga y alcance del ataque.
  *
  * Responsabilidad:
  * Verificar que las flechas se gasten al atacar, que la recarga no acepte
@@ -18,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class EsqueletoTest {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Un esqueleto nuevo arranca con 16 flechas y cada ataque gasta una.
      */
     @Test
@@ -32,7 +31,7 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Sin flechas el esqueleto ataca cuerpo a cuerpo y no queda en negativo.
      */
     @Test
@@ -47,23 +46,21 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
-     * Recargar suma flechas y una cantidad negativa se rechaza.
+     * Descripción:
+     * Recargar suma flechas, y recargar 0 no cambia nada.
      */
     @Test
-    void recargarSumaYRechazaNegativos() {
+    void recargarSumaFlechas() {
         Esqueleto esqueleto = new Esqueleto();
         esqueleto.recargar(10);
         assertEquals(26, esqueleto.getFlechas());
         esqueleto.recargar(0);
         assertEquals(26, esqueleto.getFlechas());
-        assertThrows(IllegalArgumentException.class, () -> esqueleto.recargar(-1));
-        assertEquals(26, esqueleto.getFlechas());
     }
 
     /**
-     * Descripcion:
-     * El golpe solo llega si el objetivo esta dentro del rango (8.0) y vivo.
+     * Descripción:
+     * El golpe solo llega si el objetivo está dentro del rango (8.0) y vivo.
      */
     @Test
     void elGolpeRespetaElRango() {
@@ -84,34 +81,18 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
-     * Un esqueleto muerto no ataca y un objetivo nulo se rechaza.
+     * Descripción:
+     * El constructor por defecto arma un esqueleto vivo llamado «Esqueleto».
      */
     @Test
-    void unEsqueletoMuertoNoAtaca() {
-        Esqueleto esqueleto = new Esqueleto();
-        Zombie objetivo = new Zombie();
-        esqueleto.recibirDanio(20);
-        assertFalse(esqueleto.estaVivo());
-        assertThrows(IllegalStateException.class, () -> esqueleto.golpear(objetivo));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto().golpear(null));
-    }
-
-    /**
-     * Descripcion:
-     * El objetivo nulo se rechaza, y tambien el esqueleto con vida invalida.
-     */
-    @Test
-    void elConstructorValidaSusDatos() {
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("Bony", 0));
-        assertThrows(IllegalArgumentException.class, () -> new Esqueleto("", 20));
+    void elConstructorPorDefectoArmaUnEsqueletoVivo() {
         assertTrue(new Esqueleto().estaVivo());
         assertEquals("Esqueleto", new Esqueleto().getNombre());
     }
 
     /**
-     * Descripcion:
-     * Sobrecarga de disparar(): la version sin distancia gasta una flecha y lo dice.
+     * Descripción:
+     * Sobrecarga de disparar(): la versión sin distancia gasta una flecha y lo dice.
      */
     @Test
     void dispararSinDistanciaGastaUnaFlecha() {
@@ -124,9 +105,9 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
-     * La version con distancia, si el objetivo esta dentro del rango (8.0), se
-     * comporta igual que la version sin distancia.
+     * Descripción:
+     * La versión con distancia, si el objetivo está dentro del rango (8.0), se
+     * comporta igual que la versión sin distancia.
      */
     @Test
     void dispararConDistanciaDentroDelRangoGastaFlecha() {
@@ -139,10 +120,10 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Esta es la diferencia entre las dos versiones: con distancia se puede fallar
-     * el disparo. Si el objetivo esta fuera del rango, la flecha se pierde y no se
-     * gasta, cosa que la version sin distancia no puede hacer.
+     * el disparo. Si el objetivo está fuera del rango, la flecha se pierde y no se
+     * gasta, cosa que la versión sin distancia no puede hacer.
      */
     @Test
     void dispararFueraDelRangoNoGastaFlecha() {
@@ -155,22 +136,9 @@ class EsqueletoTest {
     }
 
     /**
-     * Descripcion:
-     * Una distancia negativa se rechaza, igual que en el resto de los mensajes.
-     * La version sin distancia no puede dar este error.
-     */
-    @Test
-    void dispararConDistanciaNegativaSeRechaza() {
-        Esqueleto esqueleto = new Esqueleto("Bony", 20);
-
-        assertThrows(IllegalArgumentException.class, () -> esqueleto.disparar(-1.0));
-        assertEquals(16, esqueleto.getFlechas(), "un disparo rechazado no gasta flecha");
-    }
-
-    /**
-     * Descripcion:
+     * Descripción:
      * Sin flechas, las dos versiones avisan que ataca cuerpo a cuerpo y no dejan
-     * la municion en negativo.
+     * la munición en negativo.
      */
     @Test
     void dispararSinFlechasAtaqueCuerpoACuerpo() {

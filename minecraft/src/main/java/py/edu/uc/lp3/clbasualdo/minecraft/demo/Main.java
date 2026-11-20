@@ -10,20 +10,20 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.Zombie;
 import java.util.List;
 
 /**
- * Descripcion:
- * Demostracion que prueba todas las clases del juego. Vive en el paquete demo
+ * Descripción:
+ * Demostración que prueba todas las clases del juego. Vive en el paquete demo
  * para que el dominio (Entidad y sus hijas) no dependa de ella.
  *
  * Responsabilidad:
  * Crea al jugador y a las entidades, las pone en el mundo y muestra por pantalla
- * distintas situaciones como combate, huida y explosion.
+ * distintas situaciones como combate, huida y explosión.
  */
 public class Main {
     /**
-     * Descripcion:
-     * Metodo donde empieza el programa. Crea las entidades, las ubica y prueba sus acciones.
+     * Descripción:
+     * Método donde empieza el programa. Crea las entidades, las ubica y prueba sus acciones.
      *
-     * Parametros:
+     * Parámetros:
      * args - Argumentos que se reciben al ejecutar el programa (no se usan).
      */
     public static void main(String[] args) {

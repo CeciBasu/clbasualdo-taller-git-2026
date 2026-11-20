@@ -4,12 +4,11 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /**
- * Descripcion:
- * Hija de EntidadEntity que representa un Jugador persistido.
+ * Descripción:
+ * Fila de la tabla "entidades" que representa a un Jugador.
  *
  * Responsabilidad:
- * Guardar los datos propios del Jugador (nivel y experiencia) en la misma tabla
- * de la familia, usando el discriminador "Jugador".
+ * Guardar el nivel y la experiencia acumulada del jugador, además de los datos comunes.
  */
 @Entity
 @DiscriminatorValue("Jugador")
@@ -18,36 +17,56 @@ public class JugadorEntity extends EntidadEntity {
     /** Nivel actual del jugador. */
     private int nivel;
 
-    /** Experiencia acumulada del jugador. */
+    /** Experiencia acumulada hacia el próximo nivel (de 0 a 99). */
     private int experiencia;
 
     /**
-     * Descripcion:
-     * Constructor vacio requerido por JPA y Jackson.
+     * Descripción:
+     * Constructor vacío que exige JPA.
      */
     protected JugadorEntity() {
     }
 
     /**
-     * Descripcion:
-     * Crea un Jugador persistible. La vida maxima arranca igual a la vida.
+     * Descripción:
+     * Crea un jugador sin experiencia acumulada.
      *
-     * Parametros:
-     * nombre - Nombre del jugador.
-     * vida - Vida inicial.
+     * Parámetros:
+     * nombre - Nombre único.
+     * vida - Vida inicial, que también es la máxima.
      * nivel - Nivel inicial.
-     * x - Posicion en X.
-     * y - Posicion en Y.
-     * z - Posicion en Z.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      */
     public JugadorEntity(String nombre, int vida, int nivel, double x, double y, double z) {
-        super(nombre, vida, vida, x, y, z);
-        this.nivel = nivel;
+        this(nombre, vida, vida, x, y, z, nivel, 0);
     }
 
     /**
-     * Descripcion:
-     * Devuelve el nivel del jugador.
+     * Descripción:
+     * Crea un jugador con todos sus datos.
+     *
+     * Parámetros:
+     * nombre - Nombre único.
+     * vida - Vida actual.
+     * vidaMaxima - Vida máxima.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
+     * nivel - Nivel.
+     * experiencia - Experiencia acumulada.
+     */
+    public JugadorEntity(String nombre, int vida, int vidaMaxima, double x, double y, double z,
+            int nivel, int experiencia) {
+        super(nombre, vida, vidaMaxima, x, y, z);
+        this.nivel = nivel;
+        this.experiencia = experiencia;
+    }
+
+    /**
+     * Descripción:
+     * Devuelve el nivel.
      *
      * Retorno:
      * El nivel actual.
@@ -57,44 +76,22 @@ public class JugadorEntity extends EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna el nivel del jugador.
-     *
-     * Parametros:
-     * nivel - Nivel a asignar.
-     */
-    public void setNivel(int nivel) {
-        this.nivel = nivel;
-    }
-
-    /**
-     * Descripcion:
-     * Devuelve la experiencia del jugador.
+     * Descripción:
+     * Devuelve la experiencia acumulada.
      *
      * Retorno:
-     * La experiencia acumulada.
+     * La experiencia hacia el próximo nivel.
      */
     public int getExperiencia() {
         return experiencia;
     }
 
     /**
-     * Descripcion:
-     * Asigna la experiencia del jugador.
+     * Descripción:
+     * Copia los datos comunes, el nivel y la experiencia desde otro jugador.
      *
-     * Parametros:
-     * experiencia - Experiencia a asignar.
-     */
-    public void setExperiencia(int experiencia) {
-        this.experiencia = experiencia;
-    }
-
-    /**
-     * Descripcion:
-     * Copia los datos comunes y los propios del Jugador.
-     *
-     * Parametros:
-     * otro - Entidad de la que se copian los datos.
+     * Parámetros:
+     * otro - Entidad con los datos nuevos.
      */
     @Override
     public void copiarDatosDesde(EntidadEntity otro) {

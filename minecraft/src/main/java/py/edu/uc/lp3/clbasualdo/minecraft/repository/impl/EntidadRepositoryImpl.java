@@ -10,13 +10,13 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.Entidad;
 import py.edu.uc.lp3.clbasualdo.minecraft.repository.EntidadRepository;
 
 /**
- * Descripcion:
- * Implementacion del repositorio que guarda las entidades en memoria.
+ * Descripción:
+ * Implementación del repositorio que guarda las entidades en memoria.
  *
  * Responsabilidad:
- * Mantener la lista de entidades durante la vida de la aplicacion, sin
- * persistencia en disco. Se aisla aca para poder cambiar a una base de datos
- * mas adelante sin tocar los servicios.
+ * Mantener la lista de entidades durante la vida de la aplicación, sin
+ * persistencia en disco. Se aisla acá para poder cambiar a una base de datos
+ * más adelante sin tocar los servicios.
  */
 @Repository
 public class EntidadRepositoryImpl implements EntidadRepository {

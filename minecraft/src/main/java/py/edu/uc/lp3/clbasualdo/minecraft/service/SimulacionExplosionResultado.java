@@ -4,67 +4,77 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Descripcion:
- * Resultado completo de una simulacion de explosion.
+ * Descripción:
+ * Resultado completo de una simulación de explosión.
  *
  * Responsabilidad:
- * Llevar al controller los datos del Creeper, de las entidades alcanzadas y de
- * las que quedaron fuera del radio, junto con el id y la fecha con los que quedo
- * guardada la simulacion en H2.
+ * Llevar al controller los datos del Creeper guardado que detonó, de las entidades
+ * guardadas que alcanzó y de las que quedaron fuera del radio, junto con el id y la
+ * fecha con los que quedó guardada la simulación en H2.
+ *
+ * Parámetros:
+ * simulacionId - Id de la simulación persistida.
+ * fecha - Fecha en que se guardó la simulación.
+ * radioExplosion - Radio de la explosión del Creeper.
+ * creeper - Estado del Creeper antes y después de detonar.
+ * afectados - Entidades que estaban dentro del radio.
+ * noAfectados - Entidades vivas que estaban fuera del radio.
  */
 public record SimulacionExplosionResultado(
-        /** Id de la simulacion persistida. */
         Long simulacionId,
-        /** Fecha en que se guardo la simulacion. */
         LocalDateTime fecha,
-        /** Radio de la explosion del Creeper. */
         double radioExplosion,
-        /** Estado final del Creeper que exploto. */
         EstadoCreeper creeper,
-        /** Entidades que estaban dentro del radio de la explosion. */
         List<EstadoEntidad> afectados,
-        /** Entidades que estaban fuera del radio de la explosion. */
         List<EstadoEntidad> noAfectados) {
 
     /**
-     * Descripcion:
-     * Estado del Creeper antes y despues de la explosion.
+     * Descripción:
+     * Estado del Creeper antes y después de la explosión.
+     *
+     * Parámetros:
+     * id - Id del Creeper en la tabla "entidades".
+     * nombre - Nombre del Creeper.
+     * vidaInicial - Vida que tenía antes de detonar.
+     * vidaFinal - Vida después de detonar (siempre 0).
+     * detonado - Si quedó detonado (siempre true).
+     * vivo - Si sigue vivo (siempre false).
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      */
     public record EstadoCreeper(
-            /** Nombre del Creeper. */
+            Long id,
             String nombre,
-            /** Vida que tenia antes de detonar. */
             int vidaInicial,
-            /** Vida que tiene despues de detonar. */
             int vidaFinal,
-            /** Indica si el Creeper ya detono. */
             boolean detonado,
-            /** Indica si el Creeper sigue vivo. */
             boolean vivo,
-            /** Posicion en X. */
             double x,
-            /** Posicion en Y. */
             double y,
-            /** Posicion en Z. */
             double z) {
     }
 
     /**
-     * Descripcion:
-     * Estado de una entidad que participo de la simulacion.
+     * Descripción:
+     * Estado de una entidad guardada que estaba viva al momento de la explosión.
+     *
+     * Parámetros:
+     * id - Id de la entidad en la tabla "entidades".
+     * tipo - Subtipo de la entidad.
+     * nombre - Nombre de la entidad.
+     * vidaInicial - Vida antes de la explosión.
+     * vidaFinal - Vida después de la explosión.
+     * distanciaAlCreeper - Distancia al Creeper, en bloques.
+     * alcanzada - Si quedó dentro del radio.
      */
     public record EstadoEntidad(
-            /** Tipo concreto de la entidad. */
+            Long id,
             String tipo,
-            /** Nombre de la entidad. */
             String nombre,
-            /** Vida que tenia antes de la explosion. */
             int vidaInicial,
-            /** Vida que tiene despues de la explosion. */
             int vidaFinal,
-            /** Distancia que la separaba del Creeper. */
             double distanciaAlCreeper,
-            /** Indica si estaba dentro del radio de la explosion. */
             boolean alcanzada) {
     }
 }

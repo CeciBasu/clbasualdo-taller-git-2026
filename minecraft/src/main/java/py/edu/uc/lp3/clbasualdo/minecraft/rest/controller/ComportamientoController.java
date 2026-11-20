@@ -12,12 +12,12 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.Entidad;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.ComportamientoService;
 
 /**
- * Descripcion:
- * Controlador que muestra como reacciona cada tipo de entidad del juego.
+ * Descripción:
+ * Controlador que muestra cómo reacciona cada tipo de entidad del juego.
  *
  * Responsabilidad:
  * Se encarga de pedirle al servicio una entidad de cada tipo y devolver sus datos
- * y su reaccion por la API.
+ * y su reacción por la API.
  */
 @RestController
 public class ComportamientoController {
@@ -26,10 +26,10 @@ public class ComportamientoController {
     private final ComportamientoService comportamientoService;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el controlador con el servicio que va a usar.
      *
-     * Parametros:
+     * Parámetros:
      * comportamientoService - El servicio de comportamiento.
      */
     public ComportamientoController(ComportamientoService comportamientoService) {
@@ -37,10 +37,10 @@ public class ComportamientoController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Responde a la ruta de comportamiento. Pide la lista de entidades al servicio
-     * y por cada una arma un mapa con su tipo, su reaccion, su vida y su posicion.
-     * Todas las entidades se tratan como Entidad, y cada una responde con su propia reaccion.
+     * y por cada una arma un mapa con su tipo, su reacción, su vida y su posición.
+     * Todas las entidades se tratan como Entidad, y cada una responde con su propia reacción.
      *
      * Retorno:
      * Una lista con los datos de cada entidad.

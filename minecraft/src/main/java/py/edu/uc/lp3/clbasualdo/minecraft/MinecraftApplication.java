@@ -4,20 +4,20 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Descripcion:
+ * Descripción:
  * Clase que arranca el proyecto usando Spring Boot.
  *
  * Responsabilidad:
- * Se encarga de iniciar la aplicacion de Spring.
+ * Se encarga de iniciar la aplicación de Spring.
  */
 @SpringBootApplication
 public class MinecraftApplication {
 
 	/**
-	 * Descripcion:
-	 * Metodo donde empieza a ejecutarse la aplicacion de Spring.
+	 * Descripción:
+	 * Método donde empieza a ejecutarse la aplicación de Spring.
 	 *
-	 * Parametros:
+	 * Parámetros:
 	 * args - Argumentos que se reciben al ejecutar el programa.
 	 */
 	public static void main(String[] args) {

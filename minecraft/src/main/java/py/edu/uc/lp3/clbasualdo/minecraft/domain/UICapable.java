@@ -1,19 +1,19 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 
 /**
- * Descripcion:
+ * Descripción:
  * Capacidad que tienen todos los elementos representables del dominio (jugador,
- * enemigos, aldeanos y animales) para ser dibujados en una interfaz grafica (UI).
+ * enemigos, aldeanos y animales) para ser dibujados en una interfaz gráfica (UI).
  *
  * Responsabilidad:
  * Exponer los cuatro datos que la UI necesita de una entidad: su imagen, su
- * posicion, su sonido y su velocidad. El sonido queda con un comportamiento por
+ * posición, su sonido y su velocidad. El sonido queda con un comportamiento por
  * defecto, que las entidades con sonido propio reemplazan usando @Override.
  */
 public interface UICapable {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve el nombre del archivo de imagen (textura) con el que se dibuja la entidad.
      *
      * Retorno:
@@ -22,8 +22,8 @@ public interface UICapable {
     String imagen();
 
     /**
-     * Descripcion:
-     * Devuelve la posicion de la entidad formateada para mostrarla en la UI.
+     * Descripción:
+     * Devuelve la posición de la entidad formateada para mostrarla en la UI.
      *
      * Retorno:
      * Un texto con las coordenadas x, y, z.
@@ -31,7 +31,7 @@ public interface UICapable {
     String posicion();
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad a la que se mueve la entidad.
      *
      * Retorno:
@@ -40,7 +40,7 @@ public interface UICapable {
     double velocidad();
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve el sonido de la entidad. Es el comportamiento por defecto: las
      * entidades con un sonido propio lo reemplazan usando @Override.
      *
@@ -48,6 +48,6 @@ public interface UICapable {
      * Un texto que describe el sonido.
      */
     default String sonido() {
-        return "Emite un sonido generico de criatura.";
+        return "Emite un sonido genérico de criatura.";
     }
 }

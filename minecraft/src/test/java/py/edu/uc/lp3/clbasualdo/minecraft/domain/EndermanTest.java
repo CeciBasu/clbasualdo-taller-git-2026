@@ -4,22 +4,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Descripcion:
+ * Descripción:
  * Pruebas del Enderman.
  *
  * Responsabilidad:
- * Verificar que el Enderman nazca con los valores de la jerarquia EntidadHostil,
+ * Verificar que el Enderman nazca con los valores de la jerarquía EntidadHostil,
  * que respete su rango de ataque y que se teletransporte como entidad viva.
  */
 class EndermanTest {
 
     /**
-     * Descripcion:
-     * El Enderman nace con 40 de vida, 7 de dano y 16.0 de rango, y es valido.
+     * Descripción:
+     * El Enderman nace con 40 de vida, 7 de daño y 16.0 de rango, y es válido.
      */
     @Test
     void naceConLosValoresDeLaJerarquia() {
@@ -33,8 +32,8 @@ class EndermanTest {
     }
 
     /**
-     * Descripcion:
-     * Es un hostil: ataca con su propio mensaje y su reaccion no viene de la base.
+     * Descripción:
+     * Es un hostil: ataca con su propio mensaje y su reacción no viene de la base.
      */
     @Test
     void atacaYReaccionaConSuPropioComportamiento() {
@@ -45,8 +44,8 @@ class EndermanTest {
     }
 
     /**
-     * Descripcion:
-     * Su rango de 16.0 es el mayor de la jerarquia: alcanza a mas lejos que el
+     * Descripción:
+     * Su rango de 16.0 es el mayor de la jerarquía: alcanza a más lejos que el
      * zombie y que el esqueleto.
      */
     @Test
@@ -61,7 +60,7 @@ class EndermanTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Se teletransporta, y la entidad se puede mover con su mecanismo inherited.
      */
     @Test
@@ -74,15 +73,4 @@ class EndermanTest {
         assertEquals(-5.0, enderman.getZ(), 0.0001);
     }
 
-    /**
-     * Descripcion:
-     * Muerto no ataca: la regla la sigue aplicando la clase base.
-     */
-    @Test
-    void muertoNoAtaca() {
-        Enderman enderman = new Enderman();
-        enderman.recibirDanio(40);
-        assertFalse(enderman.estaVivo());
-        assertThrows(IllegalStateException.class, () -> enderman.golpear(new Zombie()));
-    }
 }

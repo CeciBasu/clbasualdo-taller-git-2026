@@ -9,17 +9,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Descripcion:
- * Pruebas de que el modelo se usa polimorficamente.
+ * Descripción:
+ * Pruebas de que el modelo se usa polimórficamente.
  *
  * Responsabilidad:
- * Verificar que una lista de Entidad homogenea hace que cada objeto ejecute su
- * propio comportamiento sin que el codigo tenga que preguntar por el tipo.
+ * Verificar que una lista de Entidad homogénea hace que cada objeto ejecute su
+ * propio comportamiento sin que el código tenga que preguntar por el tipo.
  */
 class PolimorfismoTest {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Una lista de Entidad con hijas de distintos tipos se recorre sin instanceof
      * ni switch: cada objeto responde su propio reaccionar().
      */
@@ -40,8 +40,8 @@ class PolimorfismoTest {
     }
 
     /**
-     * Descripcion:
-     * Los dos metodos abstractos de la jerarquia se cumplen en todas las hijas:
+     * Descripción:
+     * Los dos métodos abstractos de la jerarquía se cumplen en todas las hijas:
      * Entidad.reaccionar() y EntidadHostil.atacar().
      */
     @Test
@@ -54,10 +54,10 @@ class PolimorfismoTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Un enemigo golpea a un objetivo tratado como Entidad, sin conocer su clase
      * concreta: da igual que sea pasivo, hostil o el jugador. Cada uno pierde los
-     * 4 de dano del esqueleto, partiendo de la vida con la que nazca.
+     * 4 de daño del esqueleto, partiendo de la vida con la que nazca.
      */
     @Test
     void unHostilGolpeaACualquierEntidad() {

@@ -3,20 +3,18 @@ package py.edu.uc.lp3.clbasualdo.minecraft.service.impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.Creeper;
-import py.edu.uc.lp3.clbasualdo.minecraft.domain.Entidad;
-import py.edu.uc.lp3.clbasualdo.minecraft.domain.Jugador;
-import py.edu.uc.lp3.clbasualdo.minecraft.domain.Zombie;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.CreeperEntity;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.EntidadEntity;
-import py.edu.uc.lp3.clbasualdo.minecraft.entity.JugadorEntity;
+import py.edu.uc.lp3.clbasualdo.minecraft.entity.ImpactoExplosion;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.SimulacionExplosionEntity;
-import py.edu.uc.lp3.clbasualdo.minecraft.entity.ZombieEntity;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RecursoNoEncontradoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.repository.jpa.EntidadJpaRepository;
 import py.edu.uc.lp3.clbasualdo.minecraft.repository.jpa.SimulacionExplosionJpaRepository;
@@ -26,42 +24,30 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado.E
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
 
 /**
- * Descripcion:
- * Implementacion de la simulacion de explosiones con persistencia en H2.
+ * Descripción:
+ * Implementación de la simulación de explosiones sobre las entidades guardadas en H2.
  *
  * Responsabilidad:
- * Armar el escenario con Creeper, Zombie y Jugador, ejecutar la detonacion en el
- * dominio, guardar el estado final de las tres entidades y registrar la
- * simulacion para que un GET posterior muestre el resultado.
+ * Cargar el Creeper guardado, aplicar las dos reglas de la explosión, quitarle vida a las
+ * entidades guardadas que estén dentro del radio y guardar todo en una sola transacción.
+ * Si una regla falla, se lanza la excepción antes de tocar nada y la base queda igual.
+ * El radio y el daño salen del modelo de dominio (Creeper), que es quien conoce los
+ * números del juego.
  */
 @Service
 public class SimulacionExplosionServiceImpl implements SimulacionExplosionService {
 
-    /** Altura comun del escenario. */
-    private static final double ALTURA = 64.0;
-    /** Posicion del Zombie en X: queda dentro del radio de explosion. */
-    private static final double X_ZOMBIE = 2.0;
-    /** Posicion del Jugador en X: queda fuera del radio de explosion. */
-    private static final double X_JUGADOR = 5.0;
-    /** Vida inicial del Jugador del escenario. */
-    private static final int VIDA_JUGADOR = 20;
-    /** Nombre fijo con el que se persiste el Creeper de la simulacion. */
-    private static final String NOMBRE_CREEPER = "Creeper Simulado";
-    /** Nombre fijo con el que se persiste el Zombie de la simulacion. */
-    private static final String NOMBRE_ZOMBIE = "Zombie Simulado";
-    /** Nombre fijo con el que se persiste el Jugador de la simulacion. */
-    private static final String NOMBRE_JUGADOR = "Steve Simulado";
-
     /** Repositorio de la familia de entidades. */
     private final EntidadJpaRepository entidadJpaRepository;
-    /** Repositorio de las simulaciones. */
+
+    /** Repositorio de las simulaciones guardadas. */
     private final SimulacionExplosionJpaRepository simulacionJpaRepository;
 
     /**
-     * Descripcion:
-     * Crea el servicio con los dos repositorios que necesita.
+     * Descripción:
+     * Recibe los repositorios por constructor.
      *
-     * Parametros:
+     * Parámetros:
      * entidadJpaRepository - Repositorio de entidades.
      * simulacionJpaRepository - Repositorio de simulaciones.
      */
@@ -73,96 +59,36 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
 
     @Override
     @Transactional
-    public SimulacionExplosionResultado simular(int vidaCreeper, boolean repetirDetonacion) {
-        Creeper creeper = new Creeper();
-        creeper.teletransportar(0, ALTURA, 0);
-        int vidaInicialCreeper = ajustarVida(creeper, vidaCreeper);
+    public SimulacionExplosionResultado simular(Long creeperId) {
+        CreeperEntity creeper = buscarCreeper(creeperId);
+        validarQuePuedeDetonar(creeper);
 
-        Zombie zombie = new Zombie();
-        zombie.teletransportar(X_ZOMBIE, ALTURA, 0);
+        Creeper modelo = new Creeper();
+        double radio = modelo.getRadioExplosion();
+        int danio = modelo.getDanioAtaque();
+        int vidaInicialCreeper = creeper.getVida();
 
-        Jugador jugador = new Jugador("Steve", VIDA_JUGADOR, 1);
-        jugador.teletransportar(X_JUGADOR, ALTURA, 0);
-
-        int vidaInicialZombie = zombie.getVida();
-        int vidaInicialJugador = jugador.getVida();
-        double distanciaZombie = creeper.distanciaHacia(zombie);
-        double distanciaJugador = creeper.distanciaHacia(jugador);
-        double radioExplosion = creeper.getRadioExplosion();
-
-        List<Entidad> cercanas = List.of(zombie, jugador);
-        creeper.detonar(cercanas);
-        if (repetirDetonacion) {
-            creeper.detonar(cercanas);
+        List<ImpactoExplosion> impactos = new ArrayList<>();
+        for (EntidadEntity entidad : entidadJpaRepository.findAll()) {
+            if (entidad.getId().equals(creeper.getId()) || !entidad.estaViva()) {
+                continue;
+            }
+            double distancia = distancia(creeper, entidad);
+            boolean alcanzada = distancia <= radio;
+            int vidaInicial = entidad.getVida();
+            if (alcanzada) {
+                entidad.recibirDanio(danio);
+            }
+            impactos.add(new ImpactoExplosion(entidad.getId(), tipoDe(entidad), entidad.getNombre(),
+                    vidaInicial, entidad.getVida(), distancia, alcanzada));
         }
 
-        EstadoCreeper estadoCreeper = new EstadoCreeper(
-                creeper.getNombre(),
-                vidaInicialCreeper,
-                creeper.getVida(),
-                creeper.isDetonado(),
-                creeper.estaVivo(),
-                creeper.getX(),
-                creeper.getY(),
-                creeper.getZ());
+        creeper.registrarDetonacion();
+        entidadJpaRepository.flush();
 
-        EstadoEntidad estadoZombie = new EstadoEntidad(
-                zombie.getClass().getSimpleName(),
-                zombie.getNombre(),
-                vidaInicialZombie,
-                zombie.getVida(),
-                distanciaZombie,
-                distanciaZombie <= radioExplosion);
-
-        EstadoEntidad estadoJugador = new EstadoEntidad(
-                jugador.getClass().getSimpleName(),
-                jugador.getNombre(),
-                vidaInicialJugador,
-                jugador.getVida(),
-                distanciaJugador,
-                distanciaJugador <= radioExplosion);
-
-        List<EstadoEntidad> afectados = new ArrayList<>();
-        List<EstadoEntidad> noAfectados = new ArrayList<>();
-        clasificar(estadoZombie, afectados, noAfectados);
-        clasificar(estadoJugador, afectados, noAfectados);
-
-        CreeperEntity creeperEntity = guardarCreeper(estadoCreeper);
-        ZombieEntity zombieEntity = guardarZombie(estadoZombie);
-        JugadorEntity jugadorEntity = guardarJugador(estadoJugador);
-
-        SimulacionExplosionEntity simulacion = new SimulacionExplosionEntity();
-        simulacion.setFecha(LocalDateTime.now());
-        simulacion.setRadioExplosion(radioExplosion);
-        simulacion.setCreeperId(creeperEntity.getId());
-        simulacion.setZombieId(zombieEntity.getId());
-        simulacion.setJugadorId(jugadorEntity.getId());
-        simulacion.setCreeperNombre(estadoCreeper.nombre());
-        simulacion.setCreeperVidaInicial(estadoCreeper.vidaInicial());
-        simulacion.setCreeperVidaFinal(estadoCreeper.vidaFinal());
-        simulacion.setCreeperDetonado(estadoCreeper.detonado());
-        simulacion.setCreeperX(estadoCreeper.x());
-        simulacion.setCreeperY(estadoCreeper.y());
-        simulacion.setCreeperZ(estadoCreeper.z());
-        simulacion.setZombieNombre(estadoZombie.nombre());
-        simulacion.setZombieVidaInicial(estadoZombie.vidaInicial());
-        simulacion.setZombieVidaFinal(estadoZombie.vidaFinal());
-        simulacion.setZombieDistancia(estadoZombie.distanciaAlCreeper());
-        simulacion.setZombieAlcanzado(estadoZombie.alcanzada());
-        simulacion.setJugadorNombre(estadoJugador.nombre());
-        simulacion.setJugadorVidaInicial(estadoJugador.vidaInicial());
-        simulacion.setJugadorVidaFinal(estadoJugador.vidaFinal());
-        simulacion.setJugadorDistancia(estadoJugador.distanciaAlCreeper());
-        simulacion.setJugadorAlcanzado(estadoJugador.alcanzada());
-        simulacion = simulacionJpaRepository.save(simulacion);
-
-        return new SimulacionExplosionResultado(
-                simulacion.getId(),
-                simulacion.getFecha(),
-                radioExplosion,
-                estadoCreeper,
-                afectados,
-                noAfectados);
+        SimulacionExplosionEntity simulacion = simulacionJpaRepository.save(new SimulacionExplosionEntity(
+                LocalDateTime.now(), radio, creeper, vidaInicialCreeper, impactos));
+        return aResultado(simulacion);
     }
 
     @Override
@@ -192,47 +118,114 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
     }
 
     /**
-     * Descripcion:
-     * Convierte una simulacion persistida en el resultado que devuelve la API.
+     * Descripción:
+     * Busca la entidad por id y comprueba que sea un Creeper.
      *
-     * Parametros:
-     * simulacion - La fila guardada en H2.
+     * Parámetros:
+     * creeperId - Id pedido.
      *
      * Retorno:
-     * El resultado con el mismo formato que devuelve el POST.
+     * El Creeper guardado.
+     *
+     * Errores:
+     * DatosInvalidosException - Si falta el id o la entidad no es un Creeper.
+     * RecursoNoEncontradoException - Si no existe.
+     */
+    private CreeperEntity buscarCreeper(Long creeperId) {
+        if (creeperId == null) {
+            throw new DatosInvalidosException("Falta el creeperId del Creeper que va a detonar.");
+        }
+        EntidadEntity entidad = entidadJpaRepository.findById(creeperId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe una entidad con id " + creeperId + "."));
+        if (!(entidad instanceof CreeperEntity creeper)) {
+            throw new DatosInvalidosException(entidad.getNombre() + " no es un Creeper: solo un Creeper puede detonar.");
+        }
+        return creeper;
+    }
+
+    /**
+     * Descripción:
+     * Aplica las dos reglas de la explosión. Primero la de una sola detonación, porque un
+     * Creeper detonado también está muerto y el error más preciso es que ya detonó.
+     *
+     * Parámetros:
+     * creeper - Creeper que quiere detonar.
+     *
+     * Errores:
+     * CreeperYaDetonadoException - Si ya detonó.
+     * CreeperMuertoException - Si no tiene vida.
+     */
+    private void validarQuePuedeDetonar(CreeperEntity creeper) {
+        if (creeper.isDetonado()) {
+            throw new CreeperYaDetonadoException(creeper.getNombre() + " ya detonó y no puede volver a explotar.");
+        }
+        if (!creeper.estaViva()) {
+            throw new CreeperMuertoException(creeper.getNombre() + " no puede detonar: está muerto.");
+        }
+    }
+
+    /**
+     * Descripción:
+     * Calcula la distancia en línea recta entre dos entidades guardadas.
+     *
+     * Parámetros:
+     * a - Primera entidad.
+     * b - Segunda entidad.
+     *
+     * Retorno:
+     * La distancia en bloques.
+     */
+    private double distancia(EntidadEntity a, EntidadEntity b) {
+        double dx = a.getX() - b.getX();
+        double dy = a.getY() - b.getY();
+        double dz = a.getZ() - b.getZ();
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    /**
+     * Descripción:
+     * Devuelve el subtipo de la entidad tal como aparece en el JSON ("Creeper", "Zombie", "Jugador").
+     *
+     * Parámetros:
+     * entidad - Entidad guardada.
+     *
+     * Retorno:
+     * El nombre del subtipo.
+     */
+    private String tipoDe(EntidadEntity entidad) {
+        return entidad.getClass().getSimpleName().replace("Entity", "");
+    }
+
+    /**
+     * Descripción:
+     * Convierte la fila guardada en el resultado que devuelve la API.
+     *
+     * Parámetros:
+     * simulacion - Simulación guardada.
+     *
+     * Retorno:
+     * El resultado con el Creeper y las entidades separadas en afectadas y no afectadas.
      */
     private SimulacionExplosionResultado aResultado(SimulacionExplosionEntity simulacion) {
         EstadoCreeper creeper = new EstadoCreeper(
+                simulacion.getCreeperId(),
                 simulacion.getCreeperNombre(),
                 simulacion.getCreeperVidaInicial(),
-                simulacion.getCreeperVidaFinal(),
-                simulacion.isCreeperDetonado(),
-                simulacion.getCreeperVidaFinal() > 0,
+                0,
+                true,
+                false,
                 simulacion.getCreeperX(),
                 simulacion.getCreeperY(),
                 simulacion.getCreeperZ());
-
-        EstadoEntidad zombie = new EstadoEntidad(
-                "Zombie",
-                simulacion.getZombieNombre(),
-                simulacion.getZombieVidaInicial(),
-                simulacion.getZombieVidaFinal(),
-                simulacion.getZombieDistancia(),
-                simulacion.isZombieAlcanzado());
-
-        EstadoEntidad jugador = new EstadoEntidad(
-                "Jugador",
-                simulacion.getJugadorNombre(),
-                simulacion.getJugadorVidaInicial(),
-                simulacion.getJugadorVidaFinal(),
-                simulacion.getJugadorDistancia(),
-                simulacion.isJugadorAlcanzado());
-
         List<EstadoEntidad> afectados = new ArrayList<>();
         List<EstadoEntidad> noAfectados = new ArrayList<>();
-        clasificar(zombie, afectados, noAfectados);
-        clasificar(jugador, afectados, noAfectados);
-
+        for (ImpactoExplosion impacto : simulacion.getImpactos()) {
+            EstadoEntidad estado = new EstadoEntidad(impacto.getEntidadId(), impacto.getTipo(), impacto.getNombre(),
+                    impacto.getVidaInicial(), impacto.getVidaFinal(), impacto.getDistanciaAlCreeper(),
+                    impacto.isAlcanzada());
+            (impacto.isAlcanzada() ? afectados : noAfectados).add(estado);
+        }
         return new SimulacionExplosionResultado(
                 simulacion.getId(),
                 simulacion.getFecha(),
@@ -240,149 +233,5 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
                 creeper,
                 afectados,
                 noAfectados);
-    }
-
-    /**
-     * Descripcion:
-     * Busca una entidad del subtipo pedido por nombre. Si existe una fila con el
-     * mismo nombre pero de otro subtipo, la borra para poder recrearla.
-     *
-     * Parametros:
-     * nombre - Nombre a buscar.
-     * tipo - Clase concreta esperada.
-     *
-     * Retorno:
-     * Optional con la entidad del tipo pedido.
-     */
-    private <T extends EntidadEntity> Optional<T> buscar(String nombre, Class<T> tipo) {
-        Optional<EntidadEntity> existente = entidadJpaRepository.findByNombre(nombre);
-        if (existente.isPresent() && !tipo.isInstance(existente.get())) {
-            entidadJpaRepository.delete(existente.get());
-            return Optional.empty();
-        }
-        return existente.map(tipo::cast);
-    }
-
-    /**
-     * Descripcion:
-     * Guarda o actualiza la fila del Creeper de la simulacion.
-     *
-     * Parametros:
-     * estado - Estado final del Creeper.
-     *
-     * Retorno:
-     * La entidad persistida.
-     */
-    private CreeperEntity guardarCreeper(EstadoCreeper estado) {
-        CreeperEntity entidad = buscar(NOMBRE_CREEPER, CreeperEntity.class)
-                .orElseGet(() -> new CreeperEntity(
-                        NOMBRE_CREEPER,
-                        Math.max(1, estado.vidaInicial()),
-                        estado.x(),
-                        estado.y(),
-                        estado.z()));
-        entidad.setNombre(NOMBRE_CREEPER);
-        entidad.setVida(estado.vidaFinal());
-        entidad.setVidaMaxima(Math.max(1, estado.vidaInicial()));
-        entidad.setX(estado.x());
-        entidad.setY(estado.y());
-        entidad.setZ(estado.z());
-        entidad.setDetonado(estado.detonado());
-        return entidadJpaRepository.save(entidad);
-    }
-
-    /**
-     * Descripcion:
-     * Guarda o actualiza la fila del Zombie de la simulacion.
-     *
-     * Parametros:
-     * estado - Estado final del Zombie.
-     *
-     * Retorno:
-     * La entidad persistida.
-     */
-    private ZombieEntity guardarZombie(EstadoEntidad estado) {
-        ZombieEntity entidad = buscar(NOMBRE_ZOMBIE, ZombieEntity.class)
-                .orElseGet(() -> new ZombieEntity(
-                        NOMBRE_ZOMBIE,
-                        Math.max(1, estado.vidaInicial()),
-                        X_ZOMBIE,
-                        ALTURA,
-                        0));
-        entidad.setNombre(NOMBRE_ZOMBIE);
-        entidad.setVida(estado.vidaFinal());
-        entidad.setVidaMaxima(Math.max(1, estado.vidaInicial()));
-        entidad.setX(X_ZOMBIE);
-        entidad.setY(ALTURA);
-        entidad.setZ(0);
-        entidad.setPuertaRota(false);
-        return entidadJpaRepository.save(entidad);
-    }
-
-    /**
-     * Descripcion:
-     * Guarda o actualiza la fila del Jugador de la simulacion.
-     *
-     * Parametros:
-     * estado - Estado final del Jugador.
-     *
-     * Retorno:
-     * La entidad persistida.
-     */
-    private JugadorEntity guardarJugador(EstadoEntidad estado) {
-        JugadorEntity entidad = buscar(NOMBRE_JUGADOR, JugadorEntity.class)
-                .orElseGet(() -> new JugadorEntity(
-                        NOMBRE_JUGADOR,
-                        Math.max(1, estado.vidaInicial()),
-                        1,
-                        X_JUGADOR,
-                        ALTURA,
-                        0));
-        entidad.setNombre(NOMBRE_JUGADOR);
-        entidad.setVida(estado.vidaFinal());
-        entidad.setVidaMaxima(Math.max(1, estado.vidaInicial()));
-        entidad.setX(X_JUGADOR);
-        entidad.setY(ALTURA);
-        entidad.setZ(0);
-        entidad.setNivel(1);
-        entidad.setExperiencia(0);
-        return entidadJpaRepository.save(entidad);
-    }
-
-    /**
-     * Descripcion:
-     * Ajusta la vida del Creeper al valor pedido sin permitir valores fuera del
-     * rango valido. Si se pide 0 o menos, el Creeper queda muerto.
-     *
-     * Parametros:
-     * creeper - El Creeper a ajustar.
-     * vidaPedida - La vida que se quiere simular.
-     *
-     * Retorno:
-     * La vida inicial que quedo para el Creeper.
-     */
-    private int ajustarVida(Creeper creeper, int vidaPedida) {
-        int vidaMaxima = creeper.getVida();
-        int vidaObjetivo = Math.max(0, Math.min(vidaPedida, vidaMaxima));
-        creeper.recibirDanio(vidaMaxima - vidaObjetivo);
-        return vidaObjetivo;
-    }
-
-    /**
-     * Descripcion:
-     * Agrega el estado de una entidad a la lista que corresponda segun si la
-     * explosion la alcanzo o no.
-     *
-     * Parametros:
-     * estado - Estado de la entidad.
-     * afectados - Lista de entidades alcanzadas.
-     * noAfectados - Lista de entidades fuera del radio.
-     */
-    private void clasificar(EstadoEntidad estado, List<EstadoEntidad> afectados, List<EstadoEntidad> noAfectados) {
-        if (estado.alcanzada()) {
-            afectados.add(estado);
-        } else {
-            noAfectados.add(estado);
-        }
     }
 }

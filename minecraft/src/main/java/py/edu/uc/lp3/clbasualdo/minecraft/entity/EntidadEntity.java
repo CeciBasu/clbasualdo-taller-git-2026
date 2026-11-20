@@ -14,13 +14,17 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 
 /**
- * Descripcion:
+ * Descripción:
  * Entidad de persistencia que representa la clase base de la familia guardada en H2.
  *
  * Responsabilidad:
- * Mapear la tabla "entidades" con los datos comunes (nombre, vida, vida maxima y
- * posicion) y declarar la herencia de JPA. El discriminador "tipo" distingue en la
+ * Mapear la tabla "entidades" con los datos comunes (nombre, vida, vida máxima y
+ * posición) y declarar la herencia de JPA. El discriminador "tipo" distingue en la
  * misma tabla si la fila es un Creeper, un Zombie o un Jugador.
+ *
+ * No tiene setters públicos: el estado se arma con el constructor y solo cambia con
+ * mensajes que no pueden dejar una combinación imposible (recibirDanio, copiarDatosDesde).
+ * Las reglas que deciden si un cambio es legal viven en la capa service.
  */
 @Entity
 @Table(name = "entidades")
@@ -34,48 +38,47 @@ import jakarta.persistence.Table;
 })
 public abstract class EntidadEntity {
 
-    /** Identificador unico autogenerado por la base de datos. */
+    /** Identificador único autogenerado por la base de datos. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Nombre de la entidad. */
+    /** Nombre único de la entidad. */
     private String nombre;
 
-    /** Vida actual de la entidad. */
+    /** Vida actual. */
     private int vida;
 
-    /** Vida maxima que puede recuperar la entidad. */
+    /** Vida máxima: la vida actual nunca la supera. */
     private int vidaMaxima;
 
-    /** Posicion en el eje X. */
+    /** Posición en el eje X. */
     private double x;
 
-    /** Posicion en el eje Y. */
+    /** Posición en el eje Y (la altura). */
     private double y;
 
-    /** Posicion en el eje Z. */
+    /** Posición en el eje Z. */
     private double z;
 
     /**
-     * Descripcion:
-     * Constructor vacio requerido por JPA y por Jackson. Es protected para que
-     * nadie fuera de la jerarquia pueda crear una entidad sin datos de negocio.
+     * Descripción:
+     * Constructor vacío que exige JPA para leer filas de la base.
      */
     protected EntidadEntity() {
     }
 
     /**
-     * Descripcion:
-     * Crea una entidad persistible con todos sus datos comunes.
+     * Descripción:
+     * Crea la parte común de una entidad persistible.
      *
-     * Parametros:
-     * nombre - Nombre de la entidad.
+     * Parámetros:
+     * nombre - Nombre único.
      * vida - Vida actual.
-     * vidaMaxima - Vida maxima.
-     * x - Posicion en X.
-     * y - Posicion en Y.
-     * z - Posicion en Z.
+     * vidaMaxima - Vida máxima.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      */
     protected EntidadEntity(String nombre, int vida, int vidaMaxima, double x, double y, double z) {
         this.nombre = nombre;
@@ -87,29 +90,18 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Devuelve el id autogenerado.
+     * Descripción:
+     * Devuelve el identificador asignado por H2.
      *
      * Retorno:
-     * El id de la fila.
+     * El id, o null si todavía no se guardó.
      */
     public Long getId() {
         return id;
     }
 
     /**
-     * Descripcion:
-     * Asigna el id. Lo usa JPA al recuperar la fila.
-     *
-     * Parametros:
-     * id - Id a asignar.
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    /**
-     * Descripcion:
+     * Descripción:
      * Devuelve el nombre.
      *
      * Retorno:
@@ -120,18 +112,7 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna el nombre.
-     *
-     * Parametros:
-     * nombre - Nombre a asignar.
-     */
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la vida actual.
      *
      * Retorno:
@@ -142,41 +123,19 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna la vida actual.
-     *
-     * Parametros:
-     * vida - Vida a asignar.
-     */
-    public void setVida(int vida) {
-        this.vida = vida;
-    }
-
-    /**
-     * Descripcion:
-     * Devuelve la vida maxima.
+     * Descripción:
+     * Devuelve la vida máxima.
      *
      * Retorno:
-     * La vida maxima.
+     * La vida máxima.
      */
     public int getVidaMaxima() {
         return vidaMaxima;
     }
 
     /**
-     * Descripcion:
-     * Asigna la vida maxima.
-     *
-     * Parametros:
-     * vidaMaxima - Vida maxima a asignar.
-     */
-    public void setVidaMaxima(int vidaMaxima) {
-        this.vidaMaxima = vidaMaxima;
-    }
-
-    /**
-     * Descripcion:
-     * Devuelve la posicion en X.
+     * Descripción:
+     * Devuelve la posición en X.
      *
      * Retorno:
      * El valor de X.
@@ -186,19 +145,8 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna la posicion en X.
-     *
-     * Parametros:
-     * x - Valor a asignar.
-     */
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    /**
-     * Descripcion:
-     * Devuelve la posicion en Y.
+     * Descripción:
+     * Devuelve la posición en Y.
      *
      * Retorno:
      * El valor de Y.
@@ -208,19 +156,8 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna la posicion en Y.
-     *
-     * Parametros:
-     * y - Valor a asignar.
-     */
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    /**
-     * Descripcion:
-     * Devuelve la posicion en Z.
+     * Descripción:
+     * Devuelve la posición en Z.
      *
      * Retorno:
      * El valor de Z.
@@ -230,23 +167,35 @@ public abstract class EntidadEntity {
     }
 
     /**
-     * Descripcion:
-     * Asigna la posicion en Z.
+     * Descripción:
+     * Dice si la entidad sigue viva.
      *
-     * Parametros:
-     * z - Valor a asignar.
+     * Retorno:
+     * true si la vida es mayor a 0.
      */
-    public void setZ(double z) {
-        this.z = z;
+    public boolean estaViva() {
+        return vida > 0;
     }
 
     /**
-     * Descripcion:
-     * Copia los datos comunes de otra entidad sobre esta. Lo usa el servicio de
-     * actualizacion para no repetir la asignacion campo por campo.
+     * Descripción:
+     * Le resta vida a la entidad sin bajar de 0. Solo puede quitar vida, nunca darla,
+     * así que no puede revivir a una entidad muerta ni a un Creeper detonado.
      *
-     * Parametros:
-     * otro - Entidad de la que se copian los datos.
+     * Parámetros:
+     * danio - Vida que pierde; el service garantiza que no sea negativa.
+     */
+    public void recibirDanio(int danio) {
+        this.vida = Math.max(0, this.vida - danio);
+    }
+
+    /**
+     * Descripción:
+     * Copia los datos comunes desde otra entidad del mismo tipo. La usa el service en un
+     * PUT, después de validar que la combinación nueva sea legal.
+     *
+     * Parámetros:
+     * otro - Entidad con los datos nuevos.
      */
     public void copiarDatosDesde(EntidadEntity otro) {
         this.nombre = otro.nombre;

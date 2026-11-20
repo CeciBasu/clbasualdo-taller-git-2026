@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Descripcion:
+ * Descripción:
  * Representa al jugador del juego, el personaje que controla la persona.
  *
  * Responsabilidad:
- * Se encarga de atacar, construir, guardar items en el inventario y subir de nivel al ganar experiencia.
- * Tambien es UICapable para poder dibujarse en la UI.
+ * Se encarga de atacar, construir, guardar ítems en el inventario y subir de nivel al ganar experiencia.
+ * También es UICapable para poder dibujarse en la UI.
  */
 public class Jugador extends Entidad implements UICapable {
-    /** Distancia maxima a la que el jugador puede atacar. */
+    /** Distancia máxima a la que el jugador puede atacar. */
     private static final double RANGO_ATAQUE = 3.0;
     /** Danio que hace el jugador en cada ataque. */
     private static final int DANIO_BASE = 4;
@@ -22,31 +22,27 @@ public class Jugador extends Entidad implements UICapable {
     private int nivel;
     /** Puntos de experiencia que lleva hacia el siguiente nivel. */
     private int experiencia;
-    /** Lista de los items que tiene el jugador. */
+    /** Lista de los ítems que tiene el jugador. */
     private final List<String> inventario;
 
     /**
-     * Descripcion:
-     * Crea un jugador con su vida y nivel inicial, sin experiencia y con el inventario vacio.
-     * Lanza un error si el nivel es negativo.
+     * Descripción:
+     * Crea un jugador con su vida y nivel inicial, sin experiencia y con el inventario vacío.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre del jugador.
      * vida - Vida inicial del jugador.
      * nivel - Nivel con el que empieza.
      */
     public Jugador(String nombre, int vida, int nivel) {
         super(nombre, vida);
-        if (nivel < 0) {
-            throw new IllegalArgumentException("El nivel no puede ser negativo.");
-        }
         this.nivel = nivel;
         this.experiencia = 0;
         this.inventario = new ArrayList<>();
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve el nivel del jugador.
      *
      * Retorno:
@@ -55,7 +51,7 @@ public class Jugador extends Entidad implements UICapable {
     public int getNivel() { return nivel; }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la experiencia del jugador.
      *
      * Retorno:
@@ -64,53 +60,43 @@ public class Jugador extends Entidad implements UICapable {
     public int getExperiencia() { return experiencia; }
 
     /**
-     * Descripcion:
-     * Devuelve una copia del inventario, asi desde afuera no se puede modificar la lista original.
+     * Descripción:
+     * Devuelve una copia del inventario, así desde afuera no se puede modificar la lista original.
      *
      * Retorno:
-     * Una lista con los items del jugador.
+     * Una lista con los ítems del jugador.
      */
     public List<String> getInventario() { return List.copyOf(inventario); }
 
     /**
-     * Descripcion:
-     * Muestra un mensaje diciendo que el jugador esta construyendo.
+     * Descripción:
+     * Muestra un mensaje diciendo que el jugador está construyendo.
      */
     public void construir() {
-        System.out.println(getNombre() + " esta construyendo.");
+        System.out.println(getNombre() + " está construyendo.");
     }
 
     /**
-     * Descripcion:
-     * Coloca un bloque en el lugar donde esta el jugador. Lanza un error si el bloque esta vacio o es nulo.
+     * Descripción:
+     * Coloca un bloque en el lugar donde está el jugador.
      *
-     * Parametros:
+     * Parámetros:
      * bloque - Nombre del bloque que se coloca.
      */
     public void construir(String bloque) {
-        if (bloque == null || bloque.isBlank()) {
-            throw new IllegalArgumentException("El bloque no puede estar vacío.");
-        }
         System.out.printf("%s coloca un bloque de %s en (%.1f, %.1f, %.1f).%n",
                 getNombre(), bloque, getX(), getY(), getZ());
     }
 
     /**
-     * Descripcion:
-     * El jugador ataca a una entidad. Revisa que este vivo, que el objetivo tambien y que este a su alcance.
+     * Descripción:
+     * El jugador ataca a una entidad. Si el objetivo está muerto o fuera de su alcance, solo lo informa.
      * Si el objetivo muere por el golpe, el jugador gana 10 de experiencia.
-     * Lanza un error si el jugador esta muerto o el objetivo es nulo.
      *
-     * Parametros:
+     * Parámetros:
      * objetivo - La entidad que se quiere atacar.
      */
     public void atacar(Entidad objetivo) {
-        if (!estaVivo()) {
-            throw new IllegalStateException(getNombre() + " no puede atacar: está muerto.");
-        }
-        if (objetivo == null) {
-            throw new IllegalArgumentException("El objetivo no puede ser nulo.");
-        }
         if (!objetivo.estaVivo()) {
             System.out.println(objetivo.getNombre() + " ya está muerto.");
             return;
@@ -119,7 +105,7 @@ public class Jugador extends Entidad implements UICapable {
             System.out.println(getNombre() + " está muy lejos para atacar a " + objetivo.getNombre() + ".");
             return;
         }
-        System.out.println(getNombre() + " esta atacando a " + objetivo.getNombre() + ".");
+        System.out.println(getNombre() + " está atacando a " + objetivo.getNombre() + ".");
         objetivo.recibirDanio(DANIO_BASE);
         if (!objetivo.estaVivo()) {
             ganarExperiencia(10);
@@ -127,57 +113,50 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Muestra por pantalla el nivel del jugador.
      */
     public void mostrarNivel() { System.out.println("Nivel: " + nivel); }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Suma experiencia al jugador. Cada 100 puntos sube un nivel y esos puntos se descuentan.
-     * Lanza un error si los puntos son negativos.
      *
-     * Parametros:
+     * Parámetros:
      * puntos - Cantidad de experiencia que gana.
      */
     public void ganarExperiencia(int puntos) {
-        if (puntos < 0) {
-            throw new IllegalArgumentException("La experiencia no puede ser negativa.");
-        }
         experiencia += puntos;
         System.out.println(getNombre() + " gana " + puntos + " de experiencia.");
         // Se usa while por si gana suficiente experiencia para subir varios niveles juntos
         while (experiencia >= 100) {
             experiencia -= 100;
             nivel++;
-            System.out.println(getNombre() + " sube al nivel " + nivel + "!");
+            System.out.println(getNombre() + " sube al nivel " + nivel + ".");
         }
     }
 
     /**
-     * Descripcion:
-     * Guarda un item en el inventario. Lanza un error si el item esta vacio o es nulo.
+     * Descripción:
+     * Guarda un ítem en el inventario.
      *
-     * Parametros:
-     * item - Nombre del item que se guarda.
+     * Parámetros:
+     * item - Nombre del ítem que se guarda.
      */
     public void agregarItem(String item) {
-        if (item == null || item.isBlank()) {
-            throw new IllegalArgumentException("El item no puede estar vacío.");
-        }
         inventario.add(item);
         System.out.println(getNombre() + " recoge " + item + ".");
     }
 
     /**
-     * Descripcion:
-     * Usa un item del inventario y lo saca de la lista. Si no lo tiene, solo muestra un mensaje.
+     * Descripción:
+     * Usa un ítem del inventario y lo saca de la lista. Si no lo tiene, solo muestra un mensaje.
      *
-     * Parametros:
-     * item - Nombre del item que se quiere usar.
+     * Parámetros:
+     * item - Nombre del ítem que se quiere usar.
      *
      * Retorno:
-     * true si tenia el item y se uso, false si no lo tenia.
+     * true si tenía el ítem y se usó, false si no lo tenía.
      */
     public boolean usarItem(String item) {
         boolean usado = inventario.remove(item);
@@ -188,10 +167,10 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * El jugador recupera vida. Usa el metodo curar() que hereda de Entidad.
+     * Descripción:
+     * El jugador recupera vida. Usa el método curar() que hereda de Entidad.
      *
-     * Parametros:
+     * Parámetros:
      * cantidad - Cantidad de vida que recupera.
      */
     public void regenerar(int cantidad) {
@@ -199,19 +178,19 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el jugador: decide si pelear o retroceder segun su vida.
+     * Descripción:
+     * Dice cómo reacciona el jugador: decide si pelear o retroceder según su vida.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
-        return getNombre() + " evalua si combatir o retroceder segun su vida restante.";
+        return getNombre() + " evalúa si combatir o retroceder según su vida restante.";
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la imagen con la que la UI dibuja al Jugador.
      *
      * Retorno:
@@ -223,8 +202,8 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del Jugador formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del Jugador formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del Jugador.
@@ -235,7 +214,7 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el Jugador.
      *
      * Retorno:
@@ -247,8 +226,8 @@ public class Jugador extends Entidad implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Reemplaza el sonido generico del default con el propio del Jugador.
+     * Descripción:
+     * Reemplaza el sonido genérico del default con el propio del Jugador.
      *
      * Retorno:
      * Un texto que describe el sonido del Jugador.

@@ -7,65 +7,64 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
+import py.edu.uc.lp3.clbasualdo.minecraft.dto.SimulacionExplosionRequest;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
 
 /**
- * Descripcion:
- * Controlador REST que ejecuta y consulta la simulacion de una explosion.
+ * Descripción:
+ * Controlador REST que ejecuta y consulta la simulación de una explosión.
  *
  * Responsabilidad:
- * Recibir los parametros de la simulacion y delegar todo el comportamiento en
+ * Recibir los parámetros de la simulación y delegar todo el comportamiento en
  * el servicio, para que las reglas del dominio no vivan en el controller.
  */
 @RestController
 public class SimulacionExplosionController {
 
-    /** Servicio que ejecuta y consulta la simulacion. */
+    /** Servicio que ejecuta y consulta la simulación. */
     private final SimulacionExplosionService simulacionExplosionService;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el controlador con el servicio que va a usar.
      *
-     * Parametros:
-     * simulacionExplosionService - El servicio de simulacion de explosiones.
+     * Parámetros:
+     * simulacionExplosionService - El servicio de simulación de explosiones.
      */
     public SimulacionExplosionController(SimulacionExplosionService simulacionExplosionService) {
         this.simulacionExplosionService = simulacionExplosionService;
     }
 
     /**
-     * Descripcion:
-     * Ejecuta y persiste la simulacion entre un Creeper, un Zombie y un Jugador.
-     * Si el Creeper esta muerto o se intenta una segunda detonacion, la excepcion
-     * de dominio viaja hasta el handler que responde el error HTTP correspondiente.
+     * Descripción:
+     * Detona un Creeper guardado sobre las entidades guardadas y persiste el resultado.
+     * Si el Creeper está muerto o ya detonó, la excepción del service viaja hasta el
+     * handler, que responde el error HTTP correspondiente.
      *
-     * Parametros:
-     * vidaCreeper - Vida inicial del Creeper (por defecto 20).
-     * repetirDetonacion - Si es true, simula un segundo intento de detonacion.
+     * Parámetros:
+     * pedido - JSON con el creeperId del Creeper guardado.
      *
      * Retorno:
-     * El resultado completo de la simulacion, con su id persistido.
+     * El resultado completo de la simulación, con su id persistido.
      */
     @PostMapping(ApiPaths.SIMULACION_EXPLOSION)
     public ResponseEntity<SimulacionExplosionResultado> simular(
-            @RequestParam(defaultValue = "20") int vidaCreeper,
-            @RequestParam(defaultValue = "false") boolean repetirDetonacion) {
-        SimulacionExplosionResultado resultado = simulacionExplosionService.simular(vidaCreeper, repetirDetonacion);
+            @RequestBody SimulacionExplosionRequest pedido) {
+        SimulacionExplosionResultado resultado = simulacionExplosionService.simular(pedido.creeperId());
         return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
     }
 
     /**
-     * Descripcion:
-     * Devuelve la ultima simulacion guardada.
+     * Descripción:
+     * Devuelve la última simulación guardada.
      *
      * Retorno:
-     * El ultimo resultado persistido.
+     * El último resultado persistido.
      */
     @GetMapping(ApiPaths.SIMULACION_EXPLOSION)
     public SimulacionExplosionResultado ultima() {
@@ -73,11 +72,11 @@ public class SimulacionExplosionController {
     }
 
     /**
-     * Descripcion:
-     * Devuelve una simulacion persistida por su id.
+     * Descripción:
+     * Devuelve una simulación persistida por su id.
      *
-     * Parametros:
-     * id - Id de la simulacion.
+     * Parámetros:
+     * id - Id de la simulación.
      *
      * Retorno:
      * El resultado guardado.
@@ -88,7 +87,7 @@ public class SimulacionExplosionController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Lista todas las simulaciones persistidas.
      *
      * Retorno:

@@ -13,13 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Descripcion:
+ * Descripción:
  * Pruebas de la entrada HTTP: las cuatro rutas que expone la API.
  *
  * Responsabilidad:
- * Verificar que el IndexController confirme que el servicio esta vivo, que el
+ * Verificar que el IndexController confirme que el servicio está vivo, que el
  * EsqueletoController construya desde la URL y arme el JSON, que la sobrecarga de
- * disparar() se vea en la respuesta, y que un dato invalido termine en un 400 con
+ * disparar() se vea en la respuesta, y que un dato inválido termine en un 400 con
  * el mensaje del dominio y no en un 500.
  */
 @SpringBootTest
@@ -31,7 +31,7 @@ class ApiControllerTest {
     private MockMvc mockMvc;
 
     /**
-     * Descripcion:
+     * Descripción:
      * GET / responde 200 con un texto que dice de que trata la API. Como devuelve
      * texto plano y no JSON, se verifica el cuerpo y no una ruta de JSON.
      */
@@ -43,8 +43,8 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
-     * /esqueleto construye el esqueleto con los parametros de la URL y devuelve su
+     * Descripción:
+     * /esqueleto construye el esqueleto con los parámetros de la URL y devuelve su
      * estado en JSON.
      */
     @Test
@@ -58,7 +58,7 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Una vida de 0 la rechaza el dominio, y la API lo informa con un 400 y el
      * mensaje del dominio, no con un error de servidor.
      */
@@ -70,9 +70,9 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * /comportamiento devuelve el JSON de las entidades hijas, todas tratadas como
-     * Entidad, y cada una con su propia reaccion.
+     * Entidad, y cada una con su propia reacción.
      */
     @Test
     void comportamientoDevuelveLaReaccionDeCadaHija() throws Exception {
@@ -86,7 +86,7 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * /esqueleto/disparar muestra las dos versiones de disparar() en el mismo JSON:
      * la que no lleva distancia y la que si la lleva. Con una distancia dentro del
      * rango, las dos gastan flecha.
@@ -104,7 +104,7 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * La diferencia entre las dos versiones se ve con una distancia fuera del rango:
      * el disparo sin distancia igual gasta la flecha, el que lleva distancia no.
      */
@@ -117,7 +117,7 @@ class ApiControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Una distancia negativa la rechaza el dominio y la API la informa con un 400,
      * no con un error de servidor.
      */

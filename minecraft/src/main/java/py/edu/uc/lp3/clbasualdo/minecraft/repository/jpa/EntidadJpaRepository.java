@@ -8,32 +8,32 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.EntidadEntity;
 
 /**
- * Descripcion:
+ * Descripción:
  * Repositorio Spring Data JPA para la familia de entidades persistidas.
  *
  * Responsabilidad:
  * Proveer operaciones CRUD sobre la tabla "entidades" y consultas por nombre o
- * por vida, sin que tengamos que escribir la implementacion a mano.
+ * por vida, sin que tengamos que escribir la implementación a mano.
  */
 public interface EntidadJpaRepository extends JpaRepository<EntidadEntity, Long> {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Busca una entidad por su nombre.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre de la entidad a buscar.
      *
      * Retorno:
-     * Optional con la entidad encontrada, o vacio si no existe.
+     * Optional con la entidad encontrada, o vacío si no existe.
      */
     Optional<EntidadEntity> findByNombre(String nombre);
 
     /**
-     * Descripcion:
+     * Descripción:
      * Verifica si existe una entidad con el nombre indicado.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre a verificar.
      *
      * Retorno:
@@ -42,25 +42,25 @@ public interface EntidadJpaRepository extends JpaRepository<EntidadEntity, Long>
     boolean existsByNombre(String nombre);
 
     /**
-     * Descripcion:
+     * Descripción:
      * Elimina una entidad por su nombre.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre de la entidad a eliminar.
      */
     void deleteByNombre(String nombre);
 
     /**
-     * Descripcion:
+     * Descripción:
      * Lista las entidades cuya vida actual supera el valor indicado, ordenadas por
-     * nombre. Es una consulta propia del dominio para ver, por ejemplo, quienes
-     * siguen vivos despues de una simulacion.
+     * nombre. Es una consulta propia del dominio para ver, por ejemplo, quiénes
+     * siguen vivos después de una simulación.
      *
-     * Parametros:
-     * vida - Vida minima que debe superar la entidad.
+     * Parámetros:
+     * vida - Vida mínima que debe superar la entidad.
      *
      * Retorno:
-     * La lista de entidades que cumplen la condicion.
+     * La lista de entidades que cumplen la condición.
      */
     List<EntidadEntity> findByVidaGreaterThanOrderByNombreAsc(int vida);
 }

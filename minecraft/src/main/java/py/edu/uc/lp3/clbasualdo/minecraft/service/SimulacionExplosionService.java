@@ -4,63 +4,73 @@ import java.util.List;
 
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RecursoNoEncontradoException;
 
 /**
- * Descripcion:
- * Contrato de la simulacion de explosiones del dominio Minecraft.
+ * Descripción:
+ * Contrato de la simulación de explosiones.
  *
  * Responsabilidad:
- * Ejecutar la explosion entre un Creeper, un Zombie y un Jugador, persistir el
- * resultado en H2 y permitir consultar despues lo que quedo guardado.
+ * Detonar un Creeper guardado en H2 sobre las entidades guardadas, aplicando las dos reglas
+ * (solo detona si está vivo y solo una vez), persistir el resultado y permitir consultarlo.
  */
 public interface SimulacionExplosionService {
 
     /**
-     * Descripcion:
-     * Ejecuta y persiste una simulacion de explosion con un Creeper, un Zombie
-     * dentro del radio y un Jugador fuera del radio.
+     * Descripción:
+     * Carga el Creeper guardado, aplica las dos reglas, lo detona sobre las entidades vivas
+     * guardadas y persiste el estado final de todas junto con la foto de la explosión.
      *
-     * Parametros:
-     * vidaCreeper - Vida con la que empieza el Creeper. Si es 0 o menos, esta muerto.
-     * repetirDetonacion - Si es true, intenta una segunda detonacion sobre el mismo Creeper.
+     * Parámetros:
+     * creeperId - Id del Creeper en la tabla "entidades".
      *
      * Retorno:
-     * El resultado persistido de la simulacion.
+     * El resultado persistido de la simulación.
      *
      * Errores:
-     * CreeperMuertoException - Si el Creeper no esta vivo al intentar detonar.
-     * CreeperYaDetonadoException - Si se intenta detonar dos veces el mismo Creeper.
+     * DatosInvalidosException - Si falta el id o la entidad no es un Creeper.
+     * RecursoNoEncontradoException - Si no existe una entidad con ese id.
+     * CreeperYaDetonadoException - Si el Creeper ya detonó antes.
+     * CreeperMuertoException - Si el Creeper no tiene vida.
      */
-    SimulacionExplosionResultado simular(int vidaCreeper, boolean repetirDetonacion)
-            throws CreeperMuertoException, CreeperYaDetonadoException;
+    SimulacionExplosionResultado simular(Long creeperId)
+            throws DatosInvalidosException, RecursoNoEncontradoException,
+            CreeperMuertoException, CreeperYaDetonadoException;
 
     /**
-     * Descripcion:
-     * Busca una simulacion persistida por su id.
+     * Descripción:
+     * Devuelve una simulación guardada.
      *
-     * Parametros:
-     * id - Id de la simulacion.
+     * Parámetros:
+     * id - Id de la simulación.
      *
      * Retorno:
-     * El resultado guardado.
+     * La simulación leída de H2.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
      */
-    SimulacionExplosionResultado obtener(Long id);
+    SimulacionExplosionResultado obtener(Long id) throws RecursoNoEncontradoException;
 
     /**
-     * Descripcion:
-     * Lista todas las simulaciones persistidas.
+     * Descripción:
+     * Lista todas las simulaciones guardadas.
      *
      * Retorno:
-     * La lista de resultados guardados.
+     * Las simulaciones, de la más vieja a la más nueva.
      */
     List<SimulacionExplosionResultado> listar();
 
     /**
-     * Descripcion:
-     * Devuelve la ultima simulacion persistida.
+     * Descripción:
+     * Devuelve la última simulación guardada.
      *
      * Retorno:
-     * El ultimo resultado guardado.
+     * La simulación más reciente.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si todavía no hay ninguna.
      */
-    SimulacionExplosionResultado ultima();
+    SimulacionExplosionResultado ultima() throws RecursoNoEncontradoException;
 }

@@ -3,25 +3,25 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.Locale;
 
 /**
- * Descripcion:
+ * Descripción:
  * Representa al Zombie, un enemigo que persigue al jugador y lo ataca de cerca.
  *
  * Responsabilidad:
- * Se encarga de atacar en corto alcance y de romper puertas. Tambien es UICapable
+ * Se encarga de atacar en corto alcance y de romper puertas. También es UICapable
  * y reemplaza el sonido por defecto de la interfaz con el suyo propio.
  */
 public class Zombie extends EntidadHostil implements UICapable {
-    /** Indica si el zombie ya rompio una puerta. */
+    /** Indica si el zombie ya rompió una puerta. */
     private boolean puertaRota;
 
     /**
-     * Descripcion:
-     * Crea un Zombie con 20 de vida, 6 de danio y 1.5 de rango de ataque.
+     * Descripción:
+     * Crea un Zombie con 20 de vida, 6 de daño y 1.5 de rango de ataque.
      */
     public Zombie() { super("Zombie", 20, 6, 1.5); }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Muestra un mensaje del ataque del zombie.
      */
     @Override
@@ -30,17 +30,17 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Dice si el zombie ya rompio una puerta.
+     * Descripción:
+     * Dice si el zombie ya rompió una puerta.
      *
      * Retorno:
-     * true si la puerta esta rota, false si no.
+     * true si la puerta está rota, false si no.
      */
     public boolean isPuertaRota() { return puertaRota; }
 
     /**
-     * Descripcion:
-     * El zombie rompe una puerta a golpes y queda marcado como que la rompio.
+     * Descripción:
+     * El zombie rompe una puerta a golpes y queda marcado como que la rompió.
      */
     public void romperPuerta() {
         puertaRota = true;
@@ -48,11 +48,11 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el zombie: hace ruidos y persigue al jugador.
+     * Descripción:
+     * Dice cómo reacciona el zombie: hace ruidos y persigue al jugador.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
@@ -60,7 +60,7 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la imagen con la que la UI dibuja al Zombie.
      *
      * Retorno:
@@ -72,8 +72,8 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del Zombie formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del Zombie formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del Zombie.
@@ -84,7 +84,7 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el Zombie.
      *
      * Retorno:
@@ -96,8 +96,8 @@ public class Zombie extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Reemplaza el sonido generico del default con el propio del Zombie.
+     * Descripción:
+     * Reemplaza el sonido genérico del default con el propio del Zombie.
      *
      * Retorno:
      * Un texto que describe el sonido del Zombie.

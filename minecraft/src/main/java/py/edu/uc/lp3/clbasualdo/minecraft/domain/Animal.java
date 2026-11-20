@@ -3,12 +3,12 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.Locale;
 
 /**
- * Descripcion:
+ * Descripción:
  * Representa a un animal del juego, como una vaca. Es una entidad pasiva.
  *
  * Responsabilidad:
  * Se encarga de que el animal pueda comer, ser domesticado y tener crias con otro de su misma especie.
- * Tambien es UICapable y no reemplaza el sonido, asi que usa el comportamiento por defecto de la interfaz.
+ * También es UICapable y no reemplaza el sonido, así que usa el comportamiento por defecto de la interfaz.
  */
 public class Animal extends EntidadPasiva implements UICapable {
     /** Tipo de animal, sirve para saber si dos animales se pueden reproducir. */
@@ -17,19 +17,19 @@ public class Animal extends EntidadPasiva implements UICapable {
     private boolean domesticado;
 
     /**
-     * Descripcion:
-     * Crea un animal usando su nombre tambien como especie.
+     * Descripción:
+     * Crea un animal usando su nombre también como especie.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre del animal.
      */
     public Animal(String nombre) { this(nombre, nombre); }
 
     /**
-     * Descripcion:
-     * Crea un animal con nombre y especie. Si la especie viene vacia o nula, se usa el nombre.
+     * Descripción:
+     * Crea un animal con nombre y especie. Si la especie viene vacía o nula, se usa el nombre.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre del animal.
      * especie - Tipo de animal.
      */
@@ -40,7 +40,7 @@ public class Animal extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la especie del animal.
      *
      * Retorno:
@@ -49,16 +49,16 @@ public class Animal extends EntidadPasiva implements UICapable {
     public String getEspecie() { return especie; }
 
     /**
-     * Descripcion:
-     * Dice si el animal esta domesticado.
+     * Descripción:
+     * Dice si el animal está domesticado.
      *
      * Retorno:
-     * true si esta domesticado, false si no.
+     * true si está domesticado, false si no.
      */
     public boolean isDomesticado() { return domesticado; }
 
     /**
-     * Descripcion:
+     * Descripción:
      * El animal come una cantidad normal de alimento (2 puntos) y recupera vida.
      */
     public void comer() {
@@ -66,10 +66,10 @@ public class Animal extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * El animal come una cantidad que se elige y recupera esa misma cantidad de vida.
      *
-     * Parametros:
+     * Parámetros:
      * puntosAlimento - Cantidad de comida que come el animal.
      */
     public void comer(int puntosAlimento) {
@@ -77,66 +77,57 @@ public class Animal extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Metodo que usan los dos comer() para curar al animal. Lanza un error si los puntos son negativos.
+     * Descripción:
+     * Método que usan los dos comer() para curar al animal.
      *
-     * Parametros:
+     * Parámetros:
      * puntos - Cantidad de vida que recupera.
      */
     private void alimentarse(int puntos) {
-        if (puntos < 0) {
-            throw new IllegalArgumentException("Los puntos de alimento no pueden ser negativos.");
-        }
         curar(puntos);
-        System.out.println(getNombre() + " esta comiendo y recupera " + puntos + " de vida.");
+        System.out.println(getNombre() + " está comiendo y recupera " + puntos + " de vida.");
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Marca al animal como domesticado.
      */
     public void domesticar() {
         domesticado = true;
-        System.out.println(getNombre() + " ahora esta domesticado.");
+        System.out.println(getNombre() + " ahora está domesticado.");
     }
 
     /**
-     * Descripcion:
-     * Crea una cria si los dos animales son de la misma especie y estan domesticados.
-     * Si no se cumple algo de eso, lanza un error.
+     * Descripción:
+     * Crea una cría con la pareja. Que sean de la misma especie y estén domesticados lo revisa
+     * la capa service antes de enviar el mensaje.
      *
-     * Parametros:
+     * Parámetros:
      * pareja - El otro animal con el que se reproduce.
      *
      * Retorno:
-     * El animal bebe que nace.
+     * El animal bebé que nace.
      */
     public Animal reproducirse(Animal pareja) {
-        if (pareja == null || !pareja.getEspecie().equals(this.especie)) {
-            throw new IllegalArgumentException("Solo se puede reproducir con la misma especie.");
-        }
-        if (!this.domesticado || !pareja.domesticado) {
-            throw new IllegalStateException("Ambos animales deben estar domesticados para reproducirse.");
-        }
-        System.out.println(this.getNombre() + " y " + pareja.getNombre() + " tienen una cria.");
-        return new Animal("Bebe " + especie, especie);
+        System.out.println(this.getNombre() + " y " + pareja.getNombre() + " tienen una cría.");
+        return new Animal("Bebé " + especie, especie);
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el animal ante el jugador: sigue comiendo sin hacerle caso.
+     * Descripción:
+     * Dice cómo reacciona el animal ante el jugador: sigue comiendo sin hacerle caso.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
-        return getNombre() + " sigue comiendo, no le presta atencion al jugador.";
+        return getNombre() + " sigue comiendo, no le presta atención al jugador.";
     }
 
     /**
-     * Descripcion:
-     * Devuelve la imagen con la que la UI dibuja al animal, segun su especie.
+     * Descripción:
+     * Devuelve la imagen con la que la UI dibuja al animal, según su especie.
      *
      * Retorno:
      * El nombre de la imagen del animal.
@@ -147,8 +138,8 @@ public class Animal extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del animal formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del animal formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del animal.
@@ -159,7 +150,7 @@ public class Animal extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el animal.
      *
      * Retorno:

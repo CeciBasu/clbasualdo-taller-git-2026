@@ -13,14 +13,14 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.UICapable;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.UiService;
 
 /**
- * Descripcion:
+ * Descripción:
  * Controlador que muestra los datos que la UI necesita de cada elemento
  * representable del dominio.
  *
  * Responsabilidad:
  * Se encarga de pedirle al servicio las entidades UICapable y devolver por la API
- * sus datos comunes (nombre, vida, estado y posicion), los de dibujo (imagen,
- * sonido y velocidad) y los propios de cada familia, siempre a traves del tipo de
+ * sus datos comunes (nombre, vida, estado y posición), los de dibujo (imagen,
+ * sonido y velocidad) y los propios de cada familia, siempre a través del tipo de
  * la interfaz UICapable.
  */
 @RestController
@@ -30,10 +30,10 @@ public class UiController {
     private final UiService uiService;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el controlador con el servicio que va a usar.
      *
-     * Parametros:
+     * Parámetros:
      * uiService - El servicio de UI.
      */
     public UiController(UiService uiService) {
@@ -41,7 +41,7 @@ public class UiController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Responde a la ruta de UI. Pide la lista de entidades al servicio y por cada
      * una arma un mapa con todos sus datos representables. Todas se tratan como
      * UICapable, y cada una responde sus datos sin que el controller sepa de que
@@ -58,12 +58,12 @@ public class UiController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Arma el mapa con los datos de UI de una entidad. Primero pone los datos
-     * comunes y de dibujo que expone la interfaz, y despues le suma los datos
+     * comunes y de dibujo que expone la interfaz, y después le suma los datos
      * propios que devuelve datosExtra().
      *
-     * Parametros:
+     * Parámetros:
      * entidad - La entidad UICapable que se quiere representar.
      *
      * Retorno:
