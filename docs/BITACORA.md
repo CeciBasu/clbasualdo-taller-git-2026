@@ -9,6 +9,7 @@ trabajó, así que van los dos.
 |---|---|---|---|
 | 1 | **Claude** (Anthropic) | Sonnet 5.5 | Endurecer la jerarquía de POO, el refactor del proyecto a capas, los comentarios de todo el código y el diagrama Mermaid del README. |
 | 2 | **OpenCode** | `big-pickle` (ID completo: `opencode/big-pickle`) | Revisión final de POO-06 (`docs/BITACORA.md`, `docs/ESPECIFICACIONES-poo-06.md`, la sobrecarga `Esqueleto.disparar()` y su ruta por HTTP, las pruebas nuevas y el README) y, en POO-08, la familia JPA, el CRUD, la simulación persistida, la jerarquía de excepciones, la colección de Insomnia y la documentación de esta entrega. |
+| 3 | **Claude Code** (Anthropic, app de escritorio) | Claude Opus 5.5 (`claude-opus-5-5`) | POO-09: cierre de las observaciones de la corrección de POO-08, publicación del OpenAPI, clientes hacia A2 y A3, escenario «emboscada del Creeper», colección de Insomnia y documentación. |
 
 
 
@@ -212,3 +213,51 @@ y por qué un método abstracto tiene que ir en la clase más general, aunque ah
 implementar. Los errores de compilación por los `package` mal puestos también me sirvieron
 para entender que Java es bastante estricto con que la carpeta y el paquete coincidan, cosa que
 antes daba por sentada sin pensar por qué.
+
+## POO-09 — APIs cruzadas (asistente 3: Claude Code, Claude Opus 5.5)
+
+### Resumen de los prompts
+
+1. **Leer el enunciado, los grupos y el ejemplo UNO de POO-09** y el estado del repositorio,
+   y armar el plan: primero cerrar POO-08, después OpenAPI, clientes, escenario e Insomnia,
+   cada parte en su propio commit.
+2. **Cerrar la corrección de POO-08** a partir del PDF de la corrección (16 de 24). Se pidió
+   cerrar cada observación y dejarla en el README con cómo se cerró:
+   - sacar todas las validaciones y excepciones del dominio y moverlas a la capa `service`;
+   - quitar los setters públicos de las Entity y validar en el service las combinaciones
+     imposibles («Creeper detonado y con vida», muertos que reviven, experiencia de 100 o más);
+   - que la simulación detone un Creeper **guardado** (por `creeperId`) sobre las entidades
+     guardadas, de modo que un segundo intento dé `409` por lo que hay en H2;
+   - un JSON incompleto o mal formado tiene que dar `400 DatosInvalidosException`;
+   - corregir el diagrama Mermaid (controller → service → repositorio) y las tildes de todo
+     el Javadoc y los comentarios. Para las tildes se usó el diccionario de español de
+     hunspell como control y se revisaron a mano las palabras ambiguas (*está/esta*,
+     *cómo/como*, *sí/si*, *disparo/disparó*).
+3. **Publicar el OpenAPI** con springdoc y documentar cada ruta con sus errores. Se pidió que
+   las dos reglas se pudieran consultar **sin modificar la base**, para que los compañeros
+   las usen desde su escenario: `POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`.
+4. **Clientes hacia A2 y A3.** Un cliente HTTP con `RestClient` que solo conoce la URL base y
+   la ruta (en `application.properties`) y el cuerpo que pide el OpenAPI del compañero. Se
+   pidió distinguir «la regla rechazó» (4xx → `422`) de «la API no responde» (5xx o sin
+   conexión → `503`), y que la respuesta diga si fue A2 o A3.
+5. **Escenario «emboscada del Creeper».** Orden de consulta: mis reglas, A2, A3. Las llamadas
+   HTTP fuera de la transacción y la explosión más la jugada en una sola transacción.
+6. **Pruebas** con dos servidores HTTP de prueba (del JDK) que hacen de A2 y A3: feliz,
+   rechazo de cada uno, compañero caído y mis reglas cortando antes de llamar a nadie.
+7. **Insomnia y respuestas de ejemplo.** La colección se ejecutó entera con un script contra
+   el servicio levantado, con dos stubs en los puertos de A2 y A3, y las respuestas quedaron
+   en `docs/insomnia/respuestas/`.
+
+### Qué revisé y decidí
+
+- La regla de A2 (mecha corta) la tomé del README de Irina, no de su código. Su API de
+  POO-08 solo aplica la regla dentro de `POST /api/minecraft/explosiones`, que crea una
+  explosión en su base. Para no modificar su H2 en cada consulta, le pedí que publique la
+  regla en una ruta propia que no guarde nada; mi cliente apunta a esa ruta y, si ella la
+  nombra distinto en su OpenAPI, se cambia `companeros.a2.ruta` sin tocar el código.
+- Mientras A2 y A3 no estén publicados, las respuestas de ejemplo de la colección salen de
+  los stubs, y así lo dicen los nombres de los archivos y el README.
+- La explicación de más arriba sobre `recibirDanio()` validando el daño negativo describe
+  POO-06: desde la corrección de POO-08 esa validación está en el service y el dominio solo
+  cambia el estado.
+

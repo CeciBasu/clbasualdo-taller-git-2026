@@ -4,11 +4,19 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-08):**
-<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/abd1c2b409369b2ca1330f4c309283be07fbe179>
+**Commit de la solución (POO-09):** el enlace exacto está en el archivo de entrega subido a
+Classroom.
 
-La entrega anterior (POO-06) quedó documentada en
-[`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md).
+- **OpenAPI:** <http://localhost:8081/v3/api-docs> (JSON), <http://localhost:8081/v3/api-docs.yaml>
+  (YAML) y <http://localhost:8081/swagger-ui.html> (navegador). Copia exportada en
+  [`docs/openapi/`](docs/openapi/).
+- **Bitácora de IA:** [`docs/BITACORA.md`](docs/BITACORA.md).
+- **Colección de Insomnia:** [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/minecraft-poo09.json),
+  con respuestas de ejemplo en [`docs/insomnia/respuestas/`](docs/insomnia/respuestas/).
+
+Las entregas anteriores quedaron documentadas en
+[`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md) y
+[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md).
 
 ## Situación de POO-08
 
@@ -24,6 +32,195 @@ POO-08 tuvo observaciones y descuentos (16 de 24). Todas quedaron cerradas en es
 | 8 | **Documentación.** El diagrama dibujaba `SimulacionExplosionController --> SimulacionExplosionJpaRepository`, pero el controller usa el service. | El diagrama y «Cómo se lee el diagrama» muestran controller → service → repositorios, como en el código. |
 | 8 | **Ortografía.** Errores en `MinecraftApplication.java` (líneas 7, 11 y 18: «Descripcion», «aplicacion», «Metodo») y Javadoc casi entero sin tildes. | Se corrigieron esos cuatro y se revisó el Javadoc y los comentarios de todo `src/` (main y test) contra el diccionario de español de hunspell, más una revisión a mano de las palabras ambiguas (*está/esta*, *cómo/como*, *sí/si*, *disparo/disparó*). |
 | 8 (mejora) | El ejemplo de la simulación mostraba «Creeper Simulado» y la respuesta real traía «Creeper». | El ejemplo del README ahora es una respuesta real de la simulación sobre entidades creadas con el CRUD. |
+
+## POO-09 — APIs cruzadas
+
+### Grupo y round robin
+
+Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras dos.
+
+| Nombre | Rol en esta entrega | URL base | OpenAPI | Sus dos reglas, en una frase cada una |
+|---|---|---|---|---|
+| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://localhost:8081` | `http://localhost:8081/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
+| Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://localhost:8082` | `http://localhost:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
+| *Por confirmar* | **A3** | `http://localhost:8083` | `http://localhost:8083/v3/api-docs` | *Se completa con su OpenAPI.* |
+
+En el trío, las tres anotamos las mismas tres URLs. Mi OpenAPI publica mis dos reglas en rutas
+que no modifican la base, para que A2 y A3 las consulten desde su escenario:
+`POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`.
+
+### El escenario: emboscada del Creeper
+
+**En una frase:** un Creeper guardado se acerca a un Jugador guardado y detona; la jugada es
+legal solo si A2 confirma que la mecha se enciende (hay un jugador vivo a 3 bloques o menos) y
+A3 la acepta con su regla, y recién ahí se ejecuta la explosión y se guarda la jugada en mi H2.
+
+```bash
+curl -X POST http://localhost:8081/escenarios/emboscada \
+  -H "Content-Type: application/json" -d '{"creeperId": 1, "jugadorId": 2}'
+```
+
+| Método | Ruta | Uso |
+|---|---|---|
+| `POST` | `/escenarios/emboscada` | Cuerpo `{"creeperId": n, "jugadorId": m}`. Si todo acepta, `201` con la jugada guardada. |
+| `GET` | `/escenarios/emboscadas` | Lista las jugadas guardadas. |
+| `GET` | `/escenarios/emboscadas/{id}` | Una jugada guardada, con la explosión leída de H2. |
+
+**Orden de consulta y por qué:**
+
+1. **Mis dos reglas** (Creeper sin detonar y vivo). No salen de la máquina: si fallan, no tiene
+   sentido molestar a nadie.
+2. **A2, mecha corta.** Es lo primero que pasa en el juego: si ningún jugador está cerca, el
+   Creeper ni enciende la mecha y no hay nada más que validar.
+3. **A3.** Se consulta con la mecha ya encendida.
+4. Si las dos aceptan, en **una transacción**: la simulación detona el Creeper (vuelve a aplicar
+   mis reglas sobre H2), le quita vida a las entidades del radio y se guarda una fila en
+   `EMBOSCADAS` con el id de la explosión y la respuesta de A2 y de A3.
+
+**Qué se ve en mi base después del feliz:** el Creeper con `detonado: true` y vida 0, el Jugador
+con 25 de vida menos, una fila nueva en `EXPLOSIONES` y una en `EMBOSCADAS`
+(`GET /escenarios/emboscadas/{id}`).
+
+**Qué queda igual si A2 acepta y A3 rechaza:** todo. Las llamadas a A2 y A3 se hacen antes de
+abrir la transacción, así que con un rechazo no se detona el Creeper, no cambia ninguna vida y
+no se agrega ninguna fila. La respuesta dice de quién fue el rechazo.
+
+```mermaid
+sequenceDiagram
+    actor Cliente as Insomnia (cliente)
+    participant A1 as Cecilia (A1, emboscada)
+    participant A2 as Irina (A2, mecha corta)
+    participant A3 as A3
+
+    Cliente->>A1: POST /escenarios/emboscada {creeperId, jugadorId}
+    A1->>A1: mis reglas: sin detonar y vivo
+    A1->>A2: POST regla mecha corta (posiciones y salud)
+    A2-->>A1: 200 mecha encendida
+    A1->>A3: POST regla de A3
+    A3-->>A1: 200 acepta
+    A1->>A1: detona, daña y guarda la jugada (una transacción)
+    A1-->>Cliente: 201 emboscada guardada
+```
+
+```mermaid
+sequenceDiagram
+    actor Cliente as Insomnia (cliente)
+    participant A1 as Cecilia (A1, emboscada)
+    participant A2 as Irina (A2, mecha corta)
+    participant A3 as A3
+
+    Cliente->>A1: POST /escenarios/emboscada
+    A1->>A2: POST regla mecha corta
+    A2-->>A1: 200 mecha encendida
+    A1->>A3: POST regla de A3
+    A3-->>A1: 4xx rechaza
+    A1->>A1: no abre la transacción: H2 queda igual
+    A1-->>Cliente: 422 rechazadoPor A3
+```
+
+### Cliente: cómo se configuran A2 y A3
+
+Los clientes están en el paquete `cliente`: `ClienteReglaCompanero` hace el `POST` y lee la
+respuesta, y `ClienteA2MechaCorta` y `ClienteA3` solo arman el cuerpo que pide el OpenAPI de
+cada una. Las URLs y las rutas están en `application.properties` y se pueden cambiar con
+variables de entorno:
+
+| Propiedad | Variable de entorno | Valor por defecto |
+|---|---|---|
+| `companeros.a2.base-url` | `A2_BASE_URL` | `http://localhost:8082` |
+| `companeros.a2.ruta` | `A2_RUTA` | `/api/minecraft/reglas/mecha-corta` |
+| `companeros.a3.base-url` | `A3_BASE_URL` | `http://localhost:8083` |
+| `companeros.a3.ruta` | `A3_RUTA` | `/reglas/emboscada` |
+| `companeros.a3.nombre` | `A3_NOMBRE` | `A3 (por confirmar)` |
+| `companeros.timeout-ms` | — | `3000` |
+
+Por ejemplo, si A2 está en otra notebook de la sala:
+
+```bash
+A2_BASE_URL=http://192.168.0.12:8080 ./mvnw spring-boot:run
+```
+
+### Errores: cómo se atribuyen
+
+Las respuestas de A2 y A3 se **traducen** a mi jerarquía, sin perder la original:
+
+```text
+MinecraftException
+└── CompaneroException (rol, companero, estadoCompanero, respuestaCompanero)
+    ├── RechazoDeCompaneroException     -> HTTP 422  (la regla del compañero respondió 4xx)
+    └── CompaneroNoDisponibleException  -> HTTP 503  (5xx, conexión rechazada o tiempo agotado)
+```
+
+El handler distingue «la regla de A2 rechazó» de «la API de A3 no responde» y lo dice en el
+cuerpo con `rechazadoPor`, `companero`, `estadoCompanero` y `respuestaCompanero` (el cuerpo
+que mandó el compañero, tal cual). Ejemplo (respuesta real con un stub en el puerto de A2):
+
+```json
+{
+  "status": 422,
+  "error": "Unprocessable Entity",
+  "tipo": "RechazoDeCompaneroException",
+  "mensaje": "Rechazo de A2 (Irina Insfrán, regla mecha corta): la jugada no se guardó.",
+  "rechazadoPor": "A2",
+  "companero": "Irina Insfrán",
+  "estadoCompanero": 422,
+  "respuestaCompanero": "{\"error\": \"fuera_de_alcance\", ...}"
+}
+```
+
+### Cómo arrancar los tres servicios
+
+En la misma máquina, cada uno en su terminal y en su puerto. Primero A2 y A3, después A1.
+
+```bash
+# A2 — Irina Insfrán
+git clone https://github.com/IrinaInsfran/ii-taller-git-2026.git
+cd ii-taller-git-2026 && git checkout <commit-de-A2>
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
+```
+
+```bash
+# A3
+git clone <repositorio-de-A3> && cd <carpeta-de-A3> && git checkout <commit-de-A3>
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
+```
+
+```bash
+# A1 — este repositorio (puerto 8081 por defecto)
+git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
+cd clbasualdo-taller-git-2026/minecraft && git checkout <commit-de-esta-entrega>
+./mvnw spring-boot:run
+```
+
+Después, en Insomnia: carpeta 0 (los tres OpenAPI), carpeta 1 (preparar entidades en A1) y
+carpeta 2 (escenario feliz, rechazo de A2 y rechazo de A3).
+
+### Si A2 o A3 no responden
+
+- Mi servicio no se cae: responde `503 CompaneroNoDisponibleException` con el rol del que
+  falló y no guarda nada. Cada llamada tiene un tiempo máximo de 3 segundos.
+- Los clientes están en el código, las URLs en este README y en `application.properties`, y la
+  colección trae **respuestas de ejemplo** del feliz y de cada rechazo en
+  [`docs/insomnia/respuestas/`](docs/insomnia/respuestas/). Esas respuestas se obtuvieron con el
+  servicio real y dos servidores de prueba en los puertos 8082 y 8083 que respondían como A2 y A3,
+  y así está indicado en cada una.
+- Las pruebas automáticas (`EmboscadaControllerTest`) levantan dos servidores HTTP de prueba y
+  cubren el feliz, el rechazo de A2, el de A3, A2 caído y mis reglas cortando antes de llamar.
+
+### Pregunta de anclaje
+
+*Si el compañero cambia el nombre de una ruta, ¿alcanza con actualizar lo que dice el OpenAPI,
+o había código copiado de su dominio?* Alcanza con actualizar la propiedad
+(`companeros.a2.ruta` o `A2_RUTA`). No hay ninguna clase de A2 ni de A3 en este proyecto: el
+cliente solo arma un JSON con los nombres de campos de su OpenAPI y lee el código HTTP. Si
+cambiara la forma del cuerpo, se cambia el método `validar(...)` de su cliente, nada más.
+
+### Límite
+
+No se clonó el código de las compañeras para copiar reglas. La regla de A2 se tomó de su README
+y la ruta de su OpenAPI. Como su API de POO-08 aplica la regla solo dentro de
+`POST /api/minecraft/explosiones` (que crea una explosión en su base), se le pidió publicar la
+regla en una ruta que no guarde nada, igual que hice con las mías.
 
 ## Tecnologías
 
@@ -41,7 +238,8 @@ cd clbasualdo-taller-git-2026/minecraft
 ./mvnw spring-boot:run
 ```
 
-La aplicación queda disponible en `http://localhost:8080`.
+La aplicación queda disponible en `http://localhost:8081` (el puerto 8081 es el de A1 dentro
+del grupo; se puede cambiar con la variable `PORT`).
 
 Para ver la demostración por consola, sin levantar la API:
 
@@ -318,6 +516,11 @@ no tiene nada que ver con la herencia.
 | `GET` | `/simulacion/explosion` | Devuelve la última simulación persistida. |
 | `GET` | `/simulacion/explosion/{id}` | Devuelve una simulación persistida por id; si no existe responde `404`. |
 | `GET` | `/simulacion/explosiones` | Lista todas las simulaciones persistidas. |
+| `POST` | `/reglas/creeper-vivo` | Regla 1 sin tocar H2: `{"vida": n}` → `200` si `n > 0`, `422` si no. |
+| `POST` | `/reglas/detonacion-unica` | Regla 2 sin tocar H2: `{"detonado": b}` → `200` si es `false`, `409` si es `true`. |
+| `POST` | `/escenarios/emboscada` | Escenario de POO-09: consulta a A2 y A3 y guarda la jugada si las dos aceptan. |
+| `GET` | `/escenarios/emboscadas` y `/escenarios/emboscadas/{id}` | Jugadas guardadas del escenario. |
+| `GET` | `/v3/api-docs`, `/v3/api-docs.yaml`, `/swagger-ui.html` | Documento OpenAPI y su interfaz web. |
 
 ### Ejemplo — `GET /esqueleto?nombre=Bony&vida=15`
 
@@ -411,7 +614,7 @@ Una distancia negativa la rechaza el dominio y la API la avisa con `400`:
   },
   {
     "tipo": "Animal",
-    "reaccion": "Vaca sigue comiendo, no le presta atencion al jugador.",
+    "reaccion": "Vaca sigue comiendo, no le presta atención al jugador.",
     "vida": 10,
     "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
   }
@@ -607,15 +810,15 @@ y lo que hace:
 | `spring.jpa.show-sql=true` | Muestra en la consola el SQL que Hibernate ejecuta, útil para ver la persistencia durante la clase. |
 | `spring.jpa.open-in-view=false` | Cierra la sesión JPA al terminar el controller, para que ninguna vista o respuesta dependa de una sesión abierta. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 para mirar las tablas desde el navegador. |
-| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8080/h2-console`. |
+| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8081/h2-console`. |
 
 La consola H2 queda disponible en:
 
-- URL: `http://localhost:8080/h2-console`
+- URL: `http://localhost:8081/h2-console`
 - JDBC URL: `jdbc:h2:file:./data/entidades`
 - Usuario: `sa`
 - Contraseña: vacía
-- Tablas: `ENTIDADES`, `EXPLOSIONES` y `EXPLOSION_IMPACTOS`
+- Tablas: `ENTIDADES`, `EXPLOSIONES`, `EXPLOSION_IMPACTOS` y `EMBOSCADAS`
 
 Si quedó una base de una versión anterior en `minecraft/data/`, conviene borrar esa carpeta
 antes de arrancar: la tabla vieja `SIMULACIONES_EXPLOSION` ya no se usa.
@@ -631,7 +834,7 @@ La simulación trabaja sobre las entidades **guardadas en H2**. Primero se crean
 (`POST /entidades`) y después se detona un Creeper guardado indicando su id:
 
 ```bash
-curl -X POST http://localhost:8080/simulacion/explosion \
+curl -X POST http://localhost:8081/simulacion/explosion \
   -H "Content-Type: application/json" -d '{"creeperId": 1}'
 ```
 
@@ -869,37 +1072,30 @@ Se pierde el polimorfismo: habría que preguntar por el tipo con `if` o `instanc
 
 ## Colección Insomnia
 
-La colección exportable está en
-[`docs/insomnia/minecraft-explosiones.json`](docs/insomnia/minecraft-explosiones.json).
+La colección está en [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/minecraft-poo09.json).
 
-Para importarla:
+1. Abrir Insomnia → `Application` → `Import` → `From File` y elegir el archivo.
+2. Elegir el entorno **Grupo en una máquina**: `a1_url`, `a2_url` y `a3_url` apuntan a los
+   puertos 8081, 8082 y 8083, y los ids corresponden a una base vacía.
+3. Arrancar A2 y A3 primero y A1 después (ver «Cómo arrancar los tres servicios»).
+4. Ejecutar las carpetas en orden.
 
-1. Abrir Insomnia.
-2. Ir a `Application` → `Import` → `From File`.
-3. Elegir `docs/insomnia/minecraft-explosiones.json`.
-4. Seleccionar el environment `Base local` y verificar que `base_url` sea
-   `http://localhost:8080`.
-5. Arrancar la aplicación con `./mvnw spring-boot:run` y ejecutar las solicitudes en orden.
+| Carpeta | Qué tiene |
+|---|---|
+| 0 - OpenAPI | El OpenAPI propio (JSON y YAML) y el de A2 y A3. |
+| 1 - Preparar | Crea en A1 los Creepers y Jugadores del escenario (ids 1 a 6). |
+| 2 - Escenario | Feliz (`201`) y su `GET`; rechazo de A2 con el jugador a 10 bloques (`422`, `rechazadoPor: A2`) y el `GET` que muestra el Creeper sin cambios; rechazo de A3 (`422`, `rechazadoPor: A3`); la lista; y mi regla cortando un segundo intento (`409`). |
+| 3 - Mis reglas | Las dos rutas de `/reglas` que consumen A2 y A3, con su caso que acepta y su caso que rechaza. |
+| 4 - POO-08 | CRUD, simulación sobre un Creeper guardado, `409` al repetirla, `422` con un Creeper muerto, `400` del Creeper «detonado y con vida», de la vida negativa y del cuerpo sin `z`, y `404`. |
 
-La colección incluye:
+Las respuestas de ejemplo del feliz y de cada rechazo están en
+[`docs/insomnia/respuestas/`](docs/insomnia/respuestas/), por si un compañero no está en línea
+durante la corrección.
 
-- simulación exitosa y sus tres consultas posteriores (`GET` por id, última y lista);
-- error de Creeper muerto (`422`);
-- error de Creeper ya detonado (`409`);
-- CRUD: listar, crear, obtener por nombre, actualizar por nombre y eliminar por nombre;
-- POST ilegal (`400`, `DatosInvalidosException`);
-- id inexistente (`404`, `RecursoNoEncontradoException`);
-- `GET /ui` para ver la interface `UICapable` en acción.
-
-Para el CRUD, si se ejecuta `Crear entidad` más de una vez, el nombre duplicado responde `400`.
-Eliminar la entidad antes de volver a crearla, o cambiar `entidad_nombre` en el environment.
-Para `Consultar simulación por id`, copiar el `simulacionId` que devuelve la simulación exitosa
-en la variable `simulacion_id` del environment.
-
-**Aclaración de verificación:** la colección se entrega lista para importar, pero en esta
-entrega las pruebas automatizadas se ejecutaron con Maven y MockMvc, y la aplicación se verificó
-con `curl` y una consulta directa a H2. No se afirma que las solicitudes se hayan ejecutado desde
-la interfaz de Insomnia.
+**Cómo se verificó:** las solicitudes de la colección se ejecutaron todas, en orden, con un
+script que lee el archivo exportado y las manda al servicio levantado con
+`./mvnw spring-boot:run`, con dos servidores de prueba en los puertos de A2 y A3. Todas dieron
+el código esperado. No se afirma que se hayan ejecutado desde la interfaz de Insomnia.
 
 ## Pruebas
 
@@ -907,20 +1103,26 @@ la interfaz de Insomnia.
 ./mvnw test
 ```
 
-67 pruebas. Sobre el dominio: los límites de vida y el ocultamiento de estado
-(`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
-el borde exacto de peligro (`EntidadPasivaTest`), la munición, el alcance del
-esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el ataque y la reacción
-del Enderman (`EndermanTest`), el inventario y la experiencia (`JugadorTest`), y que la
-jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`). Sobre la entrada HTTP,
-`ApiControllerTest` levanta el contexto con MockMvc y prueba las rutas anteriores, incluido
-que un dato inválido termine en `400` y no en un `500`.
+65 pruebas. Sobre el dominio: el ocultamiento de estado (`EntidadTest`), el radio de la
+explosión (`CreeperTest`), la huida y el borde exacto de peligro (`EntidadPasivaTest`), la
+munición, el alcance del esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el
+ataque y la reacción del Enderman (`EndermanTest`), el inventario y la experiencia
+(`JugadorTest`), y que la jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`).
+Desde la corrección de POO-08 el dominio no valida, así que las pruebas de datos inválidos
+están sobre la API. `ApiControllerTest` prueba las rutas del modelo, incluido que un dato
+inválido termine en `400` y no en un `500`.
 
-Las pruebas de esta entrega son:
+Pruebas de POO-08 y POO-09:
 
-- `SimulacionExplosionServiceImplTest`: caso exitoso persistido y las dos excepciones de dominio.
-- `SimulacionExplosionControllerTest`: POST exitoso, GET por id, última, lista, `422` y `409` con su JSON.
-- `EntidadCrudControllerTest`: CRUD completo, subtipos, POST ilegal, id inexistente y cambio de tipo prohibido.
+- `EntidadCrudControllerTest`: CRUD completo, subtipos, POST ilegal, id inexistente, cambio de
+  tipo prohibido, Creeper «detonado y con vida», Zombie muerto que no revive y cuerpo
+  incompleto o mal formado.
+- `SimulacionExplosionServiceImplTest` y `SimulacionExplosionControllerTest`: la simulación usa
+  las entidades guardadas con el CRUD, un segundo intento sobre el mismo Creeper da `409`, un
+  Creeper muerto da `422` y nada de eso guarda filas nuevas.
+- `ReglasYOpenApiTest`: las dos rutas de `/reglas` y que el OpenAPI describa el CRUD, la
+  simulación y los errores de las dos reglas.
+- `EmboscadaControllerTest`: el escenario con dos servidores HTTP de prueba como A2 y A3.
 
 ## Bitácora y documentación
 
@@ -929,6 +1131,7 @@ Las pruebas de esta entrega son:
   tocando la jerarquía.
 - **[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md)** — consignas de
   POO-08 y dónde se cumple cada una.
+- **[`docs/openapi/`](docs/openapi/)** — copia exportada del OpenAPI (JSON y YAML).
 
 ## Resumen de la evolución del proyecto
 
@@ -958,11 +1161,16 @@ Las pruebas de esta entrega son:
    como padre y `CreeperEntity`, `ZombieEntity` y `JugadorEntity` como hijas. El CRUD valida
    los invariantes y usa `@JsonTypeInfo` / `@JsonSubTypes` para discriminar el `"tipo"`. La
    simulación persiste el estado final de las tres entidades y guarda una foto en
-   `SIMULACIONES_EXPLOSION`, con `GET` por id, última y lista. La jerarquía de excepciones
+   `SIMULACIONES_EXPLOSION` (en POO-09 pasó a `EXPLOSIONES`), con `GET` por id, última y lista. La jerarquía de excepciones
    quedó con `MinecraftException` como base y un handler por tipo: `404`, `400`, `422` y
    `409`.
+10. **POO-09.** Se cerraron las observaciones de la corrección de POO-08 (dominio sin
+    validaciones, Entity sin setters públicos, simulación sobre las entidades guardadas,
+    diagrama y ortografía). Se publicó el OpenAPI con springdoc y las dos reglas en
+    `/reglas`, se agregaron los clientes HTTP hacia A2 y A3 y el escenario «emboscada del
+    Creeper», que guarda la jugada solo si las dos reglas ajenas aceptan.
 
-Estado final verificado: `./mvnw test` → **67 pruebas**, BUILD SUCCESS.
+Estado final verificado: `./mvnw test` → **65 pruebas**, BUILD SUCCESS.
 
 ## Licencia
 
