@@ -1,8 +1,6 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.rest.controller.handler;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import py.edu.uc.lp3.clbasualdo.minecraft.dto.ErrorRespuesta;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
@@ -39,7 +38,7 @@ public class MinecraftExceptionHandler {
      * Respuesta JSON con el detalle del error.
      */
     @ExceptionHandler(RecursoNoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> manejarNoEncontrado(RecursoNoEncontradoException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarNoEncontrado(RecursoNoEncontradoException ex) {
         return respuesta(HttpStatus.NOT_FOUND, ex);
     }
 
@@ -54,7 +53,7 @@ public class MinecraftExceptionHandler {
      * Respuesta JSON con el detalle del error.
      */
     @ExceptionHandler(DatosInvalidosException.class)
-    public ResponseEntity<Map<String, Object>> manejarDatosInvalidos(DatosInvalidosException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarDatosInvalidos(DatosInvalidosException ex) {
         return respuesta(HttpStatus.BAD_REQUEST, ex);
     }
 
@@ -69,7 +68,7 @@ public class MinecraftExceptionHandler {
      * Respuesta JSON con el detalle del error.
      */
     @ExceptionHandler(CreeperMuertoException.class)
-    public ResponseEntity<Map<String, Object>> manejarCreeperMuerto(CreeperMuertoException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarCreeperMuerto(CreeperMuertoException ex) {
         return respuesta(HttpStatus.UNPROCESSABLE_ENTITY, ex);
     }
 
@@ -84,7 +83,7 @@ public class MinecraftExceptionHandler {
      * Respuesta JSON con el detalle del error.
      */
     @ExceptionHandler(CreeperYaDetonadoException.class)
-    public ResponseEntity<Map<String, Object>> manejarCreeperYaDetonado(CreeperYaDetonadoException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarCreeperYaDetonado(CreeperYaDetonadoException ex) {
         return respuesta(HttpStatus.CONFLICT, ex);
     }
 
@@ -101,7 +100,7 @@ public class MinecraftExceptionHandler {
      * Respuesta 400 con el mismo formato que los demás errores.
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, Object>> manejarJsonIlegible(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarJsonIlegible(HttpMessageNotReadableException ex) {
         return respuesta(HttpStatus.BAD_REQUEST, new DatosInvalidosException(
                 "El cuerpo JSON falta o no se puede leer: los campos tienen que tener el tipo correcto.", ex));
     }
@@ -118,7 +117,7 @@ public class MinecraftExceptionHandler {
      * Respuesta 400 con el mismo formato que los demás errores.
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, Object>> manejarParametroInvalido(MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<ErrorRespuesta> manejarParametroInvalido(MethodArgumentTypeMismatchException ex) {
         return respuesta(HttpStatus.BAD_REQUEST, new DatosInvalidosException(
                 "El parámetro \"" + ex.getName() + "\" tiene un valor inválido: " + ex.getValue() + ".", ex));
     }
@@ -134,13 +133,9 @@ public class MinecraftExceptionHandler {
      * Retorno:
      * Respuesta con el status y los datos del error.
      */
-    private ResponseEntity<Map<String, Object>> respuesta(HttpStatus status, MinecraftException ex) {
-        Map<String, Object> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("timestamp", LocalDateTime.now());
-        cuerpo.put("status", status.value());
-        cuerpo.put("error", status.getReasonPhrase());
-        cuerpo.put("tipo", ex.getClass().getSimpleName());
-        cuerpo.put("mensaje", ex.getMessage());
+    private ResponseEntity<ErrorRespuesta> respuesta(HttpStatus status, MinecraftException ex) {
+        ErrorRespuesta cuerpo = new ErrorRespuesta(LocalDateTime.now(), status.value(),
+                status.getReasonPhrase(), ex.getClass().getSimpleName(), ex.getMessage());
         return ResponseEntity.status(status).body(cuerpo);
     }
 }

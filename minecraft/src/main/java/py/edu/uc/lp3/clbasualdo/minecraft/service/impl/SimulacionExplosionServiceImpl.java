@@ -12,8 +12,6 @@ import py.edu.uc.lp3.clbasualdo.minecraft.entity.CreeperEntity;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.EntidadEntity;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.ImpactoExplosion;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.SimulacionExplosionEntity;
-import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
-import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RecursoNoEncontradoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.repository.jpa.EntidadJpaRepository;
@@ -22,6 +20,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado.EstadoCreeper;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado.EstadoEntidad;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
+import py.edu.uc.lp3.clbasualdo.minecraft.service.reglas.ReglasExplosionService;
 
 /**
  * Descripción:
@@ -43,6 +42,9 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
     /** Repositorio de las simulaciones guardadas. */
     private final SimulacionExplosionJpaRepository simulacionJpaRepository;
 
+    /** Las dos reglas de la explosión. */
+    private final ReglasExplosionService reglasExplosionService;
+
     /**
      * Descripción:
      * Recibe los repositorios por constructor.
@@ -50,11 +52,14 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
      * Parámetros:
      * entidadJpaRepository - Repositorio de entidades.
      * simulacionJpaRepository - Repositorio de simulaciones.
+     * reglasExplosionService - Las dos reglas de la explosión.
      */
     public SimulacionExplosionServiceImpl(EntidadJpaRepository entidadJpaRepository,
-            SimulacionExplosionJpaRepository simulacionJpaRepository) {
+            SimulacionExplosionJpaRepository simulacionJpaRepository,
+            ReglasExplosionService reglasExplosionService) {
         this.entidadJpaRepository = entidadJpaRepository;
         this.simulacionJpaRepository = simulacionJpaRepository;
+        this.reglasExplosionService = reglasExplosionService;
     }
 
     @Override
@@ -157,12 +162,8 @@ public class SimulacionExplosionServiceImpl implements SimulacionExplosionServic
      * CreeperMuertoException - Si no tiene vida.
      */
     private void validarQuePuedeDetonar(CreeperEntity creeper) {
-        if (creeper.isDetonado()) {
-            throw new CreeperYaDetonadoException(creeper.getNombre() + " ya detonó y no puede volver a explotar.");
-        }
-        if (!creeper.estaViva()) {
-            throw new CreeperMuertoException(creeper.getNombre() + " no puede detonar: está muerto.");
-        }
+        reglasExplosionService.validarDetonacionUnica(creeper.getNombre(), creeper.isDetonado());
+        reglasExplosionService.validarCreeperVivo(creeper.getNombre(), creeper.getVida());
     }
 
     /**

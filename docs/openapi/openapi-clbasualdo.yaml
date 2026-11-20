@@ -1,0 +1,864 @@
+openapi: 3.1.0
+info:
+  title: Minecraft API — clbasualdo (Cecilia Basualdo)
+  description: |-
+    CRUD de entidades de Minecraft (Creeper, Zombie, Jugador) guardadas en H2, simulación de explosiones sobre las entidades guardadas y las dos reglas de la explosión.
+
+    **Regla 1 — Creeper vivo:** un Creeper solo detona si tiene vida mayor a 0. Si no, 422 `CreeperMuertoException`.
+
+    **Regla 2 — Detonación única:** un Creeper solo detona una vez. Un segundo intento da 409 `CreeperYaDetonadoException`.
+
+    Las dos reglas se pueden consultar sin modificar la base con `POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`. Todos los errores tienen la forma `ErrorRespuesta`.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: poo-09
+servers:
+- url: http://localhost:8091
+  description: Generated server url
+tags:
+- name: Modelo
+  description: Rutas de POO-06 que muestran el modelo de dominio sin guardar en H2.
+- name: Reglas
+  description: "Las dos reglas de la explosión, para consultarlas sin modificar H2."
+- name: Entidades
+  description: "CRUD de la familia de entidades guardada en H2 (Creeper, Zombie, Jugador)."
+- name: Simulación
+  description: Explosión de un Creeper guardado sobre las entidades guardadas.
+paths:
+  /entidades/{id}:
+    get:
+      tags:
+      - Entidades
+      summary: Busca una entidad por id
+      operationId: obtenerPorId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: La entidad.
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/CreeperEntity"
+                - $ref: "#/components/schemas/JugadorEntity"
+                - $ref: "#/components/schemas/ZombieEntity"
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "400":
+          description: El id no es un número (DatosInvalidosException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+    put:
+      tags:
+      - Entidades
+      summary: Reemplaza una entidad por id
+      description: "No permite cambiar el tipo, detonar un Creeper (eso lo hace la\
+        \ simulación), deshacer una detonación ni revivir a un Creeper o Zombie muerto."
+      operationId: actualizar
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntidadRequest"
+        required: true
+      responses:
+        "200":
+          description: La entidad actualizada.
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/CreeperEntity"
+                - $ref: "#/components/schemas/JugadorEntity"
+                - $ref: "#/components/schemas/ZombieEntity"
+        "400":
+          description: "Dato faltante, inválido o combinación imposible (DatosInvalidosException)."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+    delete:
+      tags:
+      - Entidades
+      summary: Elimina una entidad por id
+      operationId: eliminar
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Eliminada.
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+  /entidades/nombre/{nombre}:
+    get:
+      tags:
+      - Entidades
+      summary: Busca una entidad por nombre
+      operationId: obtenerPorNombre
+      parameters:
+      - name: nombre
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: La entidad.
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/CreeperEntity"
+                - $ref: "#/components/schemas/JugadorEntity"
+                - $ref: "#/components/schemas/ZombieEntity"
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+    put:
+      tags:
+      - Entidades
+      summary: Reemplaza una entidad por nombre
+      description: Mismas reglas que el PUT por id.
+      operationId: actualizarPorNombre
+      parameters:
+      - name: nombre
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntidadRequest"
+        required: true
+      responses:
+        "200":
+          description: La entidad actualizada.
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/CreeperEntity"
+                - $ref: "#/components/schemas/JugadorEntity"
+                - $ref: "#/components/schemas/ZombieEntity"
+        "400":
+          description: "Dato faltante, inválido o combinación imposible (DatosInvalidosException)."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+    delete:
+      tags:
+      - Entidades
+      summary: Elimina una entidad por nombre
+      operationId: eliminarPorNombre
+      parameters:
+      - name: nombre
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Eliminada.
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+  /simulacion/explosion:
+    get:
+      tags:
+      - Simulación
+      summary: Última simulación guardada
+      operationId: ultima
+      responses:
+        "200":
+          description: La simulación más reciente.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SimulacionExplosionResultado"
+        "404":
+          description: Todavía no hay simulaciones (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+    post:
+      tags:
+      - Simulación
+      summary: Detona un Creeper guardado
+      description: "Carga el Creeper por creeperId, aplica las dos reglas, quita 25\
+        \ de vida a cada entidad viva a 3 bloques o menos y guarda el resultado. El\
+        \ Creeper queda detonado y con vida 0."
+      operationId: simular
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulacionExplosionRequest"
+        required: true
+      responses:
+        "201":
+          description: Simulación guardada.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SimulacionExplosionResultado"
+        "400":
+          description: Falta creeperId o la entidad no es un Creeper (DatosInvalidosException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "404":
+          description: No existe una entidad con ese id (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "409":
+          description: "Regla 2: el Creeper ya detonó (CreeperYaDetonadoException)."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "422":
+          description: "Regla 1: el Creeper está muerto (CreeperMuertoException)."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+  /reglas/detonacion-unica:
+    post:
+      tags:
+      - Reglas
+      summary: "Regla 2: un Creeper solo detona una vez"
+      description: Recibe si el Creeper ya detonó y responde 200 si todavía no. Si
+        ya detonó rechaza con 409 CreeperYaDetonadoException. No guarda nada.
+      operationId: detonacionUnica
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstadoCreeperRequest"
+        required: true
+      responses:
+        "200":
+          description: "El Creeper todavía no detonó: puede detonar."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidacionReglaResponse"
+        "400":
+          description: Falta "detonado" o el JSON no se puede leer.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "409":
+          description: "El Creeper ya detonó: no puede volver a explotar."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+              example:
+                timestamp: 2026-11-19T21:10:02.512
+                status: 409
+                error: Conflict
+                tipo: CreeperYaDetonadoException
+                mensaje: Creeper del pozo ya detonó y no puede volver a explotar.
+  /reglas/creeper-vivo:
+    post:
+      tags:
+      - Reglas
+      summary: "Regla 1: un Creeper solo detona si está vivo"
+      description: Recibe la vida de un Creeper y responde 200 si es mayor a 0. Con
+        vida 0 o menos rechaza con 422 CreeperMuertoException. No guarda nada.
+      operationId: creeperVivo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EstadoCreeperRequest"
+        required: true
+      responses:
+        "200":
+          description: "El Creeper está vivo: puede detonar."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ValidacionReglaResponse"
+        "400":
+          description: Falta "vida" o el JSON no se puede leer.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+        "422":
+          description: "El Creeper está muerto: no puede detonar."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+              example:
+                timestamp: 2026-11-19T21:10:02.512
+                status: 422
+                error: Unprocessable Entity
+                tipo: CreeperMuertoException
+                mensaje: "Creeper del pozo no puede detonar: está muerto."
+  /entidades:
+    get:
+      tags:
+      - Entidades
+      summary: Lista las entidades guardadas
+      description: Devuelve todas las filas de la tabla entidades con su tipo.
+      operationId: listar
+      responses:
+        "200":
+          description: Lista de entidades.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: "#/components/schemas/CreeperEntity"
+                  - $ref: "#/components/schemas/JugadorEntity"
+                  - $ref: "#/components/schemas/ZombieEntity"
+    post:
+      tags:
+      - Entidades
+      summary: Crea una entidad
+      description: "El JSON trae tipo (Creeper, Zombie o Jugador). Rechaza con 400\
+        \ un Creeper detonado y con vida, un nombre repetido o un dato faltante."
+      operationId: crear
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EntidadRequest"
+        required: true
+      responses:
+        "201":
+          description: "Entidad creada, con su id."
+          content:
+            '*/*':
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/CreeperEntity"
+                - $ref: "#/components/schemas/JugadorEntity"
+                - $ref: "#/components/schemas/ZombieEntity"
+        "400":
+          description: "Dato faltante, inválido o combinación imposible (DatosInvalidosException)."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+  /ui:
+    get:
+      tags:
+      - Modelo
+      summary: Datos de UI de las entidades UICapable
+      operationId: ui
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: {}
+  /simulacion/explosiones:
+    get:
+      tags:
+      - Simulación
+      summary: Lista las simulaciones guardadas
+      operationId: listar_1
+      responses:
+        "200":
+          description: Lista de simulaciones.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SimulacionExplosionResultado"
+  /simulacion/explosion/{id}:
+    get:
+      tags:
+      - Simulación
+      summary: Simulación guardada por id
+      operationId: obtener
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: La simulación.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SimulacionExplosionResultado"
+        "404":
+          description: No existe (RecursoNoEncontradoException).
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ErrorRespuesta"
+  /esqueleto:
+    get:
+      tags:
+      - Modelo
+      summary: Construye un Esqueleto desde la URL
+      description: Con vida 0 o nombre vacío responde 400.
+      operationId: crear_1
+      parameters:
+      - name: nombre
+        in: query
+        required: false
+        schema:
+          type: string
+          default: Esqueleto
+      - name: vida
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: x
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 0.0
+      - name: "y"
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 64.0
+      - name: z
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 0.0
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties: {}
+  /esqueleto/disparar:
+    get:
+      tags:
+      - Modelo
+      summary: Muestra la sobrecarga de disparar()
+      description: Ejecuta disparar() y disparar(distancia). Una distancia negativa
+        responde 400.
+      operationId: disparar
+      parameters:
+      - name: nombre
+        in: query
+        required: false
+        schema:
+          type: string
+          default: Bony
+      - name: vida
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 20
+      - name: x
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 0.0
+      - name: "y"
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 64.0
+      - name: z
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 0.0
+      - name: distancia
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          default: 5.0
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /comportamiento:
+    get:
+      tags:
+      - Modelo
+      summary: Reacción de cada tipo de entidad
+      description: "Polimorfismo: cada entidad responde reaccionar() a su manera."
+      operationId: comportamiento
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: {}
+  /:
+    get:
+      tags:
+      - Modelo
+      summary: Confirma que el servicio está vivo
+      operationId: index
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+components:
+  schemas:
+    EntidadRequest:
+      type: object
+      description: "Datos para crear o reemplazar una entidad. El service rechaza\
+        \ combinaciones imposibles: un Creeper detonado tiene vida 0 y no se crea\
+        \ ni se detona con este cuerpo."
+      properties:
+        tipo:
+          type: string
+          description: Subtipo.
+          enum:
+          - Creeper
+          - Zombie
+          - Jugador
+          example: Creeper
+        nombre:
+          type: string
+          description: Nombre único.
+          example: Creeper del pozo
+        vida:
+          type: integer
+          format: int32
+          description: Vida actual. Mayor a 0 al crear; entre 0 y vidaMaxima.
+          example: 20
+        vidaMaxima:
+          type: integer
+          format: int32
+          description: "Vida máxima. Si no viene, es igual a vida."
+          example: 20
+        x:
+          type: number
+          format: double
+          description: Posición X.
+          example: 0
+        "y":
+          type: number
+          format: double
+          description: Posición Y (altura).
+          example: 64
+        z:
+          type: number
+          format: double
+          description: Posición Z.
+          example: 0
+        detonado:
+          type: boolean
+          description: Solo Creeper. Si ya detonó; solo lo cambia la simulación.
+          example: false
+        puertaRota:
+          type: boolean
+          description: Solo Zombie. Si ya rompió una puerta.
+          example: false
+        nivel:
+          type: integer
+          format: int32
+          description: "Solo Jugador. Nivel, 0 o más."
+          example: 1
+        experiencia:
+          type: integer
+          format: int32
+          description: "Solo Jugador. Experiencia acumulada, de 0 a 99."
+          example: 0
+      required:
+      - nombre
+      - tipo
+      - vida
+      - x
+      - "y"
+      - z
+    ErrorRespuesta:
+      type: object
+      description: Forma común de todos los errores de la API.
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Momento del error.
+          example: 2026-11-19T21:10:02.512
+        status:
+          type: integer
+          format: int32
+          description: Código HTTP.
+          example: 409
+        error:
+          type: string
+          description: Frase estándar del código HTTP.
+          example: Conflict
+        tipo:
+          type: string
+          description: "Excepción que lo provocó: DatosInvalidosException (400), RecursoNoEncontradoException\
+            \ (404), CreeperYaDetonadoException (409), CreeperMuertoException (422),\
+            \ RechazoDeCompaneroException (409) o CompaneroNoDisponibleException (503)."
+          example: CreeperYaDetonadoException
+        mensaje:
+          type: string
+          description: Explicación del error.
+          example: Creeper 1 ya detonó y no puede volver a explotar.
+    CreeperEntity:
+      allOf:
+      - $ref: "#/components/schemas/EntidadEntity"
+      - type: object
+        properties:
+          detonado:
+            type: boolean
+    EntidadEntity:
+      type: object
+      discriminator:
+        propertyName: tipo
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        vida:
+          type: integer
+          format: int32
+        vidaMaxima:
+          type: integer
+          format: int32
+        x:
+          type: number
+          format: double
+        "y":
+          type: number
+          format: double
+        z:
+          type: number
+          format: double
+        tipo:
+          type: string
+      required:
+      - tipo
+    JugadorEntity:
+      allOf:
+      - $ref: "#/components/schemas/EntidadEntity"
+      - type: object
+        properties:
+          nivel:
+            type: integer
+            format: int32
+          experiencia:
+            type: integer
+            format: int32
+    ZombieEntity:
+      allOf:
+      - $ref: "#/components/schemas/EntidadEntity"
+      - type: object
+        properties:
+          puertaRota:
+            type: boolean
+    SimulacionExplosionRequest:
+      type: object
+      description: Creeper guardado que va a detonar.
+      properties:
+        creeperId:
+          type: integer
+          format: int64
+          description: Id del Creeper en /entidades.
+          example: 1
+      required:
+      - creeperId
+    EstadoCreeper:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        vidaInicial:
+          type: integer
+          format: int32
+        vidaFinal:
+          type: integer
+          format: int32
+        detonado:
+          type: boolean
+        vivo:
+          type: boolean
+        x:
+          type: number
+          format: double
+        "y":
+          type: number
+          format: double
+        z:
+          type: number
+          format: double
+    EstadoEntidad:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        tipo:
+          type: string
+        nombre:
+          type: string
+        vidaInicial:
+          type: integer
+          format: int32
+        vidaFinal:
+          type: integer
+          format: int32
+        distanciaAlCreeper:
+          type: number
+          format: double
+        alcanzada:
+          type: boolean
+    SimulacionExplosionResultado:
+      type: object
+      properties:
+        simulacionId:
+          type: integer
+          format: int64
+        fecha:
+          type: string
+          format: date-time
+        radioExplosion:
+          type: number
+          format: double
+        creeper:
+          $ref: "#/components/schemas/EstadoCreeper"
+        afectados:
+          type: array
+          items:
+            $ref: "#/components/schemas/EstadoEntidad"
+        noAfectados:
+          type: array
+          items:
+            $ref: "#/components/schemas/EstadoEntidad"
+    EstadoCreeperRequest:
+      type: object
+      description: Estado del Creeper que se quiere validar. No se guarda.
+      properties:
+        nombre:
+          type: string
+          description: "Nombre del Creeper, solo para el mensaje."
+          example: Creeper del pozo
+        vida:
+          type: integer
+          format: int32
+          description: Vida actual. Obligatoria en /reglas/creeper-vivo.
+          example: 20
+        detonado:
+          type: boolean
+          description: Si ya detonó. Obligatorio en /reglas/detonacion-unica.
+          example: false
+    ValidacionReglaResponse:
+      type: object
+      description: La regla aceptó el estado pedido.
+      properties:
+        regla:
+          type: string
+          description: Identificador de la regla.
+          example: creeper-vivo
+        aceptada:
+          type: boolean
+          description: Siempre true en una respuesta 200.
+          example: true
+        mensaje:
+          type: string
+          description: Explicación.
+          example: "Creeper del pozo está vivo: puede detonar."

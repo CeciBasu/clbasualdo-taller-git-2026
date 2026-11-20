@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.UICapable;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.UiService;
@@ -24,6 +27,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.UiService;
  * la interfaz UICapable.
  */
 @RestController
+@Tag(name = "Modelo")
 public class UiController {
 
     /** Servicio que arma la lista de entidades UICapable. */
@@ -50,6 +54,7 @@ public class UiController {
      * Retorno:
      * Una lista con los datos de UI de cada elemento representable.
      */
+    @Operation(summary = "Datos de UI de las entidades UICapable")
     @GetMapping(ApiPaths.UI)
     public List<Map<String, Object>> ui() {
         return uiService.entidadesUi().stream()

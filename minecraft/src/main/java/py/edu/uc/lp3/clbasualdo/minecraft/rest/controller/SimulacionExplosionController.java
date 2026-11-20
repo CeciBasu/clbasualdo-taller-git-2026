@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import py.edu.uc.lp3.clbasualdo.minecraft.dto.ErrorRespuesta;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.dto.SimulacionExplosionRequest;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionResultado;
@@ -24,6 +30,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.service.SimulacionExplosionService;
  * el servicio, para que las reglas del dominio no vivan en el controller.
  */
 @RestController
+@Tag(name = "Simulación", description = "Explosión de un Creeper guardado sobre las entidades guardadas.")
 public class SimulacionExplosionController {
 
     /** Servicio que ejecuta y consulta la simulación. */
@@ -52,6 +59,16 @@ public class SimulacionExplosionController {
      * Retorno:
      * El resultado completo de la simulación, con su id persistido.
      */
+    @Operation(summary = "Detona un Creeper guardado", description = "Carga el Creeper por creeperId, aplica las dos reglas, quita 25 de vida a cada entidad viva a 3 bloques o menos y guarda el resultado. El Creeper queda detonado y con vida 0.")
+    @ApiResponse(responseCode = "201", description = "Simulación guardada.")
+    @ApiResponse(responseCode = "400", description = "Falta creeperId o la entidad no es un Creeper (DatosInvalidosException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
+    @ApiResponse(responseCode = "404", description = "No existe una entidad con ese id (RecursoNoEncontradoException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
+    @ApiResponse(responseCode = "409", description = "Regla 2: el Creeper ya detonó (CreeperYaDetonadoException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
+    @ApiResponse(responseCode = "422", description = "Regla 1: el Creeper está muerto (CreeperMuertoException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
     @PostMapping(ApiPaths.SIMULACION_EXPLOSION)
     public ResponseEntity<SimulacionExplosionResultado> simular(
             @RequestBody SimulacionExplosionRequest pedido) {
@@ -66,6 +83,10 @@ public class SimulacionExplosionController {
      * Retorno:
      * El último resultado persistido.
      */
+    @Operation(summary = "Última simulación guardada", description = "")
+    @ApiResponse(responseCode = "200", description = "La simulación más reciente.")
+    @ApiResponse(responseCode = "404", description = "Todavía no hay simulaciones (RecursoNoEncontradoException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
     @GetMapping(ApiPaths.SIMULACION_EXPLOSION)
     public SimulacionExplosionResultado ultima() {
         return simulacionExplosionService.ultima();
@@ -81,6 +102,10 @@ public class SimulacionExplosionController {
      * Retorno:
      * El resultado guardado.
      */
+    @Operation(summary = "Simulación guardada por id", description = "")
+    @ApiResponse(responseCode = "200", description = "La simulación.")
+    @ApiResponse(responseCode = "404", description = "No existe (RecursoNoEncontradoException).",
+            content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
     @GetMapping(ApiPaths.SIMULACION_EXPLOSION_ID)
     public SimulacionExplosionResultado obtener(@PathVariable Long id) {
         return simulacionExplosionService.obtener(id);
@@ -93,6 +118,8 @@ public class SimulacionExplosionController {
      * Retorno:
      * La lista de resultados guardados.
      */
+    @Operation(summary = "Lista las simulaciones guardadas", description = "")
+    @ApiResponse(responseCode = "200", description = "Lista de simulaciones.")
     @GetMapping(ApiPaths.SIMULACION_EXPLOSIONES)
     public List<SimulacionExplosionResultado> listar() {
         return simulacionExplosionService.listar();
