@@ -31,6 +31,12 @@ public final class ApiPaths {
     public static final String REGLA_CREEPER_VIVO = "/reglas/creeper-vivo";
     /** Ruta que valida la regla 2: un Creeper solo detona una vez. */
     public static final String REGLA_DETONACION_UNICA = "/reglas/detonacion-unica";
+    /** Ruta del escenario propio: la emboscada del Creeper. */
+    public static final String ESCENARIO_EMBOSCADA = "/escenarios/emboscada";
+    /** Ruta que lista las emboscadas guardadas. */
+    public static final String ESCENARIO_EMBOSCADAS = "/escenarios/emboscadas";
+    /** Ruta de una emboscada guardada por id. */
+    public static final String ESCENARIO_EMBOSCADA_ID = "/escenarios/emboscadas/{id}";
 
     private ApiPaths() {
     }
