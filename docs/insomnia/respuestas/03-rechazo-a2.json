@@ -1,0 +1,19 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 3,
+    "jugadorId": 4
+  },
+  "status": 422,
+  "respuesta": {
+    "timestamp": "2026-11-19T21:30:27.694762791",
+    "status": 422,
+    "error": "Unprocessable Entity",
+    "tipo": "RechazoDeCompaneroException",
+    "mensaje": "Rechazo de A2 (Irina Insfrán, regla mecha corta): la jugada no se guardó.",
+    "rechazadoPor": "A2",
+    "companero": "Irina Insfrán",
+    "estadoCompanero": 422,
+    "respuestaCompanero": "{\"error\": \"fuera_de_alcance\", \"codigo\": \"fuera_de_alcance\", \"mensaje\": \"Ning\\u00fan jugador vivo a 3 bloques o menos del creeper (respuesta de prueba).\"}"
+  }
+}

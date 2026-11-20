@@ -1,0 +1,16 @@
+{
+  "pedido": "GET /entidades/3",
+  "cuerpoPedido": null,
+  "status": 200,
+  "respuesta": {
+    "tipo": "Creeper",
+    "detonado": false,
+    "id": 3,
+    "nombre": "Creeper Lejano",
+    "vida": 20,
+    "vidaMaxima": 20,
+    "x": 100.0,
+    "y": 64.0,
+    "z": 0.0
+  }
+}

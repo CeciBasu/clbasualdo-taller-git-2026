@@ -1,0 +1,15 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 1,
+    "jugadorId": 2
+  },
+  "status": 409,
+  "respuesta": {
+    "timestamp": "2026-11-19T21:30:27.938466391",
+    "status": 409,
+    "error": "Conflict",
+    "tipo": "CreeperYaDetonadoException",
+    "mensaje": "Creeper Emboscada ya detonó y no puede volver a explotar."
+  }
+}

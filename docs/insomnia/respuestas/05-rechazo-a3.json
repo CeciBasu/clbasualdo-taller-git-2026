@@ -1,0 +1,19 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 5,
+    "jugadorId": 6
+  },
+  "status": 422,
+  "respuesta": {
+    "timestamp": "2026-11-19T21:30:27.850499918",
+    "status": 422,
+    "error": "Unprocessable Entity",
+    "tipo": "RechazoDeCompaneroException",
+    "mensaje": "Rechazo de A3 (A3-stub, regla regla de A3): la jugada no se guardó.",
+    "rechazadoPor": "A3",
+    "companero": "A3-stub",
+    "estadoCompanero": 422,
+    "respuestaCompanero": "{\"aceptada\": false, \"mensaje\": \"Regla de A3 incumplida (respuesta de prueba).\"}"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "pedido": "GET /escenarios/emboscadas/1",
+  "cuerpoPedido": null,
+  "status": 200,
+  "respuesta": {
+    "id": 1,
+    "fecha": "2026-11-19T21:30:27.418744",
+    "creeperId": 1,
+    "jugadorId": 2,
+    "a2": {
+      "companero": "Irina Insfrán",
+      "respuesta": "{\"regla\": \"mecha-corta\", \"aceptada\": true, \"jugadorObjetivo\": \"Steve Emboscada\", \"distancia\": 2.0}"
+    },
+    "a3": {
+      "companero": "A3-stub",
+      "respuesta": "{\"aceptada\": true, \"mensaje\": \"Regla de A3 cumplida (respuesta de prueba).\"}"
+    },
+    "simulacion": {
+      "simulacionId": 1,
+      "fecha": "2026-11-19T21:30:27.388387",
+      "radioExplosion": 3.0,
+      "creeper": {
+        "id": 1,
+        "nombre": "Creeper Emboscada",
+        "vidaInicial": 20,
+        "vidaFinal": 0,
+        "detonado": true,
+        "vivo": false,
+        "x": 0.0,
+        "y": 64.0,
+        "z": 0.0
+      },
+      "afectados": [
+        {
+          "id": 2,
+          "tipo": "Jugador",
+          "nombre": "Steve Emboscada",
+          "vidaInicial": 20,
+          "vidaFinal": 0,
+          "distanciaAlCreeper": 2.0,
+          "alcanzada": true
+        }
+      ],
+      "noAfectados": [
+        {
+          "id": 3,
+          "tipo": "Creeper",
+          "nombre": "Creeper Lejano",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 100.0,
+          "alcanzada": false
+        },
+        {
+          "id": 4,
+          "tipo": "Jugador",
+          "nombre": "Alex Lejano",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 110.0,
+          "alcanzada": false
+        },
+        {
+          "id": 5,
+          "tipo": "Creeper",
+          "nombre": "Creeper Tres",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 200.0,
+          "alcanzada": false
+        },
+        {
+          "id": 6,
+          "tipo": "Jugador",
+          "nombre": "Steve Tres",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 201.0,
+          "alcanzada": false
+        }
+      ]
+    }
+  }
+}
