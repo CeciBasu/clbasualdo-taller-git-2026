@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import py.edu.uc.lp3.clbasualdo.minecraft.dto.ErrorRespuesta;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CompaneroException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CompaneroNoDisponibleException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperMuertoException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RechazoDeCompaneroException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.CreeperYaDetonadoException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
 import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.MinecraftException;
@@ -89,6 +92,38 @@ public class MinecraftExceptionHandler {
 
     /**
      * Descripción:
+     * La regla de A2 o de A3 rechazó la jugada. Se responde 422 con el rol y el nombre del
+     * compañero, y con su código y su cuerpo originales, para que se vea de quién fue el rechazo.
+     *
+     * Parámetros:
+     * ex - Rechazo atribuido a un compañero.
+     *
+     * Retorno:
+     * Respuesta 422.
+     */
+    @ExceptionHandler(RechazoDeCompaneroException.class)
+    public ResponseEntity<ErrorRespuesta> manejarRechazoDeCompanero(RechazoDeCompaneroException ex) {
+        return respuesta(HttpStatus.UNPROCESSABLE_ENTITY, ex);
+    }
+
+    /**
+     * Descripción:
+     * La API de A2 o de A3 no respondió o falló (5xx). Es distinto de un rechazo: la jugada
+     * no se pudo validar. Se responde 503 con el rol del compañero que falló.
+     *
+     * Parámetros:
+     * ex - Error atribuido a un compañero.
+     *
+     * Retorno:
+     * Respuesta 503.
+     */
+    @ExceptionHandler(CompaneroNoDisponibleException.class)
+    public ResponseEntity<ErrorRespuesta> manejarCompaneroNoDisponible(CompaneroNoDisponibleException ex) {
+        return respuesta(HttpStatus.SERVICE_UNAVAILABLE, ex);
+    }
+
+    /**
+     * Descripción:
      * Un cuerpo JSON mal formado, o con un dato del tipo equivocado (por ejemplo "x": "abc"),
      * se responde igual que cualquier otro dato inválido: 400 con DatosInvalidosException,
      * en lugar del error genérico de Spring.
@@ -134,8 +169,19 @@ public class MinecraftExceptionHandler {
      * Respuesta con el status y los datos del error.
      */
     private ResponseEntity<ErrorRespuesta> respuesta(HttpStatus status, MinecraftException ex) {
+        String rol = null;
+        String companero = null;
+        Integer estadoCompanero = null;
+        String respuestaCompanero = null;
+        if (ex instanceof CompaneroException deCompanero) {
+            rol = deCompanero.getRol();
+            companero = deCompanero.getCompanero();
+            estadoCompanero = deCompanero.getEstadoCompanero();
+            respuestaCompanero = deCompanero.getRespuestaCompanero();
+        }
         ErrorRespuesta cuerpo = new ErrorRespuesta(LocalDateTime.now(), status.value(),
-                status.getReasonPhrase(), ex.getClass().getSimpleName(), ex.getMessage());
+                status.getReasonPhrase(), ex.getClass().getSimpleName(), ex.getMessage(),
+                rol, companero, estadoCompanero, respuestaCompanero);
         return ResponseEntity.status(status).body(cuerpo);
     }
 }

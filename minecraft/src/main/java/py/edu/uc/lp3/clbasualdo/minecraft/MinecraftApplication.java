@@ -2,6 +2,7 @@ package py.edu.uc.lp3.clbasualdo.minecraft;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
  * Descripción:
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Se encarga de iniciar la aplicación de Spring.
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class MinecraftApplication {
 
 	/**
