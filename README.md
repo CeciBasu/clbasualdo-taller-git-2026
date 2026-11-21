@@ -200,9 +200,13 @@ git clone <repositorio-de-A3> && cd <carpeta-de-A3> && git checkout <commit-de-A
 ```bash
 # A1 — este repositorio (puerto 8083 por defecto)
 git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
-cd clbasualdo-taller-git-2026/minecraft && git checkout <commit-de-esta-entrega>
+cd clbasualdo-taller-git-2026/minecraft && git checkout c01d2b5416ef6f90df0d7800239643f98b131a52
 ./mvnw spring-boot:run
 ```
+
+**Commit de entrega:** `c01d2b5416ef6f90df0d7800239643f98b131a52` (`c01d2b5`), rama
+`poo-09-apis-cruzadas`. No se hizo merge a `main`; el push por HTTPS quedó pendiente de
+credenciales de GitHub.
 
 Después, en Insomnia: carpeta 0 (los tres OpenAPI), carpeta 1 (preparar entidades en A1) y
 carpeta 2 (escenario feliz, rechazo de A2 y rechazo de A3).
