@@ -2,25 +2,26 @@
   "pedido": "POST /escenarios/emboscada",
   "cuerpoPedido": {
     "creeperId": 1,
-    "jugadorId": 2
+    "jugadorId": 2,
+    "tiempoTranscurrido": 3
   },
   "status": 201,
   "respuesta": {
     "id": 1,
-    "fecha": "2026-11-19T21:30:27.418744244",
+    "fecha": "2026-11-21T16:19:21.190374598",
     "creeperId": 1,
     "jugadorId": 2,
     "a2": {
       "companero": "Irina Insfrán",
-      "respuesta": "{\"regla\": \"mecha-corta\", \"aceptada\": true, \"jugadorObjetivo\": \"Steve Emboscada\", \"distancia\": 2.0}"
+      "respuesta": "{\"aceptada\":true,\"regla\":\"mecha-corta\",\"objetivo\":0,\"distancia\":2.0,\"mensaje\":\"El creeper enciende la mecha: el jugador de objetivos[0] está a 2.0 bloques.\"}"
     },
     "a3": {
-      "companero": "A3-stub",
-      "respuesta": "{\"aceptada\": true, \"mensaje\": \"Regla de A3 cumplida (respuesta de prueba).\"}"
+      "companero": "Sol",
+      "respuesta": "{\"aceptada\":true,\"mensaje\":\"La explosión cumple el tiempo de detonación y todos los objetivos están dentro del radio.\"}"
     },
     "simulacion": {
       "simulacionId": 1,
-      "fecha": "2026-11-19T21:30:27.388387",
+      "fecha": "2026-11-21T16:19:21.162972",
       "radioExplosion": 3.0,
       "creeper": {
         "id": 1,
@@ -61,24 +62,6 @@
           "vidaInicial": 20,
           "vidaFinal": 20,
           "distanciaAlCreeper": 110.0,
-          "alcanzada": false
-        },
-        {
-          "id": 5,
-          "tipo": "Creeper",
-          "nombre": "Creeper Tres",
-          "vidaInicial": 20,
-          "vidaFinal": 20,
-          "distanciaAlCreeper": 200.0,
-          "alcanzada": false
-        },
-        {
-          "id": 6,
-          "tipo": "Jugador",
-          "nombre": "Steve Tres",
-          "vidaInicial": 20,
-          "vidaFinal": 20,
-          "distanciaAlCreeper": 201.0,
           "alcanzada": false
         }
       ]

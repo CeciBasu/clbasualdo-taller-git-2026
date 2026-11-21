@@ -53,7 +53,7 @@ public class EmboscadaController {
      * y guarda la jugada.
      *
      * Parámetros:
-     * pedido - Ids del Creeper y del Jugador.
+     * pedido - Ids del Creeper y del Jugador y tiempo transcurrido.
      *
      * Retorno:
      * 201 con la jugada guardada.
@@ -65,7 +65,7 @@ public class EmboscadaController {
                     + "después A3. Solo si todas aceptan se ejecuta la explosión y se guarda la jugada; si una "
                     + "rechaza, H2 queda igual y la respuesta dice de quién fue el rechazo.")
     @ApiResponse(responseCode = "201", description = "A2 y A3 aceptaron: la jugada y la explosión quedaron guardadas.")
-    @ApiResponse(responseCode = "400", description = "Falta un id o la entidad no es del tipo pedido.",
+    @ApiResponse(responseCode = "400", description = "Falta un id, el tiempo es negativo o la entidad no es del tipo pedido.",
             content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))
     @ApiResponse(responseCode = "404", description = "Un id no existe.",
             content = @Content(schema = @Schema(implementation = ErrorRespuesta.class)))

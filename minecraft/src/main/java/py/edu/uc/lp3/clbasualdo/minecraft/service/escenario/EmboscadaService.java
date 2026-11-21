@@ -26,13 +26,13 @@ public interface EmboscadaService {
      * Valida la emboscada con mis reglas, con A2 y con A3 y, si todas aceptan, la guarda.
      *
      * Parámetros:
-     * pedido - Ids del Creeper y del Jugador.
+     * pedido - Ids del Creeper y del Jugador y tiempo transcurrido.
      *
      * Retorno:
      * La jugada guardada.
      *
      * Errores:
-     * DatosInvalidosException - Falta un id o la entidad no es del tipo pedido.
+     * DatosInvalidosException - Falta un id o el tiempo es negativo, o la entidad no es del tipo pedido.
      * RecursoNoEncontradoException - Un id no existe.
      * CreeperYaDetonadoException - Mi regla 2 rechaza.
      * CreeperMuertoException - Mi regla 1 rechaza.

@@ -53,7 +53,7 @@ class EmboscadaControllerTest {
     private static final CompaneroFalso A2 = new CompaneroFalso("/api/minecraft/reglas/mecha-corta");
 
     /** Servidor de prueba que hace de A3. */
-    private static final CompaneroFalso A3 = new CompaneroFalso("/reglas/emboscada");
+    private static final CompaneroFalso A3 = new CompaneroFalso("/explosiones/validar");
 
     /** Cliente HTTP de prueba. */
     @Autowired
@@ -116,9 +116,10 @@ class EmboscadaControllerTest {
                 .andExpect(jsonPath("$.simulacion.afectados[?(@.id == " + jugadorId + ")].vidaFinal").value(0))
                 .andReturn();
 
-        assertTrue(A2.ultimoCuerpo().contains("\"posicionX\""), "A2 recibe el cuerpo de su OpenAPI");
-        assertTrue(A2.ultimoCuerpo().contains("\"jugadores\""));
-        assertTrue(A3.ultimoCuerpo().contains("\"jugador\""));
+        assertTrue(A2.ultimoCuerpo().contains("\"saludCreeper\""), "A2 recibe el cuerpo de su OpenAPI");
+        assertTrue(A2.ultimoCuerpo().contains("\"objetivos\""));
+        assertTrue(A3.ultimoCuerpo().contains("\"tiempoTranscurrido\":3"));
+        assertTrue(A3.ultimoCuerpo().contains("\"radioExplosion\":3.0"));
 
         Number id = JsonPath.read(resultado.getResponse().getContentAsString(), "$.id");
         mockMvc.perform(get("/escenarios/emboscadas/{id}", id.longValue()))
@@ -190,6 +191,19 @@ class EmboscadaControllerTest {
     }
 
     @Test
+    void tiempoTranscurridoNegativoSeRechazaAntesDeLlamarALosCompaneros() throws Exception {
+        long creeperId = crear("Creeper Sin Tiempo", "Creeper", 0);
+        long jugadorId = crear("Steve Sin Tiempo", "Jugador", 1);
+        int llamadasA2 = A2.llamadas();
+
+        mockMvc.perform(emboscar(creeperId, jugadorId, -1))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"));
+
+        assertEquals(llamadasA2, A2.llamadas(), "con tiempo negativo no se llama a A2");
+    }
+
+    @Test
     void misReglasCortanAntesDeLlamarALosCompaneros() throws Exception {
         long creeperId = crear("Creeper Usado", "Creeper", 0);
         long jugadorId = crear("Steve Usado", "Jugador", 1);
@@ -237,9 +251,14 @@ class EmboscadaControllerTest {
      * El pedido.
      */
     private RequestBuilder emboscar(long creeperId, long jugadorId) {
+        return emboscar(creeperId, jugadorId, 3);
+    }
+
+    private RequestBuilder emboscar(long creeperId, long jugadorId, int tiempoTranscurrido) {
         return post("/escenarios/emboscada")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"creeperId\": " + creeperId + ", \"jugadorId\": " + jugadorId + "}");
+                .content("{\"creeperId\": " + creeperId + ", \"jugadorId\": " + jugadorId
+                        + ", \"tiempoTranscurrido\": " + tiempoTranscurrido + "}");
     }
 
     /**

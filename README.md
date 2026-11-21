@@ -41,9 +41,14 @@ Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras d
 
 | Nombre | Rol en esta entrega | URL base | OpenAPI | Sus dos reglas, en una frase cada una |
 |---|---|---|---|---|
-| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://localhost:8083` | `http://localhost:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
-| Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://localhost:8082` | `http://localhost:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
-| Sol | **A3** | `http://localhost:8080` | `http://localhost:8080/v3/api-docs` | *Se completa con su OpenAPI.* |
+| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://100.122.114.103:8083` (local `http://localhost:8083`) | `http://100.122.114.103:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
+| Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://100.87.95.24:8082` (local `http://localhost:8082`) | `http://100.87.95.24:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
+| Sol | **A3** | `http://100.87.131.50:8080` (local `http://localhost:8080`) | `http://100.87.131.50:8080/v3/api-docs` | 1) El Creeper no detona antes de `tiempoExplosion`: con `tiempoTranscurrido` menor responde `409`. 2) Solo daña objetivos dentro del radio: si uno está más lejos de `radioExplosion` responde `422`. Fuente: su OpenAPI en `POST /explosiones/validar`. |
+
+Las respuestas de `docs/insomnia/respuestas/` se grabaron contra los servicios reales de Irina y
+Sol por Tailscale, con el entorno «Grupo por Tailscale (servicios reales)» de la colección: ya no
+hay respuestas `A3-stub`. Los rechazos de cada una llegan dentro de `respuestaCompanero`, con su
+código original (`422` de A2, `409` o `422` de Sol) y `estadoCompanero`.
 
 En el trío, las tres anotamos las mismas tres URLs. Mi OpenAPI publica mis dos reglas en rutas
 que no modifican la base, para que A2 y A3 las consulten desde su escenario:
@@ -58,12 +63,13 @@ A3 la acepta con su regla, y recién ahí se ejecuta la explosión y se guarda l
 
 ```bash
 curl -X POST http://localhost:8083/escenarios/emboscada \
-  -H "Content-Type: application/json" -d '{"creeperId": 1, "jugadorId": 2}'
+  -H "Content-Type: application/json" \
+  -d '{"creeperId": 1, "jugadorId": 2, "tiempoTranscurrido": 3}'
 ```
 
 | Método | Ruta | Uso |
 |---|---|---|
-| `POST` | `/escenarios/emboscada` | Cuerpo `{"creeperId": n, "jugadorId": m}`. Si todo acepta, `201` con la jugada guardada. |
+| `POST` | `/escenarios/emboscada` | Cuerpo `{"creeperId": n, "jugadorId": m, "tiempoTranscurrido": 3}`. El tiempo va a Sol; si todo acepta, `201` con la jugada guardada. |
 | `GET` | `/escenarios/emboscadas` | Lista las jugadas guardadas. |
 | `GET` | `/escenarios/emboscadas/{id}` | Una jugada guardada, con la explosión leída de H2. |
 
@@ -131,15 +137,20 @@ variables de entorno:
 | `companeros.a2.base-url` | `A2_BASE_URL` | `http://localhost:8082` |
 | `companeros.a2.ruta` | `A2_RUTA` | `/api/minecraft/reglas/mecha-corta` |
 | `companeros.a3.base-url` | `A3_BASE_URL` | `http://localhost:8080` |
-| `companeros.a3.ruta` | `A3_RUTA` | `/reglas/emboscada` |
+| `companeros.a3.ruta` | `A3_RUTA` | `/explosiones/validar` |
 | `companeros.a3.nombre` | `A3_NOMBRE` | `Sol` |
 | `companeros.timeout-ms` | — | `3000` |
 
 Por ejemplo, si A2 está en otra notebook de la sala:
 
 ```bash
-A2_BASE_URL=http://192.168.0.12:8080 ./mvnw spring-boot:run
+A2_BASE_URL=http://100.87.95.24:8082 A3_BASE_URL=http://100.87.131.50:8080 ./mvnw spring-boot:run
 ```
+
+Los dos clientes envían el mismo cuerpo a sus rutas reales: `saludCreeper`, `creeper` con
+`x/y/z`, `objetivos` con `tipo/salud/posicion`, y además `tiempoExplosion`,
+`tiempoTranscurrido` y `radioExplosion=3.0` que Sol exige e Irina ignora. El cuerpo está en
+`cliente/CuerpoReglasCompanero.java`.
 
 ### Errores: cómo se atribuyen
 
@@ -1129,7 +1140,7 @@ el código esperado. No se afirma que se hayan ejecutado desde la interfaz de In
 ./mvnw test
 ```
 
-65 pruebas. Sobre el dominio: el ocultamiento de estado (`EntidadTest`), el radio de la
+70 pruebas. Sobre el dominio: el ocultamiento de estado (`EntidadTest`), el radio de la
 explosión (`CreeperTest`), la huida y el borde exacto de peligro (`EntidadPasivaTest`), la
 munición, el alcance del esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el
 ataque y la reacción del Enderman (`EndermanTest`), el inventario y la experiencia
@@ -1148,7 +1159,11 @@ Pruebas de POO-08 y POO-09:
   Creeper muerto da `422` y nada de eso guarda filas nuevas.
 - `ReglasYOpenApiTest`: las dos rutas de `/reglas` y que el OpenAPI describa el CRUD, la
   simulación y los errores de las dos reglas.
-- `EmboscadaControllerTest`: el escenario con dos servidores HTTP de prueba como A2 y A3.
+- `ValidacionExplosionControllerTest`: `POST /explosiones/validar` con 200/409/422, valores por
+  defecto y ninguna fila nueva en H2.
+- `EmboscadaControllerTest`: el escenario con dos servidores HTTP de prueba como A2 y A3; ahora
+  comprueba las rutas y los cuerpos reales del OpenAPI y que un `tiempoTranscurrido` negativo se
+  rechaza en el service antes de llamar a nadie.
 
 ## Bitácora y documentación
 
@@ -1196,7 +1211,7 @@ Pruebas de POO-08 y POO-09:
     `/reglas`, se agregaron los clientes HTTP hacia A2 y A3 y el escenario «emboscada del
     Creeper», que guarda la jugada solo si las dos reglas ajenas aceptan.
 
-Estado final verificado: `./mvnw test` → **65 pruebas**, BUILD SUCCESS.
+Estado final verificado: `./mvnw test` → **70 pruebas**, BUILD SUCCESS.
 
 ## Licencia
 

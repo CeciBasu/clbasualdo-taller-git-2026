@@ -2,11 +2,12 @@
   "pedido": "POST /escenarios/emboscada",
   "cuerpoPedido": {
     "creeperId": 1,
-    "jugadorId": 2
+    "jugadorId": 2,
+    "tiempoTranscurrido": 3
   },
   "status": 409,
   "respuesta": {
-    "timestamp": "2026-11-19T21:30:27.938466391",
+    "timestamp": "2026-11-21T16:19:21.880122753",
     "status": 409,
     "error": "Conflict",
     "tipo": "CreeperYaDetonadoException",

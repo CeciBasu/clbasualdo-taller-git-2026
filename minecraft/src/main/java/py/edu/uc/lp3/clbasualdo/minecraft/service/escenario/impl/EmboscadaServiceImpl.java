@@ -95,17 +95,19 @@ public class EmboscadaServiceImpl implements EmboscadaService {
 
     @Override
     public EmboscadaResultado emboscar(EmboscadaRequest pedido) {
-        if (pedido == null || pedido.creeperId() == null || pedido.jugadorId() == null) {
-            throw new DatosInvalidosException("Faltan creeperId y jugadorId.");
+        if (pedido == null || pedido.creeperId() == null || pedido.jugadorId() == null
+                || pedido.tiempoTranscurrido() == null || pedido.tiempoTranscurrido() < 0) {
+            throw new DatosInvalidosException("Faltan creeperId, jugadorId o tiempoTranscurrido no negativo.");
         }
+        int tiempoTranscurrido = pedido.tiempoTranscurrido();
         CreeperEntity creeper = buscar(pedido.creeperId(), CreeperEntity.class, "un Creeper");
         JugadorEntity jugador = buscar(pedido.jugadorId(), JugadorEntity.class, "un Jugador");
 
         reglasExplosionService.validarDetonacionUnica(creeper.getNombre(), creeper.isDetonado());
         reglasExplosionService.validarCreeperVivo(creeper.getNombre(), creeper.getVida());
 
-        AceptacionCompanero a2 = clienteA2.validar(creeper, jugador);
-        AceptacionCompanero a3 = clienteA3.validar(creeper, jugador);
+        AceptacionCompanero a2 = clienteA2.validar(creeper, jugador, tiempoTranscurrido);
+        AceptacionCompanero a3 = clienteA3.validar(creeper, jugador, tiempoTranscurrido);
 
         EmboscadaEntity guardada = transaccion.execute(estado -> {
             SimulacionExplosionResultado simulacion = simulacionExplosionService.simular(creeper.getId());

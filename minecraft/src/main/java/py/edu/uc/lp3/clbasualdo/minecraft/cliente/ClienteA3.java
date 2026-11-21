@@ -1,7 +1,5 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.cliente;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.CreeperEntity;
@@ -36,24 +34,12 @@ public class ClienteA3 extends ClienteReglaCompanero {
      * Parámetros:
      * creeper - Creeper guardado en mi H2.
      * jugador - Jugador guardado en mi H2.
+     * tiempoTranscurrido - Segundos transcurridos desde que se activó la mecha.
      *
      * Retorno:
      * La aceptación de A3.
      */
-    public AceptacionCompanero validar(CreeperEntity creeper, JugadorEntity jugador) {
-        Map<String, Object> cuerpo = Map.of(
-                "creeper", Map.of(
-                        "nombre", creeper.getNombre(),
-                        "vida", creeper.getVida(),
-                        "x", creeper.getX(),
-                        "y", creeper.getY(),
-                        "z", creeper.getZ()),
-                "jugador", Map.of(
-                        "nombre", jugador.getNombre(),
-                        "vida", jugador.getVida(),
-                        "x", jugador.getX(),
-                        "y", jugador.getY(),
-                        "z", jugador.getZ()));
-        return consultar(cuerpo);
+    public AceptacionCompanero validar(CreeperEntity creeper, JugadorEntity jugador, int tiempoTranscurrido) {
+        return consultar(CuerpoReglasCompanero.de(creeper, jugador, tiempoTranscurrido));
     }
 }
