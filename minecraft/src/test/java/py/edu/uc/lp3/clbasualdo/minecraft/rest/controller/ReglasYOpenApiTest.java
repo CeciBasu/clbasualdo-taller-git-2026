@@ -83,6 +83,9 @@ class ReglasYOpenApiTest {
                 .andExpect(jsonPath("$.paths['/simulacion/explosion'].post.responses['422']").exists())
                 .andExpect(jsonPath("$.paths['/reglas/creeper-vivo'].post.responses['422']").exists())
                 .andExpect(jsonPath("$.paths['/reglas/detonacion-unica'].post.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/explosiones/validar'].post.responses['200']").exists())
+                .andExpect(jsonPath("$.paths['/explosiones/validar'].post.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/explosiones/validar'].post.responses['422']").exists())
                 .andExpect(jsonPath("$.components.schemas.ErrorRespuesta").exists());
     }
 }

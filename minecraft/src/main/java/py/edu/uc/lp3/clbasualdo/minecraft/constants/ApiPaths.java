@@ -27,6 +27,8 @@ public final class ApiPaths {
     public static final String SIMULACION_EXPLOSION_ID = "/simulacion/explosion/{id}";
     /** Ruta que lista todas las simulaciones persistidas. */
     public static final String SIMULACION_EXPLOSIONES = "/simulacion/explosiones";
+    /** Ruta que valida las dos reglas sin leer ni escribir H2. */
+    public static final String EXPLOSIONES_VALIDAR = "/explosiones/validar";
     /** Ruta que valida la regla 1: un Creeper solo detona si está vivo. */
     public static final String REGLA_CREEPER_VIVO = "/reglas/creeper-vivo";
     /** Ruta que valida la regla 2: un Creeper solo detona una vez. */

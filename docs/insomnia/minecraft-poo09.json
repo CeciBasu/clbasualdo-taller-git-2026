@@ -9,7 +9,7 @@
       "_type": "workspace",
       "parentId": null,
       "name": "Minecraft POO-09 — clbasualdo (A1)",
-      "description": "Colección de POO-09. A1 = Cecilia Basualdo, A2 = Irina Insfrán, A3 = por confirmar. Orden de arranque: A2 y A3 primero, después A1. Respuestas de ejemplo en docs/insomnia/respuestas/.",
+      "description": "Colección de POO-09. A1 = Cecilia Basualdo, A2 = Irina Insfrán, A3 = Sol. Orden de arranque: A2 y A3 primero, después A1. Respuestas de ejemplo en docs/insomnia/respuestas/.",
       "scope": "collection"
     },
     {
@@ -26,9 +26,9 @@
       "parentId": "env_base",
       "name": "Grupo en una máquina",
       "data": {
-        "a1_url": "http://localhost:8081",
+        "a1_url": "http://localhost:8083",
         "a2_url": "http://localhost:8082",
-        "a3_url": "http://localhost:8083",
+        "a3_url": "http://localhost:8080",
         "creeper_id": "1",
         "jugador_id": "2",
         "creeper_lejano_id": "3",
@@ -536,6 +536,30 @@
       "parameters": [],
       "authentication": {},
       "metaSortKey": 25,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_validar",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.5 Las dos reglas juntas: acepta (200)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/explosiones/validar",
+      "description": "Sin leer ni escribir H2. Los campos extra se ignoran.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"saludCreeper\": 20,\n  \"yaDetonado\": false,\n  \"tiempoExplosion\": 3,\n  \"tiempoTranscurrido\": 3,\n  \"radioExplosion\": 5,\n  \"creeper\": {\"x\": 0, \"y\": 64, \"z\": 0},\n  \"objetivos\": [{\"tipo\": \"jugador\", \"salud\": 20, \"posicion\": {\"x\": 2, \"y\": 64, \"z\": 0}}]\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 25.5,
       "settingEncodeUrl": true,
       "settingFollowRedirects": "global"
     },

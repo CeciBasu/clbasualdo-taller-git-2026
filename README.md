@@ -7,8 +7,8 @@ información), como parte del Taller de Git.
 **Commit de la solución (POO-09):** el enlace exacto está en el archivo de entrega subido a
 Classroom.
 
-- **OpenAPI:** <http://localhost:8081/v3/api-docs> (JSON), <http://localhost:8081/v3/api-docs.yaml>
-  (YAML) y <http://localhost:8081/swagger-ui.html> (navegador). Copia exportada en
+- **OpenAPI:** <http://localhost:8083/v3/api-docs> (JSON), <http://localhost:8083/v3/api-docs.yaml>
+  (YAML) y <http://localhost:8083/swagger-ui.html> (navegador). Copia exportada en
   [`docs/openapi/`](docs/openapi/).
 - **Bitácora de IA:** [`docs/BITACORA.md`](docs/BITACORA.md).
 - **Colección de Insomnia:** [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/minecraft-poo09.json),
@@ -41,13 +41,14 @@ Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras d
 
 | Nombre | Rol en esta entrega | URL base | OpenAPI | Sus dos reglas, en una frase cada una |
 |---|---|---|---|---|
-| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://localhost:8081` | `http://localhost:8081/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
+| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://localhost:8083` | `http://localhost:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
 | Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://localhost:8082` | `http://localhost:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
-| *Por confirmar* | **A3** | `http://localhost:8083` | `http://localhost:8083/v3/api-docs` | *Se completa con su OpenAPI.* |
+| Sol | **A3** | `http://localhost:8080` | `http://localhost:8080/v3/api-docs` | *Se completa con su OpenAPI.* |
 
 En el trío, las tres anotamos las mismas tres URLs. Mi OpenAPI publica mis dos reglas en rutas
 que no modifican la base, para que A2 y A3 las consulten desde su escenario:
-`POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`.
+`POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`, o las dos juntas en
+`POST /explosiones/validar`.
 
 ### El escenario: emboscada del Creeper
 
@@ -56,7 +57,7 @@ legal solo si A2 confirma que la mecha se enciende (hay un jugador vivo a 3 bloq
 A3 la acepta con su regla, y recién ahí se ejecuta la explosión y se guarda la jugada en mi H2.
 
 ```bash
-curl -X POST http://localhost:8081/escenarios/emboscada \
+curl -X POST http://localhost:8083/escenarios/emboscada \
   -H "Content-Type: application/json" -d '{"creeperId": 1, "jugadorId": 2}'
 ```
 
@@ -129,9 +130,9 @@ variables de entorno:
 |---|---|---|
 | `companeros.a2.base-url` | `A2_BASE_URL` | `http://localhost:8082` |
 | `companeros.a2.ruta` | `A2_RUTA` | `/api/minecraft/reglas/mecha-corta` |
-| `companeros.a3.base-url` | `A3_BASE_URL` | `http://localhost:8083` |
+| `companeros.a3.base-url` | `A3_BASE_URL` | `http://localhost:8080` |
 | `companeros.a3.ruta` | `A3_RUTA` | `/reglas/emboscada` |
-| `companeros.a3.nombre` | `A3_NOMBRE` | `A3 (por confirmar)` |
+| `companeros.a3.nombre` | `A3_NOMBRE` | `Sol` |
 | `companeros.timeout-ms` | — | `3000` |
 
 Por ejemplo, si A2 está en otra notebook de la sala:
@@ -180,13 +181,13 @@ cd ii-taller-git-2026 && git checkout <commit-de-A2>
 ```
 
 ```bash
-# A3
+# A3 — Sol
 git clone <repositorio-de-A3> && cd <carpeta-de-A3> && git checkout <commit-de-A3>
-./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8083
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
 ```
 
 ```bash
-# A1 — este repositorio (puerto 8081 por defecto)
+# A1 — este repositorio (puerto 8083 por defecto)
 git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
 cd clbasualdo-taller-git-2026/minecraft && git checkout <commit-de-esta-entrega>
 ./mvnw spring-boot:run
@@ -202,7 +203,7 @@ carpeta 2 (escenario feliz, rechazo de A2 y rechazo de A3).
 - Los clientes están en el código, las URLs en este README y en `application.properties`, y la
   colección trae **respuestas de ejemplo** del feliz y de cada rechazo en
   [`docs/insomnia/respuestas/`](docs/insomnia/respuestas/). Esas respuestas se obtuvieron con el
-  servicio real y dos servidores de prueba en los puertos 8082 y 8083 que respondían como A2 y A3,
+  servicio real y dos servidores de prueba en los puertos 8082 y 8080 que respondían como A2 y A3,
   y así está indicado en cada una.
 - Las pruebas automáticas (`EmboscadaControllerTest`) levantan dos servidores HTTP de prueba y
   cubren el feliz, el rechazo de A2, el de A3, A2 caído y mis reglas cortando antes de llamar.
@@ -238,7 +239,7 @@ cd clbasualdo-taller-git-2026/minecraft
 ./mvnw spring-boot:run
 ```
 
-La aplicación queda disponible en `http://localhost:8081` (el puerto 8081 es el de A1 dentro
+La aplicación queda disponible en `http://localhost:8083` (el puerto 8083 es el de A1 dentro
 del grupo; se puede cambiar con la variable `PORT`).
 
 Para ver la demostración por consola, sin levantar la API:
@@ -518,6 +519,7 @@ no tiene nada que ver con la herencia.
 | `GET` | `/simulacion/explosiones` | Lista todas las simulaciones persistidas. |
 | `POST` | `/reglas/creeper-vivo` | Regla 1 sin tocar H2: `{"vida": n}` → `200` si `n > 0`, `422` si no. |
 | `POST` | `/reglas/detonacion-unica` | Regla 2 sin tocar H2: `{"detonado": b}` → `200` si es `false`, `409` si es `true`. |
+| `POST` | `/explosiones/validar` | Las dos reglas juntas, sin leer ni escribir H2: `{"saludCreeper": n, "yaDetonado": b}` → `200`, `422` o `409`. Los campos extra se ignoran. |
 | `POST` | `/escenarios/emboscada` | Escenario de POO-09: consulta a A2 y A3 y guarda la jugada si las dos aceptan. |
 | `GET` | `/escenarios/emboscadas` y `/escenarios/emboscadas/{id}` | Jugadas guardadas del escenario. |
 | `GET` | `/v3/api-docs`, `/v3/api-docs.yaml`, `/swagger-ui.html` | Documento OpenAPI y su interfaz web. |
@@ -810,11 +812,11 @@ y lo que hace:
 | `spring.jpa.show-sql=true` | Muestra en la consola el SQL que Hibernate ejecuta, útil para ver la persistencia durante la clase. |
 | `spring.jpa.open-in-view=false` | Cierra la sesión JPA al terminar el controller, para que ninguna vista o respuesta dependa de una sesión abierta. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 para mirar las tablas desde el navegador. |
-| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8081/h2-console`. |
+| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8083/h2-console`. |
 
 La consola H2 queda disponible en:
 
-- URL: `http://localhost:8081/h2-console`
+- URL: `http://localhost:8083/h2-console`
 - JDBC URL: `jdbc:h2:file:./data/entidades`
 - Usuario: `sa`
 - Contraseña: vacía
@@ -834,7 +836,7 @@ La simulación trabaja sobre las entidades **guardadas en H2**. Primero se crean
 (`POST /entidades`) y después se detona un Creeper guardado indicando su id:
 
 ```bash
-curl -X POST http://localhost:8081/simulacion/explosion \
+curl -X POST http://localhost:8083/simulacion/explosion \
   -H "Content-Type: application/json" -d '{"creeperId": 1}'
 ```
 
@@ -859,6 +861,30 @@ base queda igual.
 
 Las dos reglas viven en el service, no en el dominio: `Creeper.explotar(...)` solo cambia el
 estado (daña a las cercanas, queda detonado y muere).
+
+### Consultar las dos reglas sin persistir
+
+Irina (A2) y Sol (A3) consultan las dos reglas juntas en `POST /explosiones/validar`. El service
+`ReglasCreeperService` evalúa los datos del cuerpo: no usa repositorios, no lee ni escribe H2 y el
+controller solo delega. `saludCreeper` y `yaDetonado` son opcionales (por defecto, vivo y sin
+detonar); cualquier otro campo se ignora, así que cada compañera puede mandar su propio formato:
+
+```bash
+curl -X POST http://localhost:8083/explosiones/validar \
+  -H "Content-Type: application/json" \
+  -d '{"saludCreeper": 20, "yaDetonado": false, "tiempoExplosion": 3,
+       "creeper": {"x": 0, "y": 64, "z": 0},
+       "objetivos": [{"tipo": "jugador", "salud": 20,
+                      "posicion": {"x": 2, "y": 64, "z": 0}}]}'
+```
+
+```json
+{"aceptada": true, "mensaje": "El Creeper está vivo y todavía no detonó."}
+```
+
+Con `saludCreeper: 0` responde `422` (`CreeperMuertoException`); con `yaDetonado: true`, `409`
+(`CreeperYaDetonadoException`). Las pruebas de `ValidacionExplosionControllerTest` comprueban los
+tres casos y que el número de filas de H2 no cambia.
 
 ### Endpoints
 
@@ -1076,7 +1102,7 @@ La colección está en [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/mine
 
 1. Abrir Insomnia → `Application` → `Import` → `From File` y elegir el archivo.
 2. Elegir el entorno **Grupo en una máquina**: `a1_url`, `a2_url` y `a3_url` apuntan a los
-   puertos 8081, 8082 y 8083, y los ids corresponden a una base vacía.
+   puertos 8083, 8082 y 8080, y los ids corresponden a una base vacía.
 3. Arrancar A2 y A3 primero y A1 después (ver «Cómo arrancar los tres servicios»).
 4. Ejecutar las carpetas en orden.
 
