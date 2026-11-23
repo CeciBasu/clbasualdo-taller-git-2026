@@ -261,3 +261,67 @@ antes daba por sentada sin pensar por qué.
   POO-06: desde la corrección de POO-08 esa validación está en el service y el dominio solo
   cambia el estado.
 
+## Incidente con `GET /entidades`: 500 Internal Server Error
+
+Al probar `GET /entidades` desde Insomnia seguía devolviendo `500` con el cuerpo por defecto
+de Spring:
+
+```json
+{
+  "timestamp": "2026-11-21T17:57:32.733Z",
+  "status": 500,
+  "error": "Internal Server Error",
+  "path": "/entidades"
+}
+```
+
+Ese JSON no dice la causa; la causa estaba en la consola de la aplicación. Primero apareció
+`Unknown discriminator value ... : ESQUELETO` y, después de corregir eso,
+`Unknown discriminator value ... : ZOMBIE`. Más tarde saltó otro:
+`Null value was assigned to a property [class ...ZombieEntity.puertaRota] of primitive type`.
+Tres mensajes distintos para el mismo endpoint.
+
+### Qué significaba
+
+La tabla `entidades` usa un discriminador (`@DiscriminatorColumn(name = "tipo")` en
+`EntidadEntity`) para saber qué subclase instanciar. El proyecto solo registra tres valores:
+`Creeper`, `Zombie` y `Jugador`, con esa mayúscula exacta. Como el H2 es file-based
+(`jdbc:h2:file:./data/entidades`), quedaron filas viejas cargadas a mano en la consola con
+valores que la jerarquía no conoce (`ESQUELETO`, `ZOMBIE`): Hibernate los leía, no encontraba
+la clase y tiraba el 500. `Esqueleto` existe en el dominio, pero no es una Entity, así que
+nunca pudo guardarse en esa tabla.
+
+Lo de `puertaRota` fue la segunda capa del mismo problema: esa fila tenía la columna en
+`null`, pero `ZombieEntity.puertaRota` es `boolean` primitivo y un primitivo no acepta nulos.
+Lo mismo puede pasar con `detonado` (Creeper), `nivel` y `experiencia` (Jugador).
+
+### Cómo lo solucioné
+
+En el H2 Console (`http://localhost:8081/h2-console`) revisé los datos y corregí solo lo que
+estaba mal:
+
+```sql
+SELECT id, tipo, nombre FROM entidades;
+
+DELETE FROM entidades WHERE tipo NOT IN ('Creeper', 'Zombie', 'Jugador');
+UPDATE entidades SET tipo = 'Zombie' WHERE id = 2;
+
+UPDATE entidades SET puerta_rota = FALSE WHERE tipo = 'Zombie' AND puerta_rota IS NULL;
+UPDATE entidades SET detonado = FALSE WHERE tipo = 'Creeper' AND detonado IS NULL;
+UPDATE entidades SET nivel = 0 WHERE tipo = 'Jugador' AND nivel IS NULL;
+UPDATE entidades SET experiencia = 0 WHERE tipo = 'Jugador' AND experiencia IS NULL;
+
+SELECT id, tipo, nombre FROM entidades WHERE tipo NOT IN ('Creeper', 'Zombie', 'Jugador');
+```
+
+La última consulta tiene que dar cero filas. No hizo falta reiniciar: el H2 Console se conecta
+a la misma base que usa la aplicación. Después de eso `GET /entidades` respondió bien.
+
+### Qué me llevé
+
+Que un `500` con ese JSON por defecto no explica nada y hay que ir al stacktrace; que un
+discriminador es sensible a mayúsculas (`ZOMBIE` no es `Zombie`); que con H2 en archivo los
+datos sobreviven al reinicio y un insert viejo roto puede romper el CRUD mucho después; y que
+las columnas que mapean a tipos primitivos nunca deben quedar en `null`. El CRUD actual ya
+carga esos campos con valor, así que el error venía de los datos viejos, no del código.
+

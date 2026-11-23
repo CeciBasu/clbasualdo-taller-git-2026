@@ -1,0 +1,29 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-19T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2024.1.0",
+  "resources": [
+    {
+      "_id": "env_minecraft_base_qa",
+      "parentId": null,
+      "_type": "environment",
+      "name": "Base local",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "entidad_nombre": "Zombie Insomnia",
+        "simulacion_id": "1"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "entidad_nombre",
+          "simulacion_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    }
+  ]
+}
