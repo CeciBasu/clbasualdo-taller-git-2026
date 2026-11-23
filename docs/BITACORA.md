@@ -297,8 +297,8 @@ Lo mismo puede pasar con `detonado` (Creeper), `nivel` y `experiencia` (Jugador)
 
 ### Cómo lo solucioné
 
-En el H2 Console (`http://localhost:8081/h2-console`) revisé los datos y corregí solo lo que
-estaba mal:
+En el H2 Console (`http://localhost:8083/h2-console`, el puerto de A1 en esta entrega) revisé
+los datos y corregí solo lo que estaba mal:
 
 ```sql
 SELECT id, tipo, nombre FROM entidades;
@@ -324,4 +324,14 @@ discriminador es sensible a mayúsculas (`ZOMBIE` no es `Zombie`); que con H2 en
 datos sobreviven al reinicio y un insert viejo roto puede romper el CRUD mucho después; y que
 las columnas que mapean a tipos primitivos nunca deben quedar en `null`. El CRUD actual ya
 carga esos campos con valor, así que el error venía de los datos viejos, no del código.
+
+### Cierre de los entregables de POO-09
+
+Para cerrar la entrega completé el archivo con el enunciado aplicado
+(`docs/ESPECIFICACIONES-poo-09.md`), puse los repositorios y commits reales de A2 (Irina) y A3
+(María Sol Ferreira) en el README, re-exporté el OpenAPI con las rutas nuevas del escenario y
+alineé el entorno de Insomnia con las variables `a1_url`, `a2_url` y `a3_url`. El enlace exacto
+al commit de la solución quedó en el README y en el archivo de entrega; el commit que agrega
+ese enlace es posterior al commit que contiene el código y la documentación, porque un commit
+no puede contener su propio hash.
 

@@ -11,11 +11,19 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8091",
+            "url": "http://localhost:8083",
             "description": "Generated server url"
         }
     ],
     "tags": [
+        {
+            "name": "Escenario",
+            "description": "Emboscada del Creeper: necesita la regla de A2 y la de A3 para guardarse."
+        },
+        {
+            "name": "Validación de explosión",
+            "description": "Las dos reglas juntas, sin leer ni escribir H2."
+        },
         {
             "name": "Modelo",
             "description": "Rutas de POO-06 que muestran el modelo de dominio sin guardar en H2."
@@ -572,6 +580,173 @@
                 }
             }
         },
+        "/explosiones/validar": {
+            "post": {
+                "tags": [
+                    "Validación de explosión"
+                ],
+                "summary": "Valida las dos reglas de la explosión sin persistir nada",
+                "description": "Evalúa con los datos del cuerpo que el Creeper esté vivo y que todavía no haya detonado. No lee ni escribe H2: 200 si acepta, 422 si está muerto y 409 si ya detonó. Los campos que no sean \"saludCreeper\" ni \"yaDetonado\" se ignoran, así que sirve para el formato propio de cada compañera.",
+                "operationId": "validar",
+                "requestBody": {
+                    "description": "Estado del Creeper. Ambos campos son opcionales; se ignoran los demás.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ValidacionExplosionRequest"
+                            },
+                            "examples": {
+                                "Cuerpo con campos extra de otra API": {
+                                    "description": "Cuerpo con campos extra de otra API",
+                                    "value": {
+                                        "saludCreeper": 20,
+                                        "yaDetonado": false,
+                                        "tiempoExplosion": 3,
+                                        "tiempoTranscurrido": 3,
+                                        "radioExplosion": 5,
+                                        "creeper": {
+                                            "x": 0,
+                                            "y": 64,
+                                            "z": 0
+                                        },
+                                        "objetivos": [
+                                            {
+                                                "tipo": "jugador",
+                                                "salud": 20,
+                                                "posicion": {
+                                                    "x": 2,
+                                                    "y": 64,
+                                                    "z": 0
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "El Creeper está vivo y todavía no detonó.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidacionExplosionResponse"
+                                },
+                                "example": {
+                                    "aceptada": true,
+                                    "mensaje": "El Creeper está vivo y todavía no detonó."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Regla 2: ya detonó (CreeperYaDetonadoException).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Regla 1: está muerto (CreeperMuertoException).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/escenarios/emboscada": {
+            "post": {
+                "tags": [
+                    "Escenario"
+                ],
+                "summary": "Emboscada del Creeper",
+                "description": "Un Creeper guardado se acerca a un Jugador guardado y detona. Orden: mis dos reglas (sin detonar, vivo), después A2 (mecha corta: un jugador vivo a 3 bloques o menos) y después A3. Solo si todas aceptan se ejecuta la explosión y se guarda la jugada; si una rechaza, H2 queda igual y la respuesta dice de quién fue el rechazo.",
+                "operationId": "emboscar",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmboscadaRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "A2 y A3 aceptaron: la jugada y la explosión quedaron guardadas.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmboscadaResultado"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Falta un id, el tiempo es negativo o la entidad no es del tipo pedido.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Un id no existe.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Mi regla 2: el Creeper ya detonó.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Mi regla 1 (Creeper muerto) o un rechazo de A2 o de A3 (RechazoDeCompaneroException, con rechazadoPor, companero y la respuesta original).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "La API de A2 o de A3 no respondió (CompaneroNoDisponibleException).",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/entidades": {
             "get": {
                 "tags": [
@@ -905,6 +1080,72 @@
                 }
             }
         },
+        "/escenarios/emboscadas": {
+            "get": {
+                "tags": [
+                    "Escenario"
+                ],
+                "summary": "Lista las emboscadas guardadas",
+                "operationId": "listar_2",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EmboscadaResultado"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/escenarios/emboscadas/{id}": {
+            "get": {
+                "tags": [
+                    "Escenario"
+                ],
+                "summary": "Emboscada guardada por id",
+                "operationId": "obtener_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "La jugada.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmboscadaResultado"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No existe.",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorRespuesta"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/comportamiento": {
             "get": {
                 "tags": [
@@ -1059,13 +1300,33 @@
                     },
                     "tipo": {
                         "type": "string",
-                        "description": "Excepción que lo provocó: DatosInvalidosException (400), RecursoNoEncontradoException (404), CreeperYaDetonadoException (409), CreeperMuertoException (422), RechazoDeCompaneroException (409) o CompaneroNoDisponibleException (503).",
+                        "description": "Excepción que lo provocó: DatosInvalidosException (400), RecursoNoEncontradoException (404), CreeperYaDetonadoException (409), CreeperMuertoException (422), RechazoDeCompaneroException (422) o CompaneroNoDisponibleException (503).",
                         "example": "CreeperYaDetonadoException"
                     },
                     "mensaje": {
                         "type": "string",
                         "description": "Explicación del error.",
                         "example": "Creeper 1 ya detonó y no puede volver a explotar."
+                    },
+                    "rechazadoPor": {
+                        "type": "string",
+                        "description": "Solo si el error vino de un compañero: A2 o A3.",
+                        "example": "A2"
+                    },
+                    "companero": {
+                        "type": "string",
+                        "description": "Solo si el error vino de un compañero: su nombre.",
+                        "example": "Irina Insfrán"
+                    },
+                    "estadoCompanero": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Solo si el compañero respondió: su código HTTP.",
+                        "example": 422
+                    },
+                    "respuestaCompanero": {
+                        "type": "string",
+                        "description": "Solo si el compañero respondió: su cuerpo, tal cual."
                     }
                 }
             },
@@ -1315,6 +1576,109 @@
                         "type": "string",
                         "description": "Explicación.",
                         "example": "Creeper del pozo está vivo: puede detonar."
+                    }
+                }
+            },
+            "ValidacionExplosionRequest": {
+                "type": "object",
+                "description": "Estado de un Creeper para validar las dos reglas a la vez. \"saludCreeper\" y \"yaDetonado\" son opcionales; cualquier otro campo del cuerpo se ignora y no se guarda nada.",
+                "properties": {
+                    "saludCreeper": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Vida del Creeper. Si falta, se considera vivo.",
+                        "example": 20
+                    },
+                    "yaDetonado": {
+                        "type": "boolean",
+                        "description": "Si ya detonó. Si falta, se considera false.",
+                        "example": false
+                    }
+                }
+            },
+            "ValidacionExplosionResponse": {
+                "type": "object",
+                "description": "Resultado de la validación de las dos reglas de la explosión.",
+                "properties": {
+                    "aceptada": {
+                        "type": "boolean",
+                        "description": "Siempre true en una respuesta 200.",
+                        "example": true
+                    },
+                    "mensaje": {
+                        "type": "string",
+                        "description": "Explicación para la persona que consume la API.",
+                        "example": "El Creeper está vivo y todavía no detonó."
+                    }
+                }
+            },
+            "EmboscadaRequest": {
+                "type": "object",
+                "description": "Creeper y Jugador guardados que participan de la emboscada.",
+                "properties": {
+                    "creeperId": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Id del Creeper en /entidades.",
+                        "example": 1
+                    },
+                    "jugadorId": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Id del Jugador en /entidades.",
+                        "example": 3
+                    },
+                    "tiempoTranscurrido": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Segundos transcurridos desde que se activó la mecha; no negativo.",
+                        "example": 3
+                    }
+                },
+                "required": [
+                    "creeperId",
+                    "jugadorId",
+                    "tiempoTranscurrido"
+                ]
+            },
+            "EmboscadaResultado": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "fecha": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "creeperId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "jugadorId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "a2": {
+                        "$ref": "#/components/schemas/RespuestaCompanero"
+                    },
+                    "a3": {
+                        "$ref": "#/components/schemas/RespuestaCompanero"
+                    },
+                    "simulacion": {
+                        "$ref": "#/components/schemas/SimulacionExplosionResultado"
+                    }
+                }
+            },
+            "RespuestaCompanero": {
+                "type": "object",
+                "properties": {
+                    "companero": {
+                        "type": "string"
+                    },
+                    "respuesta": {
+                        "type": "string"
                     }
                 }
             }

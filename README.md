@@ -4,8 +4,7 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-09):** el enlace exacto está en el archivo de entrega subido a
-Classroom.
+**Commit de la solución (POO-09):** PENDIENTE_COMMIT_SOLUCION
 
 - **OpenAPI:** <http://localhost:8083/v3/api-docs> (JSON), <http://localhost:8083/v3/api-docs.yaml>
   (YAML) y <http://localhost:8083/swagger-ui.html> (navegador). Copia exportada en
@@ -16,7 +15,9 @@ Classroom.
 
 Las entregas anteriores quedaron documentadas en
 [`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md) y
-[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md).
+[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md). El enunciado de POO-09
+aplicado a esta entrega está en
+[`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
 
 ## Situación de POO-08
 
@@ -43,7 +44,7 @@ Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras d
 |---|---|---|---|---|
 | Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026)) | **A1** | `http://100.122.114.103:8083` (local `http://localhost:8083`) | `http://100.122.114.103:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
 | Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://100.87.95.24:8082` (local `http://localhost:8082`) | `http://100.87.95.24:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
-| Sol | **A3** | `http://100.87.131.50:8080` (local `http://localhost:8080`) | `http://100.87.131.50:8080/v3/api-docs` | 1) El Creeper no detona antes de `tiempoExplosion`: con `tiempoTranscurrido` menor responde `409`. 2) Solo daña objetivos dentro del radio: si uno está más lejos de `radioExplosion` responde `422`. Fuente: su OpenAPI en `POST /explosiones/validar`. |
+| María Sol Ferreira ([MariaSol45/msferreira-tplp3-2026](https://github.com/MariaSol45/msferreira-tplp3-2026)) | **A3** | `http://100.87.131.50:8080` (local `http://localhost:8080`) | `http://100.87.131.50:8080/v3/api-docs` | 1) El Creeper no detona antes de `tiempoExplosion`: con `tiempoTranscurrido` menor responde `409`. 2) Solo daña objetivos dentro del radio: si uno está más lejos de `radioExplosion` responde `422`. Fuente: [su README](https://github.com/MariaSol45/msferreira-tplp3-2026/blob/feature/poo-09-apis-cruzadas/README.md#poo-09-apis-cruzadas) y su OpenAPI en `POST /explosiones/validar`. |
 
 Las respuestas de `docs/insomnia/respuestas/` se grabaron contra los servicios reales de Irina y
 Sol por Tailscale, con el entorno «Grupo por Tailscale (servicios reales)» de la colección: ya no
@@ -185,28 +186,29 @@ que mandó el compañero, tal cual). Ejemplo (respuesta real con un stub en el p
 En la misma máquina, cada uno en su terminal y en su puerto. Primero A2 y A3, después A1.
 
 ```bash
-# A2 — Irina Insfrán
+# A2 — Irina Insfrán (rama feature/rest, puerto 8082)
 git clone https://github.com/IrinaInsfran/ii-taller-git-2026.git
-cd ii-taller-git-2026 && git checkout <commit-de-A2>
+cd ii-taller-git-2026 && git checkout 9ace19beefdf2ee0a3deaf20ebf61e7a074b32eb
 ./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
 ```
 
 ```bash
-# A3 — Sol
-git clone <repositorio-de-A3> && cd <carpeta-de-A3> && git checkout <commit-de-A3>
-./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8080
+# A3 — María Sol Ferreira (rama feature/poo-09-apis-cruzadas, puerto 8080)
+git clone https://github.com/MariaSol45/msferreira-tplp3-2026.git
+cd msferreira-tplp3-2026 && git checkout 6e37f2608f311a46b00893af00af4fc186494bb4
+cd minecraft && ./mvnw spring-boot:run
 ```
 
 ```bash
-# A1 — este repositorio (puerto 8083 por defecto)
+# A1 — este repositorio (rama poo-09-apis-cruzadas, puerto 8083 por defecto)
 git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
-cd clbasualdo-taller-git-2026/minecraft && git checkout c01d2b5416ef6f90df0d7800239643f98b131a52
-./mvnw spring-boot:run
+cd clbasualdo-taller-git-2026 && git checkout PENDIENTE_HASH_SOLUCION
+cd minecraft && ./mvnw spring-boot:run
 ```
 
-**Commit de entrega:** `c01d2b5416ef6f90df0d7800239643f98b131a52` (`c01d2b5`), rama
-`poo-09-apis-cruzadas`. No se hizo merge a `main`; el push por HTTPS quedó pendiente de
-credenciales de GitHub.
+**Commit de entrega:** `PENDIENTE_HASH_SOLUCION`, rama `poo-09-apis-cruzadas`, ya pusheada a
+GitHub. No se hizo merge a `main`. El detalle aplicado a esta entrega está en
+[`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
 
 Después, en Insomnia: carpeta 0 (los tres OpenAPI), carpeta 1 (preparar entidades en A1) y
 carpeta 2 (escenario feliz, rechazo de A2 y rechazo de A3).
