@@ -4,7 +4,7 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-09):** PENDIENTE_COMMIT_SOLUCION
+**Commit de la solución (POO-09):** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee>
 
 - **OpenAPI:** <http://localhost:8083/v3/api-docs> (JSON), <http://localhost:8083/v3/api-docs.yaml>
   (YAML) y <http://localhost:8083/swagger-ui.html> (navegador). Copia exportada en
@@ -202,11 +202,11 @@ cd minecraft && ./mvnw spring-boot:run
 ```bash
 # A1 — este repositorio (rama poo-09-apis-cruzadas, puerto 8083 por defecto)
 git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
-cd clbasualdo-taller-git-2026 && git checkout PENDIENTE_HASH_SOLUCION
+cd clbasualdo-taller-git-2026 && git checkout 04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee
 cd minecraft && ./mvnw spring-boot:run
 ```
 
-**Commit de entrega:** `PENDIENTE_HASH_SOLUCION`, rama `poo-09-apis-cruzadas`, ya pusheada a
+**Commit de entrega:** `04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee`, rama `poo-09-apis-cruzadas`, ya pusheada a
 GitHub. No se hizo merge a `main`. El detalle aplicado a esta entrega está en
 [`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
 

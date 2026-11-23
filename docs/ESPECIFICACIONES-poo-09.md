@@ -5,7 +5,7 @@
 **Alumna:** Cecilia Basualdo
 **Repositorio:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026>
 **Rama:** `poo-09-apis-cruzadas`
-**Commit de la solución:** PENDIENTE_COMMIT_SOLUCION
+**Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee>
 
 ---
 
@@ -55,7 +55,7 @@ que detona, daña y guarda en `EMBOSCADAS`. Las llamadas HTTP se hacen antes de 
    # A1 — este repositorio, puerto 8083
    git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
    cd clbasualdo-taller-git-2026
-   git checkout PENDIENTE_HASH_SOLUCION
+   git checkout 04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee
    cd minecraft && ./mvnw spring-boot:run
    ```
 
