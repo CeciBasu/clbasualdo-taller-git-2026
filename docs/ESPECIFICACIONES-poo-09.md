@@ -59,6 +59,10 @@ que detona, daña y guarda en `EMBOSCADAS`. Las llamadas HTTP se hacen antes de 
    cd minecraft && ./mvnw spring-boot:run
    ```
 
+   A1 ya trae por defecto `companeros.a2.base-url=http://100.87.95.24:8082` y
+   `companeros.a3.base-url=http://100.87.131.50:8080`, así que no hace falta exportar variables
+   para que la emboscada no caiga en `503`.
+
 2. Importar [`docs/insomnia/minecraft-poo09.json`](insomnia/minecraft-poo09.json) y elegir el
    entorno «Grupo en una máquina» (`a1_url` 8083, `a2_url` 8082, `a3_url` 8080) o «Grupo por
    Tailscale (servicios reales)». Recorrer las carpetas 0 (los tres OpenAPI), 1 (preparar

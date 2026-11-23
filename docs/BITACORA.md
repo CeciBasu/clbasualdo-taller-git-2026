@@ -335,5 +335,8 @@ al commit de la solución quedó en el README y en el archivo de entrega; el com
 ese enlace es posterior al commit que contiene el código y la documentación, porque un commit
 no puede contener su propio hash. También se aclaró en el mapa de A1/A2/A3 que mi entrega está
 en la rama `poo-09-apis-cruzadas` y en el commit `04d5ae3`, igual que se indica la rama y el
-commit de los compañeros.
+commit de los compañeros. Después avisaron que la emboscada daba `503` porque sin variables de
+entorno caía en `localhost:8082`; corregí los valores por defecto de `application.properties`
+para que A2 apunte a `http://100.87.95.24:8082` y A3 a `http://100.87.131.50:8080`, y dejé esas
+mismas URLs en el README y en el archivo de entrega.
 

@@ -135,14 +135,14 @@ variables de entorno:
 
 | Propiedad | Variable de entorno | Valor por defecto |
 |---|---|---|
-| `companeros.a2.base-url` | `A2_BASE_URL` | `http://localhost:8082` |
+| `companeros.a2.base-url` | `A2_BASE_URL` | `http://100.87.95.24:8082` |
 | `companeros.a2.ruta` | `A2_RUTA` | `/api/minecraft/reglas/mecha-corta` |
-| `companeros.a3.base-url` | `A3_BASE_URL` | `http://localhost:8080` |
+| `companeros.a3.base-url` | `A3_BASE_URL` | `http://100.87.131.50:8080` |
 | `companeros.a3.ruta` | `A3_RUTA` | `/explosiones/validar` |
 | `companeros.a3.nombre` | `A3_NOMBRE` | `Sol` |
 | `companeros.timeout-ms` | — | `3000` |
 
-Por ejemplo, si A2 está en otra notebook de la sala:
+Estas son las URLs del grupo que vienen por defecto en `application.properties`; si cambian de equipo se pueden sobrescribir:
 
 ```bash
 A2_BASE_URL=http://100.87.95.24:8082 A3_BASE_URL=http://100.87.131.50:8080 ./mvnw spring-boot:run
