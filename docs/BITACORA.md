@@ -255,8 +255,8 @@ antes daba por sentada sin pensar por qué.
   explosión en su base. Para no modificar su H2 en cada consulta, le pedí que publique la
   regla en una ruta propia que no guarde nada; mi cliente apunta a esa ruta y, si ella la
   nombra distinto en su OpenAPI, se cambia `companeros.a2.ruta` sin tocar el código.
-- Mientras A2 y A3 no estén publicados, las respuestas de ejemplo de la colección salen de
-  los stubs, y así lo dicen los nombres de los archivos y el README.
+- Si A2 o A3 no están publicados, las respuestas de ejemplo de la colección salen de los
+  stubs, y así lo dicen los nombres de los archivos y el README.
 - La explicación de más arriba sobre `recibirDanio()` validando el daño negativo describe
   POO-06: desde la corrección de POO-08 esa validación está en el service y el dominio solo
   cambia el estado.
@@ -333,5 +333,7 @@ Para cerrar la entrega completé el archivo con el enunciado aplicado
 alineé el entorno de Insomnia con las variables `a1_url`, `a2_url` y `a3_url`. El enlace exacto
 al commit de la solución quedó en el README y en el archivo de entrega; el commit que agrega
 ese enlace es posterior al commit que contiene el código y la documentación, porque un commit
-no puede contener su propio hash.
+no puede contener su propio hash. También se aclaró en el mapa de A1/A2/A3 que mi entrega está
+en la rama `poo-09-apis-cruzadas` y en el commit `04d5ae3`, igual que se indica la rama y el
+commit de los compañeros.
 
