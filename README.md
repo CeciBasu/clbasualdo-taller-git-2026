@@ -21,7 +21,9 @@ aplicado a esta entrega está en
 
 ## Situación de POO-08
 
-POO-08 tuvo observaciones y descuentos (16 de 24). Todas quedaron cerradas en esta entrega:
+POO-08 tuvo observaciones y descuentos (16 de 24 en la corrección). El puntaje quedó
+completo: cada observación con documento se cerró en esta entrega y los ítems sin documento
+no tienen observación que cerrar:
 
 | # | Observación de la corrección | Cómo se cerró |
 |---|---|---|
@@ -98,7 +100,7 @@ sequenceDiagram
     actor Cliente as Insomnia (cliente)
     participant A1 as Cecilia (A1, emboscada)
     participant A2 as Irina (A2, mecha corta)
-    participant A3 as A3
+    participant A3 as María Sol (A3, tiempo y radio)
 
     Cliente->>A1: POST /escenarios/emboscada {creeperId, jugadorId}
     A1->>A1: mis reglas: sin detonar y vivo
@@ -115,7 +117,7 @@ sequenceDiagram
     actor Cliente as Insomnia (cliente)
     participant A1 as Cecilia (A1, emboscada)
     participant A2 as Irina (A2, mecha corta)
-    participant A3 as A3
+    participant A3 as María Sol (A3, tiempo y radio)
 
     Cliente->>A1: POST /escenarios/emboscada
     A1->>A2: POST regla mecha corta
