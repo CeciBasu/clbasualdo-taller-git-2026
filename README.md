@@ -4,7 +4,7 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-09):** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee>
+**Commit de la solución (POO-09):** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699>
 
 - **OpenAPI:** <http://localhost:8083/v3/api-docs> (JSON), <http://localhost:8083/v3/api-docs.yaml>
   (YAML) y <http://localhost:8083/swagger-ui.html> (navegador). Copia exportada en
@@ -42,7 +42,7 @@ Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras d
 
 | Nombre | Rol en esta entrega | URL base | OpenAPI | Sus dos reglas, en una frase cada una |
 |---|---|---|---|---|
-| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026), rama `poo-09-apis-cruzadas`, commit [`04d5ae3`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee)) | **A1** | `http://100.122.114.103:8083` (local `http://localhost:8083`) | `http://100.122.114.103:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
+| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026), rama `poo-09-apis-cruzadas`, commit [`4d09e0b`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699)) | **A1** | `http://100.122.114.103:8083` (local `http://localhost:8083`) | `http://100.122.114.103:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
 | Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://100.87.95.24:8082` (local `http://localhost:8082`) | `http://100.87.95.24:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
 | María Sol Ferreira ([MariaSol45/msferreira-tplp3-2026](https://github.com/MariaSol45/msferreira-tplp3-2026)) | **A3** | `http://100.87.131.50:8080` (local `http://localhost:8080`) | `http://100.87.131.50:8080/v3/api-docs` | 1) El Creeper no detona antes de `tiempoExplosion`: con `tiempoTranscurrido` menor responde `409`. 2) Solo daña objetivos dentro del radio: si uno está más lejos de `radioExplosion` responde `422`. Fuente: [su README](https://github.com/MariaSol45/msferreira-tplp3-2026/blob/feature/poo-09-apis-cruzadas/README.md#poo-09-apis-cruzadas) y su OpenAPI en `POST /explosiones/validar`. |
 
@@ -202,12 +202,16 @@ cd minecraft && ./mvnw spring-boot:run
 ```bash
 # A1 — este repositorio (rama poo-09-apis-cruzadas, puerto 8083 por defecto)
 git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
-cd clbasualdo-taller-git-2026 && git checkout 04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee
-cd minecraft && ./mvnw spring-boot:run
+cd clbasualdo-taller-git-2026 && git checkout 4d09e0b131e8980163102483787410a6e570e699
+cd minecraft && A2_BASE_URL=http://localhost:8082 A3_BASE_URL=http://localhost:8080 ./mvnw spring-boot:run
 ```
 
-**Commit de entrega:** `04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee`, rama `poo-09-apis-cruzadas`, ya pusheada a
-GitHub. No se hizo merge a `main`. El detalle aplicado a esta entrega está en
+Las variables anteriores son solo para levantar los tres servicios en la misma máquina: los valores
+por defecto de `application.properties` apuntan a las IPs de Tailscale del grupo. Si se usan
+los servicios reales de A2 y A3, no hace falta exportarlas.
+
+**Commit de entrega:** `4d09e0b131e8980163102483787410a6e570e699`, rama `poo-09-apis-cruzadas`, a pushear a
+GitHub antes de entregar. No se hizo merge a `main`. El detalle aplicado a esta entrega está en
 [`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
 
 Después, en Insomnia: carpeta 0 (los tres OpenAPI), carpeta 1 (preparar entidades en A1) y

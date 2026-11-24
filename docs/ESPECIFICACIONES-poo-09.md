@@ -5,7 +5,7 @@
 **Alumna:** Cecilia Basualdo
 **Repositorio:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026>
 **Rama:** `poo-09-apis-cruzadas`
-**Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee>
+**Commit de la solución:** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699>
 
 ---
 
@@ -15,7 +15,7 @@
 
 | Rol | Integrante | Repositorio / commit | Servicio | OpenAPI | Reglas que citan |
 |---|---|---|---|---|---|
-| **A1** | Cecilia Basualdo (esta entrega) | [CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026), rama `poo-09-apis-cruzadas`, commit [`04d5ae3`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee) | `http://100.122.114.103:8083` (local `http://localhost:8083`) | <http://100.122.114.103:8083/v3/api-docs> | Un Creeper solo detona si está vivo (422) y solo una vez (409). Publicado en `POST /reglas/creeper-vivo`, `POST /reglas/detonacion-unica` y `POST /explosiones/validar`. |
+| **A1** | Cecilia Basualdo (esta entrega) | [CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026), rama `poo-09-apis-cruzadas`, commit [`4d09e0b`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699) | `http://100.122.114.103:8083` (local `http://localhost:8083`) | <http://100.122.114.103:8083/v3/api-docs> | Un Creeper solo detona si está vivo (422) y solo una vez (409). Publicado en `POST /reglas/creeper-vivo`, `POST /reglas/detonacion-unica` y `POST /explosiones/validar`. |
 | **A2** | Irina Insfrán | [IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026), commit `9ace19beefdf2ee0a3deaf20ebf61e7a074b32eb` (rama `feature/rest`) | `http://100.87.95.24:8082` (local `http://localhost:8082`) | <http://100.87.95.24:8082/v3/api-docs> | **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (422 `fuera_de_alcance`). Publicado en `POST /api/minecraft/reglas/mecha-corta`, que no escribe en su H2. |
 | **A3** | María Sol Ferreira | [MariaSol45/msferreira-tplp3-2026](https://github.com/MariaSol45/msferreira-tplp3-2026), commit `6e37f2608f311a46b00893af00af4fc186494bb4` (rama `feature/poo-09-apis-cruzadas`) | `http://100.87.131.50:8080` (local `http://localhost:8080`) | <http://100.87.131.50:8080/v3/api-docs> | No detona antes de `tiempoExplosion` (409) y todos los objetivos deben estar dentro de `radioExplosion` (422). Publicado en `POST /explosiones/validar`. |
 
@@ -55,13 +55,13 @@ que detona, daña y guarda en `EMBOSCADAS`. Las llamadas HTTP se hacen antes de 
    # A1 — este repositorio, puerto 8083
    git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
    cd clbasualdo-taller-git-2026
-   git checkout 04d5ae3d7fb51df4756da7a52a4ea1cdf82292ee
-   cd minecraft && ./mvnw spring-boot:run
+   git checkout 4d09e0b131e8980163102483787410a6e570e699
+   cd minecraft && A2_BASE_URL=http://localhost:8082 A3_BASE_URL=http://localhost:8080 ./mvnw spring-boot:run
    ```
 
-   A1 ya trae por defecto `companeros.a2.base-url=http://100.87.95.24:8082` y
-   `companeros.a3.base-url=http://100.87.131.50:8080`, así que no hace falta exportar variables
-   para que la emboscada no caiga en `503`.
+   Esas variables son para levantar los tres servicios en una máquina. Si se usan los servicios
+   reales de A2 y A3 por Tailscale, no hace falta exportarlas: los valores por defecto ya apuntan
+   a `http://100.87.95.24:8082` y `http://100.87.131.50:8080`.
 
 2. Importar [`docs/insomnia/minecraft-poo09.json`](insomnia/minecraft-poo09.json) y elegir el
    entorno «Grupo en una máquina» (`a1_url` 8083, `a2_url` 8082, `a3_url` 8080) o «Grupo por

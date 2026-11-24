@@ -245,8 +245,9 @@ antes daba por sentada sin pensar por qué.
 6. **Pruebas** con dos servidores HTTP de prueba (del JDK) que hacen de A2 y A3: feliz,
    rechazo de cada uno, compañero caído y mis reglas cortando antes de llamar a nadie.
 7. **Insomnia y respuestas de ejemplo.** La colección se ejecutó entera con un script contra
-   el servicio levantado, con dos stubs en los puertos de A2 y A3, y las respuestas quedaron
-   en `docs/insomnia/respuestas/`.
+   el servicio levantado. Los stubs de A2 y A3 se usaron para la pasada preliminar y las
+   pruebas automáticas; las respuestas definitivas en `docs/insomnia/respuestas/` se grabaron
+   contra los servicios reales de Irina y Sol por Tailscale.
 
 ### Qué revisé y decidí
 
@@ -255,8 +256,9 @@ antes daba por sentada sin pensar por qué.
   explosión en su base. Para no modificar su H2 en cada consulta, le pedí que publique la
   regla en una ruta propia que no guarde nada; mi cliente apunta a esa ruta y, si ella la
   nombra distinto en su OpenAPI, se cambia `companeros.a2.ruta` sin tocar el código.
-- Si A2 o A3 no están publicados, las respuestas de ejemplo de la colección salen de los
-  stubs, y así lo dicen los nombres de los archivos y el README.
+- Las respuestas de ejemplo definitivas salen de los servicios reales de A2 y A3. Los stubs
+  quedaron solo en las pruebas automáticas y en la pasada preliminar; no hay respuestas de
+  ejemplo de stubs en la colección final.
 - La explicación de más arriba sobre `recibirDanio()` validando el daño negativo describe
   POO-06: desde la corrección de POO-08 esa validación está en el service y el dominio solo
   cambia el estado.
@@ -334,7 +336,7 @@ alineé el entorno de Insomnia con las variables `a1_url`, `a2_url` y `a3_url`. 
 al commit de la solución quedó en el README y en el archivo de entrega; el commit que agrega
 ese enlace es posterior al commit que contiene el código y la documentación, porque un commit
 no puede contener su propio hash. También se aclaró en el mapa de A1/A2/A3 que mi entrega está
-en la rama `poo-09-apis-cruzadas` y en el commit `04d5ae3`, igual que se indica la rama y el
+en la rama `poo-09-apis-cruzadas` y en el commit `4d09e0b`, igual que se indica la rama y el
 commit de los compañeros. Después avisaron que la emboscada daba `503` porque sin variables de
 entorno caía en `localhost:8082`; corregí los valores por defecto de `application.properties`
 para que A2 apunte a `http://100.87.95.24:8082` y A3 a `http://100.87.131.50:8080`, y dejé esas
