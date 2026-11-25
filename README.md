@@ -81,7 +81,9 @@ curl -X POST http://localhost:8083/escenarios/emboscada \
 1. **Mis dos reglas** (Creeper sin detonar y vivo). No salen de la máquina: si fallan, no tiene
    sentido molestar a nadie.
 2. **A2, mecha corta.** Es lo primero que pasa en el juego: si ningún jugador está cerca, el
-   Creeper ni enciende la mecha y no hay nada más que validar.
+   Creeper ni enciende la mecha y no hay nada más que validar. La otra regla de Irina es la
+   **onda expansiva**: la explosión le quita más vida a quien está más cerca. No se consulta
+   por una ruta separada, sino que se aplica dentro de su propia simulación.
 3. **A3.** Se consulta con la mecha ya encendida.
 4. Si las dos aceptan, en **una transacción**: la simulación detona el Creeper (vuelve a aplicar
    mis reglas sobre H2), le quita vida a las entidades del radio y se guarda una fila en
@@ -99,7 +101,7 @@ no se agrega ninguna fila. La respuesta dice de quién fue el rechazo.
 sequenceDiagram
     actor Cliente as Insomnia (cliente)
     participant A1 as Cecilia (A1, emboscada)
-    participant A2 as Irina (A2, mecha corta)
+    participant A2 as Irina (A2, mecha corta y onda expansiva)
     participant A3 as María Sol (A3, tiempo y radio)
 
     Cliente->>A1: POST /escenarios/emboscada {creeperId, jugadorId}
@@ -116,7 +118,7 @@ sequenceDiagram
 sequenceDiagram
     actor Cliente as Insomnia (cliente)
     participant A1 as Cecilia (A1, emboscada)
-    participant A2 as Irina (A2, mecha corta)
+    participant A2 as Irina (A2, mecha corta y onda expansiva)
     participant A3 as María Sol (A3, tiempo y radio)
 
     Cliente->>A1: POST /escenarios/emboscada
