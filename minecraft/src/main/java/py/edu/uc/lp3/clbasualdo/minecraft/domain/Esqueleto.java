@@ -3,12 +3,12 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.Locale;
 
 /**
- * Descripcion:
+ * Descripción:
  * Representa al Esqueleto, un enemigo que ataca de lejos con flechas.
  *
  * Responsabilidad:
  * Lleva la cuenta de sus flechas, las gasta al atacar y permite recargarlas.
- * Tambien tiene el mensaje disparar() sobrecargado: sin distancia y con distancia,
+ * También tiene el mensaje disparar() sobrecargado: sin distancia y con distancia,
  * y es UICapable para poder dibujarse en la UI.
  */
 public class Esqueleto extends EntidadHostil implements UICapable {
@@ -16,16 +16,16 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     private int flechas;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea un esqueleto normal llamado "Esqueleto" con 20 de vida.
      */
     public Esqueleto() { this("Esqueleto", 20); }
 
     /**
-     * Descripcion:
-     * Crea un esqueleto con nombre y vida elegidos. Siempre hace 4 de danio, ataca hasta 8.0 de distancia y empieza con 16 flechas.
+     * Descripción:
+     * Crea un esqueleto con nombre y vida elegidos. Siempre hace 4 de daño, ataca hasta 8.0 de distancia y empieza con 16 flechas.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - Nombre del esqueleto.
      * vida - Vida inicial del esqueleto.
      */
@@ -35,8 +35,8 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve cuantas flechas tiene el esqueleto.
+     * Descripción:
+     * Devuelve cuántas flechas tiene el esqueleto.
      *
      * Retorno:
      * La cantidad de flechas.
@@ -44,26 +44,23 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     public int getFlechas() { return flechas; }
 
     /**
-     * Descripcion:
-     * Le agrega flechas al esqueleto. Lanza un error si la cantidad es negativa.
+     * Descripción:
+     * Le agrega flechas al esqueleto.
      *
-     * Parametros:
+     * Parámetros:
      * cantidad - Cantidad de flechas que se le agregan.
      */
     public void recargar(int cantidad) {
-        if (cantidad < 0) {
-            throw new IllegalArgumentException("La cantidad a recargar no puede ser negativa.");
-        }
         flechas += cantidad;
         System.out.println(getNombre() + " recarga, ahora tiene " + flechas + " flechas.");
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * El esqueleto dispara una flecha y se le gasta una. Si no le quedan, ataca cuerpo a cuerpo.
      */
     @Override
-     public void atacar() {
+    public void atacar() {
         if (flechas <= 0) {
             System.out.println("El Esqueleto no tiene flechas y ataca cuerpo a cuerpo.");
             return;
@@ -73,36 +70,33 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Primera version de disparar(): el esqueleto dispara sin que le digan a quien le
+     * Descripción:
+     * Primera versión de disparar(): el esqueleto dispara sin que le digan a quien le
      * dispara. Como no se le pasa distancia, no hay nada que revisar y siempre gasta
      * una flecha (si es que le queda alguna).
      *
      * Retorno:
-     * Un texto que dice que dispara y cuantas flechas le quedan.
+     * Un texto que dice que dispara y cuántas flechas le quedan.
      */
     public String disparar() {
         return disparar(0.0);
     }
 
     /**
-     * Descripcion:
-     * Segunda version de disparar(): el mismo disparo, pero indicando a que distancia
-     * esta el objetivo. Ahi aparece el contexto que la otra version no tiene: si la
-     * distancia es mayor al rango de ataque, la flecha se pierde y no se gasta, y si
-     * la distancia viene negativa se la rechaza. Si la distancia esta dentro del
-     * rango, se comporta igual que disparar().
+     * Descripción:
+     * Segunda versión de disparar(): el mismo disparo, pero indicando a qué distancia
+     * está el objetivo. Ahí aparece el contexto que la otra versión no tiene: si la
+     * distancia es mayor al rango de ataque, la flecha se pierde y no se gasta. Si la
+     * distancia está dentro del rango, se comporta igual que disparar(). Que la distancia
+     * no sea negativa lo revisa la capa service.
      *
-     * Parametros:
+     * Parámetros:
      * distancia - Distancia hasta el objetivo, tiene que ser 0 o mayor.
      *
      * Retorno:
      * Un texto que dice que dispara, que no alcanza, o que se queda sin flechas.
      */
     public String disparar(double distancia) {
-        if (distancia < 0) {
-            throw new IllegalArgumentException("La distancia no puede ser negativa.");
-        }
         if (flechas <= 0) {
             return getNombre() + " no tiene flechas y ataca cuerpo a cuerpo.";
         }
@@ -116,11 +110,11 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el esqueleto: retrocede y dispara.
+     * Descripción:
+     * Dice cómo reacciona el esqueleto: retrocede y dispara.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
@@ -128,7 +122,7 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la imagen con la que la UI dibuja al Esqueleto.
      *
      * Retorno:
@@ -140,8 +134,8 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del Esqueleto formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del Esqueleto formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del Esqueleto.
@@ -152,7 +146,7 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el Esqueleto.
      *
      * Retorno:
@@ -164,8 +158,8 @@ public class Esqueleto extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Reemplaza el sonido generico del default con el propio del Esqueleto.
+     * Descripción:
+     * Reemplaza el sonido genérico del default con el propio del Esqueleto.
      *
      * Retorno:
      * Un texto que describe el sonido del Esqueleto.

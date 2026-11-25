@@ -6,57 +6,57 @@ import java.util.Optional;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.Entidad;
 
 /**
- * Descripcion:
+ * Descripción:
  * Contrato para guardar y recuperar las entidades que se van creando en el juego.
  *
  * Responsabilidad:
- * Definir las operaciones de almacenamiento sin decir como se implementan, para
+ * Definir las operaciones de almacenamiento sin decir cómo se implementan, para
  * que el servicio dependa de la interfaz y no de una base de datos concreta.
  */
 public interface EntidadRepository {
 
     /**
-     * Descripcion:
-     * Guarda una entidad. Si ya habia una con el mismo nombre, la reemplaza.
+     * Descripción:
+     * Guarda una entidad. Si ya había una con el mismo nombre, la reemplaza.
      *
-     * Parametros:
+     * Parámetros:
      * entidad - La entidad que se quiere guardar.
      *
      * Retorno:
-     * La misma entidad que se guardo.
+     * La misma entidad que se guardó.
      */
     Entidad guardar(Entidad entidad);
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve todas las entidades guardadas.
      *
      * Retorno:
-     * Una lista con las entidades, sin exponer la coleccion interna.
+     * Una lista con las entidades, sin exponer la colección interna.
      */
     List<Entidad> listar();
 
     /**
-     * Descripcion:
+     * Descripción:
      * Busca una entidad por su nombre.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - El nombre que se quiere buscar.
      *
      * Retorno:
-     * La entidad encontrada, o vacio si no existe.
+     * La entidad encontrada, o vacío si no existe.
      */
     Optional<Entidad> buscarPorNombre(String nombre);
 
     /**
-     * Descripcion:
+     * Descripción:
      * Borra la entidad con ese nombre, si existe.
      *
-     * Parametros:
+     * Parámetros:
      * nombre - El nombre de la entidad que se quiere borrar.
      *
      * Retorno:
-     * true si se borro alguna entidad, false si no habia ninguna con ese nombre.
+     * true si se borró alguna entidad, false si no había ninguna con ese nombre.
      */
     boolean eliminar(String nombre);
 }

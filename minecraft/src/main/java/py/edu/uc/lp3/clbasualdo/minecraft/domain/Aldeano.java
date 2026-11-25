@@ -3,12 +3,12 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.Locale;
 
 /**
- * Descripcion:
- * Representa a un aldeano del juego, que es una entidad pasiva con una profesion.
+ * Descripción:
+ * Representa a un aldeano del juego, que es una entidad pasiva con una profesión.
  *
  * Responsabilidad:
- * Guarda la profesion y las esmeraldas del aldeano, y se encarga de comerciar y de reaccionar ante el peligro.
- * Tambien es UICapable para poder dibujarse en la UI.
+ * Guarda la profesión y las esmeraldas del aldeano, y se encarga de comerciar y de reaccionar ante el peligro.
+ * También es UICapable para poder dibujarse en la UI.
  */
 public class Aldeano extends EntidadPasiva implements UICapable {
     /** Trabajo del aldeano, por ejemplo Herrero. */
@@ -17,36 +17,36 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     private int esmeraldas;
 
     /**
-     * Descripcion:
-     * Crea un aldeano sin profesion.
+     * Descripción:
+     * Crea un aldeano sin profesión.
      */
-    public Aldeano() { this("Sin Profesion"); }
+    public Aldeano() { this("Sin Profesión"); }
 
     /**
-     * Descripcion:
-     * Crea un aldeano con una profesion. Si la profesion viene vacia o nula, se usa "Sin Profesion".
+     * Descripción:
+     * Crea un aldeano con una profesión. Si la profesión viene vacía o nula, se usa "Sin Profesión".
      *
-     * Parametros:
+     * Parámetros:
      * profesion - El trabajo que va a tener el aldeano.
      */
     public Aldeano(String profesion) {
         super("Aldeano", 20);
-        this.profesion = (profesion == null || profesion.isBlank()) ? "Sin Profesion" : profesion;
+        this.profesion = (profesion == null || profesion.isBlank()) ? "Sin Profesión" : profesion;
         this.esmeraldas = 0;
     }
 
     /**
-     * Descripcion:
-     * Devuelve la profesion del aldeano.
+     * Descripción:
+     * Devuelve la profesión del aldeano.
      *
      * Retorno:
-     * El texto con la profesion.
+     * El texto con la profesión.
      */
     public String getProfesion() { return profesion; }
 
     /**
-     * Descripcion:
-     * Devuelve cuantas esmeraldas tiene el aldeano.
+     * Descripción:
+     * Devuelve cuántas esmeraldas tiene el aldeano.
      *
      * Retorno:
      * La cantidad de esmeraldas.
@@ -54,36 +54,32 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     public int getEsmeraldas() { return esmeraldas; }
 
     /**
-     * Descripcion:
-     * Muestra un mensaje diciendo que el aldeano esta comerciando. No cambia sus esmeraldas.
+     * Descripción:
+     * Muestra un mensaje diciendo que el aldeano está comerciando. No cambia sus esmeraldas.
      */
     public void comerciar() {
-        System.out.println("El Aldeano (" + profesion + ") esta comerciando.");
+        System.out.println("El Aldeano (" + profesion + ") está comerciando.");
     }
 
     /**
-     * Descripcion:
-     * Cierra un trato y suma las esmeraldas ofrecidas a las que ya tenia.
-     * Lanza un error si la cantidad es negativa.
+     * Descripción:
+     * Cierra un trato y suma las esmeraldas ofrecidas a las que ya tenía.
      *
-     * Parametros:
+     * Parámetros:
      * esmeraldasOfrecidas - Cantidad de esmeraldas que se ganan en el trato.
      */
     public void comerciar(int esmeraldasOfrecidas) {
-        if (esmeraldasOfrecidas < 0) {
-            throw new IllegalArgumentException("Las esmeraldas ofrecidas no pueden ser negativas.");
-        }
         esmeraldas += esmeraldasOfrecidas;
         System.out.printf("%s (%s) cierra un trato y ahora tiene %d esmeraldas.%n",
                 getNombre(), profesion, esmeraldas);
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el aldeano ante una amenaza: se asusta y se esconde.
+     * Descripción:
+     * Dice cómo reacciona el aldeano ante una amenaza: se asusta y se esconde.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
@@ -91,7 +87,7 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la imagen con la que la UI dibuja al Aldeano.
      *
      * Retorno:
@@ -103,8 +99,8 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del Aldeano formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del Aldeano formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del Aldeano.
@@ -115,7 +111,7 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el Aldeano.
      *
      * Retorno:
@@ -127,8 +123,8 @@ public class Aldeano extends EntidadPasiva implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Reemplaza el sonido generico del default con el propio del Aldeano.
+     * Descripción:
+     * Reemplaza el sonido genérico del default con el propio del Aldeano.
      *
      * Retorno:
      * Un texto que describe el sonido del Aldeano.

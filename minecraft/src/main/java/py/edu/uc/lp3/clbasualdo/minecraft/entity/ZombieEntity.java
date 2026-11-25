@@ -4,70 +4,76 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /**
- * Descripcion:
- * Hija de EntidadEntity que representa un Zombie persistido.
+ * Descripción:
+ * Fila de la tabla "entidades" que representa a un Zombie.
  *
  * Responsabilidad:
- * Guardar el dato propio del Zombie (si rompio una puerta) en la misma tabla de
- * la familia, usando el discriminador "Zombie".
+ * Guardar si el Zombie ya rompió una puerta, además de los datos comunes.
  */
 @Entity
 @DiscriminatorValue("Zombie")
 public class ZombieEntity extends EntidadEntity {
 
-    /** Indica si el Zombie ya rompio una puerta. */
+    /** Indica si el Zombie ya rompió una puerta. */
     private boolean puertaRota;
 
     /**
-     * Descripcion:
-     * Constructor vacio requerido por JPA y Jackson.
+     * Descripción:
+     * Constructor vacío que exige JPA.
      */
     protected ZombieEntity() {
     }
 
     /**
-     * Descripcion:
-     * Crea un Zombie persistible. La vida maxima arranca igual a la vida.
+     * Descripción:
+     * Crea un Zombie que todavía no rompió ninguna puerta.
      *
-     * Parametros:
-     * nombre - Nombre del Zombie.
-     * vida - Vida inicial.
-     * x - Posicion en X.
-     * y - Posicion en Y.
-     * z - Posicion en Z.
+     * Parámetros:
+     * nombre - Nombre único.
+     * vida - Vida inicial, que también es la máxima.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      */
     public ZombieEntity(String nombre, int vida, double x, double y, double z) {
-        super(nombre, vida, vida, x, y, z);
+        this(nombre, vida, vida, x, y, z, false);
     }
 
     /**
-     * Descripcion:
-     * Dice si el Zombie rompio una puerta.
+     * Descripción:
+     * Crea un Zombie con todos sus datos.
+     *
+     * Parámetros:
+     * nombre - Nombre único.
+     * vida - Vida actual.
+     * vidaMaxima - Vida máxima.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
+     * puertaRota - Si ya rompió una puerta.
+     */
+    public ZombieEntity(String nombre, int vida, int vidaMaxima, double x, double y, double z, boolean puertaRota) {
+        super(nombre, vida, vidaMaxima, x, y, z);
+        this.puertaRota = puertaRota;
+    }
+
+    /**
+     * Descripción:
+     * Dice si el Zombie ya rompió una puerta.
      *
      * Retorno:
-     * true si la rompio, false si no.
+     * true si la rompió.
      */
     public boolean isPuertaRota() {
         return puertaRota;
     }
 
     /**
-     * Descripcion:
-     * Asigna si el Zombie rompio una puerta.
+     * Descripción:
+     * Copia los datos comunes y el estado de la puerta desde otro Zombie.
      *
-     * Parametros:
-     * puertaRota - Estado de la puerta.
-     */
-    public void setPuertaRota(boolean puertaRota) {
-        this.puertaRota = puertaRota;
-    }
-
-    /**
-     * Descripcion:
-     * Copia los datos comunes y el estado de la puerta de otro Zombie.
-     *
-     * Parametros:
-     * otro - Entidad de la que se copian los datos.
+     * Parámetros:
+     * otro - Entidad con los datos nuevos.
      */
     @Override
     public void copiarDatosDesde(EntidadEntity otro) {

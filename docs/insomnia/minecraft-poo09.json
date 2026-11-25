@@ -1,0 +1,1006 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-19T21:40:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2024.1.0",
+  "resources": [
+    {
+      "_id": "wrk_clbasualdo_poo09",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Minecraft POO-09 — clbasualdo (A1)",
+      "description": "Colección de POO-09. A1 = Cecilia Basualdo, A2 = Irina Insfrán, A3 = Sol. Orden de arranque: A2 y A3 primero, después A1. El entorno Tailscale apunta a los tres servicios reales; las respuestas de ejemplo en docs/insomnia/respuestas/ se grabaron contra ellos.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "Base",
+      "data": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "env_local",
+      "_type": "environment",
+      "parentId": "env_base",
+      "name": "Grupo en una máquina",
+      "data": {
+        "a1_url": "http://localhost:8083",
+        "a2_url": "http://localhost:8082",
+        "a3_url": "http://localhost:8080",
+        "creeper_id": "1",
+        "jugador_id": "2",
+        "creeper_lejano_id": "3",
+        "jugador_lejano_id": "4",
+        "creeper_a3_id": "5",
+        "jugador_a3_id": "6",
+        "emboscada_id": "1",
+        "simulacion_id": "2",
+        "creeper_poo08_id": "7",
+        "creeper_herido_id": "9"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "a1_url",
+          "a2_url",
+          "a3_url",
+          "creeper_id",
+          "jugador_id",
+          "creeper_lejano_id",
+          "jugador_lejano_id",
+          "creeper_a3_id",
+          "jugador_a3_id",
+          "emboscada_id",
+          "simulacion_id",
+          "creeper_poo08_id",
+          "creeper_herido_id"
+        ]
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "env_tailscale",
+      "_type": "environment",
+      "parentId": "env_base",
+      "name": "Grupo por Tailscale (servicios reales)",
+      "data": {
+        "a1_url": "http://100.122.114.103:8083",
+        "a2_url": "http://100.87.95.24:8082",
+        "a3_url": "http://100.87.131.50:8080",
+        "creeper_id": "1",
+        "jugador_id": "2",
+        "creeper_lejano_id": "3",
+        "jugador_lejano_id": "4",
+        "creeper_a3_id": "5",
+        "jugador_a3_id": "6",
+        "emboscada_id": "1",
+        "simulacion_id": "2",
+        "creeper_poo08_id": "7",
+        "creeper_herido_id": "9"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "a1_url",
+          "a2_url",
+          "a3_url",
+          "creeper_id",
+          "jugador_id",
+          "creeper_lejano_id",
+          "jugador_lejano_id",
+          "creeper_a3_id",
+          "jugador_a3_id",
+          "emboscada_id",
+          "simulacion_id",
+          "creeper_poo08_id",
+          "creeper_herido_id"
+        ]
+      },
+      "metaSortKey": 2
+    },
+    {
+      "_id": "fld_openapi",
+      "_type": "request_group",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "0 - OpenAPI de A1, A2 y A3",
+      "description": "El primer contacto con cada API es su OpenAPI.",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_oa_a1",
+      "_type": "request",
+      "parentId": "fld_openapi",
+      "name": "OpenAPI A1 (propio)",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/v3/api-docs",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_oa_a1_yaml",
+      "_type": "request",
+      "parentId": "fld_openapi",
+      "name": "OpenAPI A1 (YAML)",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/v3/api-docs.yaml",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_oa_a2",
+      "_type": "request",
+      "parentId": "fld_openapi",
+      "name": "OpenAPI A2 (Irina Insfrán)",
+      "method": "GET",
+      "url": "{{ _.a2_url }}/v3/api-docs",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_oa_a3",
+      "_type": "request",
+      "parentId": "fld_openapi",
+      "name": "OpenAPI A3",
+      "method": "GET",
+      "url": "{{ _.a3_url }}/v3/api-docs",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_prep",
+      "_type": "request_group",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "1 - Preparar entidades en A1",
+      "description": "Crear en orden con la base vacía: los ids quedan 1 a 6, como en el entorno.",
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_prep_1",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.1 Crear Creeper Emboscada (id 1)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Emboscada\",\n  \"vida\": 20,\n  \"x\": 0,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 7,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_prep_2",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.2 Crear Steve Emboscada (id 2)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Jugador\",\n  \"nombre\": \"Steve Emboscada\",\n  \"vida\": 20,\n  \"x\": 2,\n  \"y\": 64,\n  \"z\": 0,\n  \"nivel\": 1\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 8,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_prep_3",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.3 Crear Creeper Lejano (id 3)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Lejano\",\n  \"vida\": 20,\n  \"x\": 100,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 9,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_prep_4",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.4 Crear Alex Lejano (id 4)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Jugador\",\n  \"nombre\": \"Alex Lejano\",\n  \"vida\": 20,\n  \"x\": 110,\n  \"y\": 64,\n  \"z\": 0,\n  \"nivel\": 1\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 10,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_prep_5",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.5 Crear Creeper Tres (id 5)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Tres\",\n  \"vida\": 20,\n  \"x\": 200,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 11,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_prep_6",
+      "_type": "request",
+      "parentId": "fld_prep",
+      "name": "1.6 Crear Steve Tres (id 6)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Jugador\",\n  \"nombre\": \"Steve Tres\",\n  \"vida\": 20,\n  \"x\": 201,\n  \"y\": 64,\n  \"z\": 0,\n  \"nivel\": 1\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 12,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_escenario",
+      "_type": "request_group",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "2 - Escenario: emboscada del Creeper",
+      "description": "El cliente solo habla con A1. A1 consulta a A2 (mecha corta) y a A3.",
+      "metaSortKey": 13
+    },
+    {
+      "_id": "req_feliz",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.1 Feliz: A2 y A3 aceptan (201)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/escenarios/emboscada",
+      "description": "Steve está a 2 bloques del Creeper y pasan 3 segundos: A2 enciende la mecha y Sol valida. Grabado contra los servicios reales; respuesta de ejemplo: respuestas/01-escenario-feliz.json",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_id }},\n  \"jugadorId\": {{ _.jugador_id }},\n  \"tiempoTranscurrido\": 3\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 14,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_get_emb",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.2 GET de la jugada guardada",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/escenarios/emboscadas/{{ _.emboscada_id }}",
+      "description": "Respuesta de ejemplo: respuestas/02-get-emboscada.json",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 15,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_rech_a2",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.3 Rechazo de A2: jugador a 10 bloques (422)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/escenarios/emboscada",
+      "description": "Alex está a 110 bloques: Irina rechaza con 422 fuera_de_alcance. rechazadoPor = A2 y la base de A1 no cambia. Respuesta real: respuestas/03-rechazo-a2.json",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_lejano_id }},\n  \"jugadorId\": {{ _.jugador_lejano_id }},\n  \"tiempoTranscurrido\": 3\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 16,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_igual_a2",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.4 El Creeper lejano sigue igual (sin detonar)",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/entidades/{{ _.creeper_lejano_id }}",
+      "description": "Respuesta de ejemplo: respuestas/04-creeper-intacto-tras-rechazo-a2.json",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 17,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_rech_a3",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.5 Rechazo de Sol/A3 por tiempo (422)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/escenarios/emboscada",
+      "description": "A2 acepta (Steve a 1 bloque), pero tiempoTranscurrido=1: Sol rechaza con 409 y A1 lo devuelve como 422 con rechazadoPor = A3. La base queda igual. Respuesta real: respuestas/05-rechazo-a3.json",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_a3_id }},\n  \"jugadorId\": {{ _.jugador_a3_id }},\n  \"tiempoTranscurrido\": 1\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 18,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_lista_emb",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.6 Lista de emboscadas (solo la feliz)",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/escenarios/emboscadas",
+      "description": "Respuesta de ejemplo: respuestas/06-lista-emboscadas.json",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 19,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_mi_regla",
+      "_type": "request",
+      "parentId": "fld_escenario",
+      "name": "2.7 Mi regla: repetir la feliz da 409",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/escenarios/emboscada",
+      "description": "El Creeper ya detonó: mi regla corta antes de llamar a A2. Respuesta de ejemplo: respuestas/07-mi-regla-ya-detonado.json",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_id }},\n  \"jugadorId\": {{ _.jugador_id }},\n  \"tiempoTranscurrido\": 3\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 20,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_reglas",
+      "_type": "request_group",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "3 - Mis reglas (las que consumen A2 y A3)",
+      "description": "No modifican la base de A1.",
+      "metaSortKey": 21
+    },
+    {
+      "_id": "req_vivo_ok",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.1 Creeper vivo: acepta (200)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/reglas/creeper-vivo",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Creeper del pozo\",\n  \"vida\": 20\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 22,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_vivo_no",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.2 Creeper muerto: rechaza (422)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/reglas/creeper-vivo",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Creeper del pozo\",\n  \"vida\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 23,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_unica_ok",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.3 Sin detonar: acepta (200)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/reglas/detonacion-unica",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Creeper del pozo\",\n  \"detonado\": false\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 24,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_unica_no",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.4 Ya detonado: rechaza (409)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/reglas/detonacion-unica",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nombre\": \"Creeper del pozo\",\n  \"detonado\": true\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 25,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_validar",
+      "_type": "request",
+      "parentId": "fld_reglas",
+      "name": "3.5 Las dos reglas juntas: acepta (200)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/explosiones/validar",
+      "description": "Sin leer ni escribir H2. Los campos extra se ignoran.",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"saludCreeper\": 20,\n  \"yaDetonado\": false,\n  \"tiempoExplosion\": 3,\n  \"tiempoTranscurrido\": 3,\n  \"radioExplosion\": 5,\n  \"creeper\": {\"x\": 0, \"y\": 64, \"z\": 0},\n  \"objetivos\": [{\"tipo\": \"jugador\", \"salud\": 20, \"posicion\": {\"x\": 2, \"y\": 64, \"z\": 0}}]\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 25.5,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_poo08",
+      "_type": "request_group",
+      "parentId": "wrk_clbasualdo_poo09",
+      "name": "4 - POO-08: CRUD, simulación y errores",
+      "description": "Se pueden correr después de la carpeta 1.",
+      "metaSortKey": 26
+    },
+    {
+      "_id": "req_list",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.1 Listar entidades",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 27,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_crear_c",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.2 Crear Creeper para la simulación (id 7)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Insomnia\",\n  \"vida\": 20,\n  \"x\": 50,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 28,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_crear_z",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.3 Crear Zombie a 2 bloques",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Zombie\",\n  \"nombre\": \"Zombie Insomnia\",\n  \"vida\": 20,\n  \"x\": 52,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 29,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_get_nombre",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.4 Obtener por nombre",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/entidades/nombre/Zombie Insomnia",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 30,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_put",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.5 Actualizar por nombre (PUT)",
+      "method": "PUT",
+      "url": "{{ _.a1_url }}/entidades/nombre/Zombie Insomnia",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Zombie\",\n  \"nombre\": \"Zombie Insomnia\",\n  \"vida\": 18,\n  \"vidaMaxima\": 20,\n  \"x\": 52,\n  \"y\": 64,\n  \"z\": 0,\n  \"puertaRota\": true\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 31,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.6 Simulación: detona el Creeper guardado (201)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/simulacion/explosion",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_poo08_id }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 32,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim_get",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.7 Simulación por id",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/simulacion/explosion/{{ _.simulacion_id }}",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 33,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim_ult",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.8 Última simulación",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/simulacion/explosion",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 34,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim_lista",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.9 Lista de simulaciones",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/simulacion/explosiones",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 35,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim_409",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.10 Error: el mismo Creeper otra vez (409)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/simulacion/explosion",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_poo08_id }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 36,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_crear_caido",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.11 Crear Creeper que va a morir por daño",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Herido\",\n  \"vida\": 20,\n  \"x\": 300,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 37,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_matar",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.12 Dejarlo con vida 0 (PUT, sin detonar)",
+      "method": "PUT",
+      "url": "{{ _.a1_url }}/entidades/nombre/Creeper Herido",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Herido\",\n  \"vida\": 0,\n  \"vidaMaxima\": 20,\n  \"x\": 300,\n  \"y\": 64,\n  \"z\": 0,\n  \"detonado\": false\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 38,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sim_422",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.13 Error: Creeper muerto (422)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/simulacion/explosion",
+      "description": "creeper_herido_id es el id que devolvió 4.11 (9 si se corrió todo en orden con la base vacía).",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"creeperId\": {{ _.creeper_herido_id }}\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 39,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_imposible",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.14 Error: Creeper detonado y con vida (400)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Creeper\",\n  \"nombre\": \"Creeper Imposible\",\n  \"vida\": 5,\n  \"vidaMaxima\": 20,\n  \"x\": 0,\n  \"y\": 64,\n  \"z\": 0,\n  \"detonado\": true\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 40,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_ilegal",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.15 Error: vida negativa (400)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Zombie\",\n  \"nombre\": \"Zombie Ilegal\",\n  \"vida\": -5,\n  \"x\": 0,\n  \"y\": 64,\n  \"z\": 0\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 41,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_sin_z",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.16 Error: cuerpo incompleto, sin z (400)",
+      "method": "POST",
+      "url": "{{ _.a1_url }}/entidades",
+      "description": "",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"tipo\": \"Zombie\",\n  \"nombre\": \"Zombie Sin Z\",\n  \"vida\": 20,\n  \"x\": 0,\n  \"y\": 64\n}"
+      },
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 42,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_404",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.17 Error: id inexistente (404)",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/entidades/999999",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 43,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_del",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.18 Eliminar por nombre (204)",
+      "method": "DELETE",
+      "url": "{{ _.a1_url }}/entidades/nombre/Zombie Insomnia",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 44,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_ui",
+      "_type": "request",
+      "parentId": "fld_poo08",
+      "name": "4.19 Interface UICapable",
+      "method": "GET",
+      "url": "{{ _.a1_url }}/ui",
+      "description": "",
+      "headers": [],
+      "body": {},
+      "parameters": [],
+      "authentication": {},
+      "metaSortKey": 45,
+      "settingEncodeUrl": true,
+      "settingFollowRedirects": "global"
+    }
+  ]
+}

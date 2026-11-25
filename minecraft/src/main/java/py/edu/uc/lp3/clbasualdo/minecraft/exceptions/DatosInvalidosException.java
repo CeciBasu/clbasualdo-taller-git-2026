@@ -1,8 +1,8 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.exceptions;
 
 /**
- * Descripcion:
- * Excepcion que se lanza cuando los datos que llegan a la API no son validos
+ * Descripción:
+ * Excepción que se lanza cuando los datos que llegan a la API no son válidos
  * para el dominio (por ejemplo, una vida de 0).
  *
  * Responsabilidad:
@@ -12,23 +12,23 @@ package py.edu.uc.lp3.clbasualdo.minecraft.exceptions;
 public class DatosInvalidosException extends MinecraftException {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el error con el mensaje del dominio.
      *
-     * Parametros:
-     * mensaje - Explicacion de lo que salio mal.
+     * Parámetros:
+     * mensaje - Explicación de lo que salió mal.
      */
     public DatosInvalidosException(String mensaje) {
         super(mensaje);
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el error con su mensaje y la causa original.
      *
-     * Parametros:
-     * mensaje - Explicacion de lo que salio mal.
-     * causa - El error que lo provoco.
+     * Parámetros:
+     * mensaje - Explicación de lo que salió mal.
+     * causa - El error que lo provocó.
      */
     public DatosInvalidosException(String mensaje, Throwable causa) {
         super(mensaje, causa);

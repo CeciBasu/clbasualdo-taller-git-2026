@@ -5,7 +5,7 @@ import java.util.List;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.UICapable;
 
 /**
- * Descripcion:
+ * Descripción:
  * Contrato de las operaciones de negocio sobre los datos de UI de las entidades.
  *
  * Responsabilidad:
@@ -15,7 +15,7 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.UICapable;
 public interface UiService {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve las entidades que se pueden dibujar en la UI, de distintas
      * familias, tratadas todas como UICapable.
      *

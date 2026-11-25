@@ -1,0 +1,70 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 1,
+    "jugadorId": 2,
+    "tiempoTranscurrido": 3
+  },
+  "status": 201,
+  "respuesta": {
+    "id": 1,
+    "fecha": "2026-11-21T16:19:21.190374598",
+    "creeperId": 1,
+    "jugadorId": 2,
+    "a2": {
+      "companero": "Irina Insfrán",
+      "respuesta": "{\"aceptada\":true,\"regla\":\"mecha-corta\",\"objetivo\":0,\"distancia\":2.0,\"mensaje\":\"El creeper enciende la mecha: el jugador de objetivos[0] está a 2.0 bloques.\"}"
+    },
+    "a3": {
+      "companero": "Sol",
+      "respuesta": "{\"aceptada\":true,\"mensaje\":\"La explosión cumple el tiempo de detonación y todos los objetivos están dentro del radio.\"}"
+    },
+    "simulacion": {
+      "simulacionId": 1,
+      "fecha": "2026-11-21T16:19:21.162972",
+      "radioExplosion": 3.0,
+      "creeper": {
+        "id": 1,
+        "nombre": "Creeper Emboscada",
+        "vidaInicial": 20,
+        "vidaFinal": 0,
+        "detonado": true,
+        "vivo": false,
+        "x": 0.0,
+        "y": 64.0,
+        "z": 0.0
+      },
+      "afectados": [
+        {
+          "id": 2,
+          "tipo": "Jugador",
+          "nombre": "Steve Emboscada",
+          "vidaInicial": 20,
+          "vidaFinal": 0,
+          "distanciaAlCreeper": 2.0,
+          "alcanzada": true
+        }
+      ],
+      "noAfectados": [
+        {
+          "id": 3,
+          "tipo": "Creeper",
+          "nombre": "Creeper Lejano",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 100.0,
+          "alcanzada": false
+        },
+        {
+          "id": 4,
+          "tipo": "Jugador",
+          "nombre": "Alex Lejano",
+          "vidaInicial": 20,
+          "vidaFinal": 20,
+          "distanciaAlCreeper": 110.0,
+          "alcanzada": false
+        }
+      ]
+    }
+  }
+}

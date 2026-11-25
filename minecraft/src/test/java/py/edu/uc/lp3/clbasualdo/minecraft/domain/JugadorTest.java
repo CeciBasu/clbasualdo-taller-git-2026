@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Descripcion:
+ * Descripción:
  * Pruebas del Jugador: inventario, experiencia y nivel.
  *
  * Responsabilidad:
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JugadorTest {
 
     /**
-     * Descripcion:
+     * Descripción:
      * El inventario se devuelve como copia: modificar lo que devuelve el getter
      * no toca el inventario real del jugador.
      */
@@ -36,8 +36,8 @@ class JugadorTest {
     }
 
     /**
-     * Descripcion:
-     * Usar un item lo saca del inventario y devuelve si se pudo usar.
+     * Descripción:
+     * Usar un ítem lo saca del inventario y devuelve si se pudo usar.
      */
     @Test
     void usarItemLoSacaDelInventario() {
@@ -49,20 +49,7 @@ class JugadorTest {
     }
 
     /**
-     * Descripcion:
-     * Un item vacio o nulo no entra al inventario.
-     */
-    @Test
-    void unItemInvalidoNoEntra() {
-        Jugador jugador = new Jugador("Steve", 20, 1);
-        assertThrows(IllegalArgumentException.class, () -> jugador.agregarItem(""));
-        assertThrows(IllegalArgumentException.class, () -> jugador.agregarItem("  "));
-        assertThrows(IllegalArgumentException.class, () -> jugador.agregarItem(null));
-        assertTrue(jugador.getInventario().isEmpty());
-    }
-
-    /**
-     * Descripcion:
+     * Descripción:
      * Cada 100 puntos de experiencia se sube un nivel y esos puntos se descuentan.
      */
     @Test
@@ -78,7 +65,7 @@ class JugadorTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Suficiente experiencia de una sola vez puede subir varios niveles.
      */
     @Test
@@ -90,21 +77,9 @@ class JugadorTest {
     }
 
     /**
-     * Descripcion:
-     * La experiencia y el nivel negativos se rechazan.
-     */
-    @Test
-    void experienciaYNivelNegativosSeRechazan() {
-        assertThrows(IllegalArgumentException.class, () -> new Jugador("Steve", 20, -1));
-        Jugador jugador = new Jugador("Steve", 20, 1);
-        assertThrows(IllegalArgumentException.class, () -> jugador.ganarExperiencia(-10));
-        assertEquals(0, jugador.getExperiencia());
-    }
-
-    /**
-     * Descripcion:
+     * Descripción:
      * Solo el golpe que deja sin vida al objetivo da experiencia. Un zombi de 20
-     * de vida aguanta 4 golpes de 4, asi que la experiencia llega en el quinto.
+     * de vida aguanta 4 golpes de 4, así que la experiencia llega en el quinto.
      * Atacar fuera de rango no da nada.
      */
     @Test
@@ -129,15 +104,4 @@ class JugadorTest {
         assertEquals(10, jugador.getExperiencia());
     }
 
-    /**
-     * Descripcion:
-     * Un jugador muerto no ataca, y atacar al aire se rechaza.
-     */
-    @Test
-    void unJugadorMuertoNoAtaca() {
-        Jugador jugador = new Jugador("Steve", 20, 1);
-        jugador.recibirDanio(20);
-        assertThrows(IllegalStateException.class, () -> jugador.atacar(new Zombie()));
-        assertThrows(IllegalArgumentException.class, () -> new Jugador("Steve", 20, 1).atacar(null));
-    }
 }

@@ -3,25 +3,25 @@ package py.edu.uc.lp3.clbasualdo.minecraft.domain;
 import java.util.Locale;
 
 /**
- * Descripcion:
+ * Descripción:
  * Representa al Enderman, un enemigo que se teletransporta y ataca cuando el
  * jugador lo mira.
  *
  * Responsabilidad:
  * Se encarga de teletransportarse, de avisar que ataca al ser observado y de
- * responder como reacciona ante el jugador. Tambien es UICapable para la UI.
+ * responder cómo reacciona ante el jugador. También es UICapable para la UI.
  */
 public class Enderman extends EntidadHostil implements UICapable {
     /**
-     * Descripcion:
-     * Crea un Enderman con 40 de vida, 7 de danio y 16.0 de rango de ataque.
+     * Descripción:
+     * Crea un Enderman con 40 de vida, 7 de daño y 16.0 de rango de ataque.
      */
     public Enderman() {
         super("Enderman", 40, 7, 16.0);
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Muestra un mensaje avisando que el Enderman ataca porque lo miraron.
      */
     @Override
@@ -30,7 +30,7 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * El Enderman se teletransporta fuera de la vista del jugador.
      */
     public void teletransportarse() {
@@ -38,11 +38,11 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Dice como reacciona el Enderman: se teletransporta al ser observado.
+     * Descripción:
+     * Dice cómo reacciona el Enderman: se teletransporta al ser observado.
      *
      * Retorno:
-     * Un texto que describe la reaccion.
+     * Un texto que describe la reacción.
      */
     @Override
     public String reaccionar() {
@@ -50,7 +50,7 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la imagen con la que la UI dibuja al Enderman.
      *
      * Retorno:
@@ -62,8 +62,8 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Devuelve la posicion del Enderman formateada para la UI.
+     * Descripción:
+     * Devuelve la posición del Enderman formateada para la UI.
      *
      * Retorno:
      * Un texto con las coordenadas del Enderman.
@@ -74,7 +74,7 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Devuelve la velocidad con la que se mueve el Enderman.
      *
      * Retorno:
@@ -86,8 +86,8 @@ public class Enderman extends EntidadHostil implements UICapable {
     }
 
     /**
-     * Descripcion:
-     * Reemplaza el sonido generico del default con el propio del Enderman.
+     * Descripción:
+     * Reemplaza el sonido genérico del default con el propio del Enderman.
      *
      * Retorno:
      * Un texto que describe el sonido del Enderman.

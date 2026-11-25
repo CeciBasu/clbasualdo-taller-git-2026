@@ -4,70 +4,88 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 /**
- * Descripcion:
- * Hija de EntidadEntity que representa un Creeper persistido.
+ * Descripción:
+ * Fila de la tabla "entidades" que representa a un Creeper.
  *
  * Responsabilidad:
- * Guardar el dato propio del Creeper (si ya detono) en la misma tabla de la
- * familia, usando el discriminador "Creeper".
+ * Guardar si el Creeper ya detonó. En Minecraft un Creeper explota una sola vez y muere,
+ * por eso "detonado" y "vida" no son independientes: un Creeper detonado tiene vida 0.
+ * La única forma de marcarlo detonado es registrarDetonacion(), que cambia los dos datos
+ * juntos. Si la detonación es legal lo decide la capa service.
  */
 @Entity
 @DiscriminatorValue("Creeper")
 public class CreeperEntity extends EntidadEntity {
 
-    /** Indica si el Creeper ya exploto. */
+    /** Indica si el Creeper ya explotó. */
     private boolean detonado;
 
     /**
-     * Descripcion:
-     * Constructor vacio requerido por JPA y Jackson.
+     * Descripción:
+     * Constructor vacío que exige JPA.
      */
     protected CreeperEntity() {
     }
 
     /**
-     * Descripcion:
-     * Crea un Creeper persistible. La vida maxima arranca igual a la vida.
+     * Descripción:
+     * Crea un Creeper sin detonar, con la vida inicial como vida máxima.
      *
-     * Parametros:
-     * nombre - Nombre del Creeper.
+     * Parámetros:
+     * nombre - Nombre único.
      * vida - Vida inicial.
-     * x - Posicion en X.
-     * y - Posicion en Y.
-     * z - Posicion en Z.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
      */
     public CreeperEntity(String nombre, int vida, double x, double y, double z) {
-        super(nombre, vida, vida, x, y, z);
+        this(nombre, vida, vida, x, y, z, false);
     }
 
     /**
-     * Descripcion:
-     * Dice si el Creeper ya detono.
+     * Descripción:
+     * Crea un Creeper con todos sus datos. El service ya revisó que la combinación sea posible.
+     *
+     * Parámetros:
+     * nombre - Nombre único.
+     * vida - Vida actual.
+     * vidaMaxima - Vida máxima.
+     * x - Posición en X.
+     * y - Posición en Y.
+     * z - Posición en Z.
+     * detonado - Si ya explotó.
+     */
+    public CreeperEntity(String nombre, int vida, int vidaMaxima, double x, double y, double z, boolean detonado) {
+        super(nombre, vida, vidaMaxima, x, y, z);
+        this.detonado = detonado;
+    }
+
+    /**
+     * Descripción:
+     * Dice si el Creeper ya explotó.
      *
      * Retorno:
-     * true si exploto, false si no.
+     * true si ya detonó.
      */
     public boolean isDetonado() {
         return detonado;
     }
 
     /**
-     * Descripcion:
-     * Asigna si el Creeper ya detono.
-     *
-     * Parametros:
-     * detonado - Estado de detonacion.
+     * Descripción:
+     * Registra la explosión: el Creeper queda detonado y sin vida en el mismo paso.
      */
-    public void setDetonado(boolean detonado) {
-        this.detonado = detonado;
+    public void registrarDetonacion() {
+        this.detonado = true;
+        recibirDanio(getVida());
     }
 
     /**
-     * Descripcion:
-     * Copia los datos comunes y el estado de detonacion de otro Creeper.
+     * Descripción:
+     * Copia los datos comunes y el estado de detonación desde otro Creeper.
      *
-     * Parametros:
-     * otro - Entidad de la que se copian los datos.
+     * Parámetros:
+     * otro - Entidad con los datos nuevos.
      */
     @Override
     public void copiarDatosDesde(EntidadEntity otro) {

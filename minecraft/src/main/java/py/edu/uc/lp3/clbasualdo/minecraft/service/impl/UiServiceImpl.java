@@ -15,8 +15,8 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.Zombie;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.UiService;
 
 /**
- * Descripcion:
- * Implementacion del servicio de UI.
+ * Descripción:
+ * Implementación del servicio de UI.
  *
  * Responsabilidad:
  * Armar la lista con todos los elementos representables del dominio (el jugador,

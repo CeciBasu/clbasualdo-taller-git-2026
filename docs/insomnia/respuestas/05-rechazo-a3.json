@@ -1,0 +1,20 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 5,
+    "jugadorId": 6,
+    "tiempoTranscurrido": 1
+  },
+  "status": 422,
+  "respuesta": {
+    "timestamp": "2026-11-21T16:19:22.283120008",
+    "status": 422,
+    "error": "Unprocessable Entity",
+    "tipo": "RechazoDeCompaneroException",
+    "mensaje": "Rechazo de A3 (Sol, regla regla de A3): la jugada no se guardó.",
+    "rechazadoPor": "A3",
+    "companero": "Sol",
+    "estadoCompanero": 409,
+    "respuestaCompanero": "{\"error\":\"Explosión no preparada\",\"mensaje\":\"El Creeper necesita 3 segundos para explotar, pero solo transcurrieron 1.\",\"estado\":409}"
+  }
+}

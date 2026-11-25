@@ -8,32 +8,36 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import py.edu.uc.lp3.clbasualdo.minecraft.constants.ApiPaths;
 import py.edu.uc.lp3.clbasualdo.minecraft.domain.UICapable;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.UiService;
 
 /**
- * Descripcion:
+ * Descripción:
  * Controlador que muestra los datos que la UI necesita de cada elemento
  * representable del dominio.
  *
  * Responsabilidad:
  * Se encarga de pedirle al servicio las entidades UICapable y devolver por la API
- * sus datos comunes (nombre, vida, estado y posicion), los de dibujo (imagen,
- * sonido y velocidad) y los propios de cada familia, siempre a traves del tipo de
+ * sus datos comunes (nombre, vida, estado y posición), los de dibujo (imagen,
+ * sonido y velocidad) y los propios de cada familia, siempre a través del tipo de
  * la interfaz UICapable.
  */
 @RestController
+@Tag(name = "Modelo")
 public class UiController {
 
     /** Servicio que arma la lista de entidades UICapable. */
     private final UiService uiService;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el controlador con el servicio que va a usar.
      *
-     * Parametros:
+     * Parámetros:
      * uiService - El servicio de UI.
      */
     public UiController(UiService uiService) {
@@ -41,7 +45,7 @@ public class UiController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Responde a la ruta de UI. Pide la lista de entidades al servicio y por cada
      * una arma un mapa con todos sus datos representables. Todas se tratan como
      * UICapable, y cada una responde sus datos sin que el controller sepa de que
@@ -50,6 +54,7 @@ public class UiController {
      * Retorno:
      * Una lista con los datos de UI de cada elemento representable.
      */
+    @Operation(summary = "Datos de UI de las entidades UICapable")
     @GetMapping(ApiPaths.UI)
     public List<Map<String, Object>> ui() {
         return uiService.entidadesUi().stream()
@@ -58,12 +63,12 @@ public class UiController {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Arma el mapa con los datos de UI de una entidad. Primero pone los datos
-     * comunes y de dibujo que expone la interfaz, y despues le suma los datos
+     * comunes y de dibujo que expone la interfaz, y después le suma los datos
      * propios que devuelve datosExtra().
      *
-     * Parametros:
+     * Parámetros:
      * entidad - La entidad UICapable que se quiere representar.
      *
      * Retorno:

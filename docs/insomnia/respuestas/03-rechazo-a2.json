@@ -1,0 +1,20 @@
+{
+  "pedido": "POST /escenarios/emboscada",
+  "cuerpoPedido": {
+    "creeperId": 3,
+    "jugadorId": 4,
+    "tiempoTranscurrido": 3
+  },
+  "status": 422,
+  "respuesta": {
+    "timestamp": "2026-11-21T16:19:21.547708189",
+    "status": 422,
+    "error": "Unprocessable Entity",
+    "tipo": "RechazoDeCompaneroException",
+    "mensaje": "Rechazo de A2 (Irina Insfrán, regla mecha corta): la jugada no se guardó.",
+    "rechazadoPor": "A2",
+    "companero": "Irina Insfrán",
+    "estadoCompanero": 422,
+    "respuestaCompanero": "{\"error\":\"fuera_de_alcance\",\"codigo\":\"fuera_de_alcance\",\"mensaje\":\"El creeper solo detona con un jugador vivo a 3 bloques o menos, y no hay ninguno.\"}"
+  }
+}

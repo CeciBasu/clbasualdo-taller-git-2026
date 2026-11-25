@@ -4,11 +4,249 @@ API REST hecha con Spring Boot que expone el modelado de clases de Minecraft
 visto en las clases (herencia, sobreescritura y ocultamiento de la
 información), como parte del Taller de Git.
 
-**Commit de la solución (POO-08):**
-<https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/abd1c2b409369b2ca1330f4c309283be07fbe179>
+**Commit de la solución (POO-09):** <https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699>
 
-La entrega anterior (POO-06) quedó documentada en
-[`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md).
+- **OpenAPI:** <http://localhost:8083/v3/api-docs> (JSON), <http://localhost:8083/v3/api-docs.yaml>
+  (YAML) y <http://localhost:8083/swagger-ui.html> (navegador). Copia exportada en
+  [`docs/openapi/`](docs/openapi/).
+- **Bitácora de IA:** [`docs/BITACORA.md`](docs/BITACORA.md).
+- **Colección de Insomnia:** [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/minecraft-poo09.json),
+  con respuestas de ejemplo en [`docs/insomnia/respuestas/`](docs/insomnia/respuestas/).
+
+Las entregas anteriores quedaron documentadas en
+[`docs/ESPECIFICACIONES-poo-06.md`](docs/ESPECIFICACIONES-poo-06.md) y
+[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md). El enunciado de POO-09
+aplicado a esta entrega está en
+[`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
+
+## Situación de POO-08
+
+POO-08 tuvo observaciones y descuentos (16 de 24 en la corrección). El puntaje quedó
+completo: cada observación con documento se cerró en esta entrega y los ítems sin documento
+no tienen observación que cerrar:
+
+| # | Observación de la corrección | Cómo se cerró |
+|---|---|---|
+| 2 | **Paquetes.** El dominio lanzaba excepciones y tenía reglas: `Creeper.detonar` lanzaba `CreeperMuertoException` y `CreeperYaDetonadoException`, y `Entidad` y otras clases lanzaban `IllegalArgumentException`. | El paquete `domain` ya no tiene ningún `throw` ni valida datos: guarda el estado encapsulado y lo cambia. `Creeper.detonar` se eliminó; las dos reglas están en `SimulacionExplosionServiceImpl.validarQuePuedeDetonar`. Las validaciones de nombre, vida y distancia del Esqueleto están en `EsqueletoServiceImpl`. Las pruebas de dominio que esperaban excepciones se reemplazaron por pruebas del service y de la API. |
+| 3 | **Invariantes.** `EntidadEntity` y sus hijas tenían setters públicos y por HTTP se aceptaba un Creeper con `detonado: true` y `vida: 5`, un estado imposible en Minecraft. | Las Entity no tienen setters públicos: se arman con el constructor y solo cambian con `recibirDanio` (solo quita vida) y `CreeperEntity.registrarDetonacion` (detonado y vida 0 en el mismo paso). El CRUD recibe un DTO (`EntidadRequest`) y `EntidadCrudServiceImpl` valida la combinación al crear y al actualizar: «detonado y con vida» responde `400`, un Creeper no se crea detonado ni se detona con un `PUT`, uno detonado no vuelve atrás y un Creeper o Zombie muerto no revive. Prueba: `EntidadCrudControllerTest.unCreeperDetonadoYConVidaSeRechaza`. |
+| 3 (mejora) | Un cuerpo incompleto (sin `x`, `y` o `z`) tenía que responder `DatosInvalidosException` y no el error genérico de JSON. | `x`, `y`, `z`, `tipo`, `nombre` y `vida` son obligatorios en el service, y el handler traduce un JSON ilegible o un parámetro con tipo equivocado a `400` con `DatosInvalidosException`. Prueba: `unCuerpoIncompletoOMalFormadoEsDatoInvalido`. |
+| 6 | **Comportamiento observable.** La simulación creaba siempre un Creeper, un Zombie y un Jugador nuevos y los errores salían de parámetros (`vidaCreeper=0`, `repetirDetonacion=true`). Dos simulaciones seguidas respondían `201`. | `POST /simulacion/explosion` recibe `{"creeperId": n}`, carga ese Creeper de H2, daña a las entidades guardadas dentro del radio y guarda el resultado. Un segundo `POST` con el mismo id encuentra el Creeper detonado y responde `409`; un Creeper guardado con vida 0 responde `422`. Los parámetros de prueba se eliminaron. Pruebas: `SimulacionExplosionControllerTest` y `SimulacionExplosionServiceImplTest`. |
+| 7 (mejora) | Un commit con `feat:` solo cambiaba el README. | Los commits de esta entrega usan el prefijo del cambio real: `fix:` para las correcciones de código, `docs:` para documentación. |
+| 8 | **Documentación.** El diagrama dibujaba `SimulacionExplosionController --> SimulacionExplosionJpaRepository`, pero el controller usa el service. | El diagrama y «Cómo se lee el diagrama» muestran controller → service → repositorios, como en el código. |
+| 8 | **Ortografía.** Errores en `MinecraftApplication.java` (líneas 7, 11 y 18: «Descripcion», «aplicacion», «Metodo») y Javadoc casi entero sin tildes. | Se corrigieron esos cuatro y se revisó el Javadoc y los comentarios de todo `src/` (main y test) contra el diccionario de español de hunspell, más una revisión a mano de las palabras ambiguas (*está/esta*, *cómo/como*, *sí/si*, *disparo/disparó*). |
+| 8 (mejora) | El ejemplo de la simulación mostraba «Creeper Simulado» y la respuesta real traía «Creeper». | El ejemplo del README ahora es una respuesta real de la simulación sobre entidades creadas con el CRUD. |
+
+## POO-09 — APIs cruzadas
+
+### Grupo y round robin
+
+Grupo de Minecraft. Cada una es A1 de su propia entrega y consulta a las otras dos.
+
+| Nombre | Rol en esta entrega | URL base | OpenAPI | Sus dos reglas, en una frase cada una |
+|---|---|---|---|---|
+| Cecilia Basualdo ([CeciBasu/clbasualdo-taller-git-2026](https://github.com/CeciBasu/clbasualdo-taller-git-2026), rama `poo-09-apis-cruzadas`, commit [`4d09e0b`](https://github.com/CeciBasu/clbasualdo-taller-git-2026/commit/4d09e0b131e8980163102483787410a6e570e699)) | **A1** | `http://100.122.114.103:8083` (local `http://localhost:8083`) | `http://100.122.114.103:8083/v3/api-docs` | 1) Un Creeper solo detona si está vivo (si no, `422`). 2) Un Creeper solo detona una vez (si no, `409`). |
+| Irina Insfrán ([IrinaInsfran/ii-taller-git-2026](https://github.com/IrinaInsfran/ii-taller-git-2026)) | **A2** | `http://100.87.95.24:8082` (local `http://localhost:8082`) | `http://100.87.95.24:8082/v3/api-docs` | 1) **Mecha corta:** un Creeper vivo solo enciende la mecha si hay un Jugador vivo a 3 bloques o menos (si no, `422 fuera_de_alcance`). 2) **Onda expansiva:** la explosión le resta a cada entidad del radio más vida cuanto más cerca esté. Fuente: [su README](https://github.com/IrinaInsfran/ii-taller-git-2026#las-dos-reglas-de-la-simulación). |
+| María Sol Ferreira ([MariaSol45/msferreira-tplp3-2026](https://github.com/MariaSol45/msferreira-tplp3-2026)) | **A3** | `http://100.87.131.50:8080` (local `http://localhost:8080`) | `http://100.87.131.50:8080/v3/api-docs` | 1) El Creeper no detona antes de `tiempoExplosion`: con `tiempoTranscurrido` menor responde `409`. 2) Solo daña objetivos dentro del radio: si uno está más lejos de `radioExplosion` responde `422`. Fuente: [su README](https://github.com/MariaSol45/msferreira-tplp3-2026/blob/feature/poo-09-apis-cruzadas/README.md#poo-09-apis-cruzadas) y su OpenAPI en `POST /explosiones/validar`. |
+
+Las respuestas de `docs/insomnia/respuestas/` se grabaron contra los servicios reales de Irina y
+Sol por Tailscale, con el entorno «Grupo por Tailscale (servicios reales)» de la colección: ya no
+hay respuestas `A3-stub`. Los rechazos de cada una llegan dentro de `respuestaCompanero`, con su
+código original (`422` de A2, `409` o `422` de Sol) y `estadoCompanero`.
+
+En el trío, las tres anotamos las mismas tres URLs. Mi OpenAPI publica mis dos reglas en rutas
+que no modifican la base, para que A2 y A3 las consulten desde su escenario:
+`POST /reglas/creeper-vivo` y `POST /reglas/detonacion-unica`, o las dos juntas en
+`POST /explosiones/validar`.
+
+### El escenario: emboscada del Creeper
+
+**En una frase:** un Creeper guardado se acerca a un Jugador guardado y detona; la jugada es
+legal solo si A2 confirma que la mecha se enciende (hay un jugador vivo a 3 bloques o menos) y
+A3 la acepta con su regla, y recién ahí se ejecuta la explosión y se guarda la jugada en mi H2.
+
+```bash
+curl -X POST http://localhost:8083/escenarios/emboscada \
+  -H "Content-Type: application/json" \
+  -d '{"creeperId": 1, "jugadorId": 2, "tiempoTranscurrido": 3}'
+```
+
+| Método | Ruta | Uso |
+|---|---|---|
+| `POST` | `/escenarios/emboscada` | Cuerpo `{"creeperId": n, "jugadorId": m, "tiempoTranscurrido": 3}`. El tiempo va a Sol; si todo acepta, `201` con la jugada guardada. |
+| `GET` | `/escenarios/emboscadas` | Lista las jugadas guardadas. |
+| `GET` | `/escenarios/emboscadas/{id}` | Una jugada guardada, con la explosión leída de H2. |
+
+**Orden de consulta y por qué:**
+
+1. **Mis dos reglas** (Creeper sin detonar y vivo). No salen de la máquina: si fallan, no tiene
+   sentido molestar a nadie.
+2. **A2, mecha corta.** Es lo primero que pasa en el juego: si ningún jugador está cerca, el
+   Creeper ni enciende la mecha y no hay nada más que validar. La otra regla de Irina es la
+   **onda expansiva**: la explosión le quita más vida a quien está más cerca. No se consulta
+   por una ruta separada, sino que se aplica dentro de su propia simulación.
+3. **A3.** Se consulta con la mecha ya encendida.
+4. Si las dos aceptan, en **una transacción**: la simulación detona el Creeper (vuelve a aplicar
+   mis reglas sobre H2), le quita vida a las entidades del radio y se guarda una fila en
+   `EMBOSCADAS` con el id de la explosión y la respuesta de A2 y de A3.
+
+**Qué se ve en mi base después del feliz:** el Creeper con `detonado: true` y vida 0, el Jugador
+con 25 de vida menos, una fila nueva en `EXPLOSIONES` y una en `EMBOSCADAS`
+(`GET /escenarios/emboscadas/{id}`).
+
+**Qué queda igual si A2 acepta y A3 rechaza:** todo. Las llamadas a A2 y A3 se hacen antes de
+abrir la transacción, así que con un rechazo no se detona el Creeper, no cambia ninguna vida y
+no se agrega ninguna fila. La respuesta dice de quién fue el rechazo.
+
+```mermaid
+sequenceDiagram
+    actor Cliente as Insomnia (cliente)
+    participant A1 as Cecilia (A1, emboscada)
+    participant A2 as Irina (A2, mecha corta y onda expansiva)
+    participant A3 as María Sol (A3, tiempo y radio)
+
+    Cliente->>A1: POST /escenarios/emboscada {creeperId, jugadorId}
+    A1->>A1: mis reglas: sin detonar y vivo
+    A1->>A2: POST regla mecha corta (posiciones y salud)
+    A2-->>A1: 200 mecha encendida
+    A1->>A3: POST regla de A3
+    A3-->>A1: 200 acepta
+    A1->>A1: detona, daña y guarda la jugada (una transacción)
+    A1-->>Cliente: 201 emboscada guardada
+```
+
+```mermaid
+sequenceDiagram
+    actor Cliente as Insomnia (cliente)
+    participant A1 as Cecilia (A1, emboscada)
+    participant A2 as Irina (A2, mecha corta y onda expansiva)
+    participant A3 as María Sol (A3, tiempo y radio)
+
+    Cliente->>A1: POST /escenarios/emboscada
+    A1->>A2: POST regla mecha corta
+    A2-->>A1: 200 mecha encendida
+    A1->>A3: POST regla de A3
+    A3-->>A1: 4xx rechaza
+    A1->>A1: no abre la transacción: H2 queda igual
+    A1-->>Cliente: 422 rechazadoPor A3
+```
+
+### Cliente: cómo se configuran A2 y A3
+
+Los clientes están en el paquete `cliente`: `ClienteReglaCompanero` hace el `POST` y lee la
+respuesta, y `ClienteA2MechaCorta` y `ClienteA3` solo arman el cuerpo que pide el OpenAPI de
+cada una. Las URLs y las rutas están en `application.properties` y se pueden cambiar con
+variables de entorno:
+
+| Propiedad | Variable de entorno | Valor por defecto |
+|---|---|---|
+| `companeros.a2.base-url` | `A2_BASE_URL` | `http://100.87.95.24:8082` |
+| `companeros.a2.ruta` | `A2_RUTA` | `/api/minecraft/reglas/mecha-corta` |
+| `companeros.a3.base-url` | `A3_BASE_URL` | `http://100.87.131.50:8080` |
+| `companeros.a3.ruta` | `A3_RUTA` | `/explosiones/validar` |
+| `companeros.a3.nombre` | `A3_NOMBRE` | `Sol` |
+| `companeros.timeout-ms` | — | `3000` |
+
+Estas son las URLs del grupo que vienen por defecto en `application.properties`; si cambian de equipo se pueden sobrescribir:
+
+```bash
+A2_BASE_URL=http://100.87.95.24:8082 A3_BASE_URL=http://100.87.131.50:8080 ./mvnw spring-boot:run
+```
+
+Los dos clientes envían el mismo cuerpo a sus rutas reales: `saludCreeper`, `creeper` con
+`x/y/z`, `objetivos` con `tipo/salud/posicion`, y además `tiempoExplosion`,
+`tiempoTranscurrido` y `radioExplosion=3.0` que Sol exige e Irina ignora. El cuerpo está en
+`cliente/CuerpoReglasCompanero.java`.
+
+### Errores: cómo se atribuyen
+
+Las respuestas de A2 y A3 se **traducen** a mi jerarquía, sin perder la original:
+
+```text
+MinecraftException
+└── CompaneroException (rol, companero, estadoCompanero, respuestaCompanero)
+    ├── RechazoDeCompaneroException     -> HTTP 422  (la regla del compañero respondió 4xx)
+    └── CompaneroNoDisponibleException  -> HTTP 503  (5xx, conexión rechazada o tiempo agotado)
+```
+
+El handler distingue «la regla de A2 rechazó» de «la API de A3 no responde» y lo dice en el
+cuerpo con `rechazadoPor`, `companero`, `estadoCompanero` y `respuestaCompanero` (el cuerpo
+que mandó el compañero, tal cual). Ejemplo (respuesta real con un stub en el puerto de A2):
+
+```json
+{
+  "status": 422,
+  "error": "Unprocessable Entity",
+  "tipo": "RechazoDeCompaneroException",
+  "mensaje": "Rechazo de A2 (Irina Insfrán, regla mecha corta): la jugada no se guardó.",
+  "rechazadoPor": "A2",
+  "companero": "Irina Insfrán",
+  "estadoCompanero": 422,
+  "respuestaCompanero": "{\"error\": \"fuera_de_alcance\", ...}"
+}
+```
+
+### Cómo arrancar los tres servicios
+
+En la misma máquina, cada uno en su terminal y en su puerto. Primero A2 y A3, después A1.
+
+```bash
+# A2 — Irina Insfrán (rama feature/rest, puerto 8082)
+git clone https://github.com/IrinaInsfran/ii-taller-git-2026.git
+cd ii-taller-git-2026 && git checkout 9ace19beefdf2ee0a3deaf20ebf61e7a074b32eb
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
+```
+
+```bash
+# A3 — María Sol Ferreira (rama feature/poo-09-apis-cruzadas, puerto 8080)
+git clone https://github.com/MariaSol45/msferreira-tplp3-2026.git
+cd msferreira-tplp3-2026 && git checkout 6e37f2608f311a46b00893af00af4fc186494bb4
+cd minecraft && ./mvnw spring-boot:run
+```
+
+```bash
+# A1 — este repositorio (rama poo-09-apis-cruzadas, puerto 8083 por defecto)
+git clone https://github.com/CeciBasu/clbasualdo-taller-git-2026.git
+cd clbasualdo-taller-git-2026 && git checkout 4d09e0b131e8980163102483787410a6e570e699
+cd minecraft && A2_BASE_URL=http://localhost:8082 A3_BASE_URL=http://localhost:8080 ./mvnw spring-boot:run
+```
+
+Las variables anteriores son solo para levantar los tres servicios en la misma máquina: los valores
+por defecto de `application.properties` apuntan a las IPs de Tailscale del grupo. Si se usan
+los servicios reales de A2 y A3, no hace falta exportarlas.
+
+**Commit de entrega:** `4d09e0b131e8980163102483787410a6e570e699`, rama `poo-09-apis-cruzadas`, a pushear a
+GitHub antes de entregar. No se hizo merge a `main`. El detalle aplicado a esta entrega está en
+[`docs/ESPECIFICACIONES-poo-09.md`](docs/ESPECIFICACIONES-poo-09.md).
+
+Después, en Insomnia: carpeta 0 (los tres OpenAPI), carpeta 1 (preparar entidades en A1) y
+carpeta 2 (escenario feliz, rechazo de A2 y rechazo de A3).
+
+### Si A2 o A3 no responden
+
+- Mi servicio no se cae: responde `503 CompaneroNoDisponibleException` con el rol del que
+  falló y no guarda nada. Cada llamada tiene un tiempo máximo de 3 segundos.
+- Los clientes están en el código, las URLs en este README y en `application.properties`, y la
+  colección trae **respuestas de ejemplo** del feliz y de cada rechazo en
+  [`docs/insomnia/respuestas/`](docs/insomnia/respuestas/). Esas respuestas se obtuvieron con el
+  servicio real y dos servidores de prueba en los puertos 8082 y 8080 que respondían como A2 y A3,
+  y así está indicado en cada una.
+- Las pruebas automáticas (`EmboscadaControllerTest`) levantan dos servidores HTTP de prueba y
+  cubren el feliz, el rechazo de A2, el de A3, A2 caído y mis reglas cortando antes de llamar.
+
+### Pregunta de anclaje
+
+*Si el compañero cambia el nombre de una ruta, ¿alcanza con actualizar lo que dice el OpenAPI,
+o había código copiado de su dominio?* Alcanza con actualizar la propiedad
+(`companeros.a2.ruta` o `A2_RUTA`). No hay ninguna clase de A2 ni de A3 en este proyecto: el
+cliente solo arma un JSON con los nombres de campos de su OpenAPI y lee el código HTTP. Si
+cambiara la forma del cuerpo, se cambia el método `validar(...)` de su cliente, nada más.
+
+### Límite
+
+No se clonó el código de las compañeras para copiar reglas. La regla de A2 se tomó de su README
+y la ruta de su OpenAPI. Como su API de POO-08 aplica la regla solo dentro de
+`POST /api/minecraft/explosiones` (que crea una explosión en su base), se le pidió publicar la
+regla en una ruta que no guarde nada, igual que hice con las mías.
 
 ## Tecnologías
 
@@ -26,7 +264,8 @@ cd clbasualdo-taller-git-2026/minecraft
 ./mvnw spring-boot:run
 ```
 
-La aplicación queda disponible en `http://localhost:8080`.
+La aplicación queda disponible en `http://localhost:8083` (el puerto 8083 es el de A1 dentro
+del grupo; se puede cambiar con la variable `PORT`).
 
 Para ver la demostración por consola, sin levantar la API:
 
@@ -39,10 +278,11 @@ java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
 
 | Paquete | Qué contiene |
 |---|---|
-| `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad`, sus hijas y la interface `UICapable`. No depende de nada externo. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.entity` | La familia JPA que mapea la tabla `entidades`: `EntidadEntity` (padre) y `CreeperEntity`, `ZombieEntity`, `JugadorEntity` (hijas). `SimulacionExplosionEntity` guarda el resultado de cada explosión. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.domain` | El modelo: `Entidad`, sus hijas y la interface `UICapable`. Guarda el estado encapsulado y lo cambia con mensajes; no valida datos ni lanza excepciones. No depende de nada externo. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.dto` | Los cuerpos JSON que entran: `EntidadRequest` (CRUD) y `SimulacionExplosionRequest`. Admiten `null` para que el service distinga «no vino» de «vino 0». |
+| `py.edu.uc.lp3.clbasualdo.minecraft.entity` | La familia JPA que mapea la tabla `entidades`: `EntidadEntity` (padre) y `CreeperEntity`, `ZombieEntity`, `JugadorEntity` (hijas). No tienen setters públicos. `SimulacionExplosionEntity` y `ImpactoExplosion` guardan la foto de cada explosión. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.repository` | El contrato para guardar y recuperar entidades. `.impl` es la versión en memoria y `.jpa` es Spring Data JPA. |
-| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las reglas de negocio (crear un esqueleto, armar la lista de comportamientos, ejecutar las dos versiones de `disparar()` y simular explosiones persistidas). `.impl` tiene las implementaciones y `.entidad` el servicio del CRUD. |
+| `py.edu.uc.lp3.clbasualdo.minecraft.service` | Las validaciones, las reglas del juego y las excepciones: crear un esqueleto, ejecutar las dos versiones de `disparar()`, los invariantes del CRUD y las dos reglas de la explosión. `.impl` tiene las implementaciones y `.entidad` el servicio del CRUD. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.rest.controller` | La entrada HTTP: recibe los datos, delega en los servicios y arma la respuesta. `.handler` tiene el `@RestControllerAdvice` que traduce cada excepción de dominio a su código HTTP. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.constants` | `ApiPaths`, con las rutas de la API en un solo lugar. |
 | `py.edu.uc.lp3.clbasualdo.minecraft.exceptions` | Excepciones propias del juego: `MinecraftException` como base, `RecursoNoEncontradoException`, `DatosInvalidosException`, `CreeperMuertoException` y `CreeperYaDetonadoException`. |
@@ -53,13 +293,15 @@ java -cp target/classes py.edu.uc.lp3.clbasualdo.minecraft.demo.Main
 
 El modelo trata cualquier entidad de forma uniforme (moverse, recibir daño,
 desaparecer, reaccionar ante el jugador) sin preguntar de qué tipo concreto
-se trata. Las reglas de vida, movimiento y muerte viven en `Entidad`, la
-clase base: cada subclase solo redefine lo que realmente cambia.
+se trata. El estado común (vida, posición) vive en `Entidad`, la clase base:
+cada subclase solo redefine lo que realmente cambia.
 
-`nombre` y `vida` son `private`: nadie fuera de la jerarquía puede dejar una
-entidad en un estado inválido, ni siquiera las propias hijas. El estado
-cambia únicamente a través de mensajes (`recibirDanio`, `curar`) que
-validan lo que reciben. `curar()` es `protected` porque no es una operación
+`nombre` y `vida` son `private`: el estado cambia únicamente a través de
+mensajes (`recibirDanio`, `curar`). Desde la corrección de POO-08 el dominio
+**no valida ni lanza excepciones**: guarda el estado encapsulado y lo cambia.
+Las validaciones (nombre vacío, vida no positiva, distancia negativa) y las
+reglas del juego (un Creeper solo detona vivo y una sola vez) las aplica la
+capa `service` antes de enviar el mensaje. `curar()` es `protected` porque no es una operación
 que cualquier entidad deba poder recibir desde afuera (un `Creeper` no se
 regenera): es una herramienta interna de la jerarquía que usa `Jugador`.
 
@@ -296,10 +538,16 @@ no tiene nada que ver con la herencia.
 | `PUT` | `/entidades/nombre/{nombre}` | Actualiza una entidad por nombre. |
 | `DELETE` | `/entidades/{id}` | Elimina una entidad por id; responde `204`. |
 | `DELETE` | `/entidades/nombre/{nombre}` | Elimina una entidad por nombre; responde `204`. |
-| `POST` | `/simulacion/explosion` | Ejecuta y persiste la simulación de explosión entre un `Creeper`, un `Zombie` y un `Jugador`. Responde `201`. |
+| `POST` | `/simulacion/explosion` | Cuerpo `{"creeperId": n}`. Detona un `Creeper` guardado sobre las entidades guardadas y persiste el resultado. Responde `201`. |
 | `GET` | `/simulacion/explosion` | Devuelve la última simulación persistida. |
 | `GET` | `/simulacion/explosion/{id}` | Devuelve una simulación persistida por id; si no existe responde `404`. |
 | `GET` | `/simulacion/explosiones` | Lista todas las simulaciones persistidas. |
+| `POST` | `/reglas/creeper-vivo` | Regla 1 sin tocar H2: `{"vida": n}` → `200` si `n > 0`, `422` si no. |
+| `POST` | `/reglas/detonacion-unica` | Regla 2 sin tocar H2: `{"detonado": b}` → `200` si es `false`, `409` si es `true`. |
+| `POST` | `/explosiones/validar` | Las dos reglas juntas, sin leer ni escribir H2: `{"saludCreeper": n, "yaDetonado": b}` → `200`, `422` o `409`. Los campos extra se ignoran. |
+| `POST` | `/escenarios/emboscada` | Escenario de POO-09: consulta a A2 y A3 y guarda la jugada si las dos aceptan. |
+| `GET` | `/escenarios/emboscadas` y `/escenarios/emboscadas/{id}` | Jugadas guardadas del escenario. |
+| `GET` | `/v3/api-docs`, `/v3/api-docs.yaml`, `/swagger-ui.html` | Documento OpenAPI y su interfaz web. |
 
 ### Ejemplo — `GET /esqueleto?nombre=Bony&vida=15`
 
@@ -393,7 +641,7 @@ Una distancia negativa la rechaza el dominio y la API la avisa con `400`:
   },
   {
     "tipo": "Animal",
-    "reaccion": "Vaca sigue comiendo, no le presta atencion al jugador.",
+    "reaccion": "Vaca sigue comiendo, no le presta atención al jugador.",
     "vida": 10,
     "posicion": { "x": 0.0, "y": 0.0, "z": 0.0 }
   }
@@ -482,19 +730,19 @@ classDiagram
         +findFirstByOrderByIdDesc() Optional
     }
     class EntidadCrudServiceImpl {
-        +crear(EntidadEntity) EntidadEntity
-        +actualizar(Long, EntidadEntity) EntidadEntity
+        +crear(EntidadRequest) EntidadEntity
+        +actualizar(Long, EntidadRequest) EntidadEntity
         +listar() List
     }
     class EntidadController {
-        +crear(EntidadEntity) ResponseEntity
+        +crear(EntidadRequest) ResponseEntity
         +listar() List
         +obtenerPorId(Long) EntidadEntity
-        +actualizar(Long, EntidadEntity) EntidadEntity
+        +actualizar(Long, EntidadRequest) EntidadEntity
         +eliminar(Long) ResponseEntity
     }
     class SimulacionExplosionController {
-        +simular(int, boolean) ResponseEntity
+        +simular(SimulacionExplosionRequest) ResponseEntity
         +ultima() SimulacionExplosionResultado
     }
     class UiController {
@@ -503,7 +751,13 @@ classDiagram
 
     EntidadController --> EntidadCrudServiceImpl : delega
     EntidadCrudServiceImpl --> EntidadJpaRepository : usa el repositorio
-    SimulacionExplosionController --> SimulacionExplosionJpaRepository : usa el repositorio
+    class SimulacionExplosionServiceImpl {
+        +simular(Long creeperId) SimulacionExplosionResultado
+        +obtener(Long) SimulacionExplosionResultado
+    }
+    SimulacionExplosionController --> SimulacionExplosionServiceImpl : delega
+    SimulacionExplosionServiceImpl --> SimulacionExplosionJpaRepository : usa el repositorio
+    SimulacionExplosionServiceImpl --> EntidadJpaRepository : carga y guarda las entidades
     UiController --> UICapable : usa el tipo de la interface
 
     class MinecraftException {
@@ -533,14 +787,19 @@ Cómo se lee el diagrama:
   la tabla `ENTIDADES` y se distinguen por la columna `tipo`.
 - **Implementación de interface:** `UICapable <|.. Creeper`, `Zombie` y `Jugador` (y también
   `Esqueleto`, `Enderman`, `Aldeano` y `Animal`) cumplen el protocolo del dominio.
-- **Uso del repositorio:** el controller delega en el servicio y el servicio usa
-  `EntidadJpaRepository`; el controller de la simulación usa `SimulacionExplosionJpaRepository`.
+- **Uso del repositorio:** cada controller delega en su servicio y solo el servicio usa los
+  repositorios. `EntidadCrudServiceImpl` usa `EntidadJpaRepository`;
+  `SimulacionExplosionServiceImpl` usa `EntidadJpaRepository` (carga el Creeper y las demás
+  entidades) y `SimulacionExplosionJpaRepository` (guarda la foto). Ningún controller usa un
+  repositorio.
 - **Jerarquía de excepciones:** `MinecraftException` es la base y `MinecraftExceptionHandler`
   traduce cada hija a un código HTTP distinto.
 
-En el JSON, `@JsonTypeInfo` y `@JsonSubTypes` usan la propiedad `"tipo"` para elegir la clase
-concreta. Por eso un mismo `POST /entidades` puede crear cualquiera de los tres subtipos, y un
-`GET` devuelve el objeto con su tipo y sus datos propios. El CRUD completo es:
+El `POST` y el `PUT` reciben un `EntidadRequest` con la propiedad `"tipo"`; el service valida
+los datos y llama al constructor de la Entity del subtipo pedido. Las Entity no tienen setters
+públicos, así que nada fuera del service puede armar una combinación imposible. En la
+respuesta, `@JsonTypeInfo` escribe `"tipo"` para que el `GET` muestre el subtipo y sus datos
+propios. El CRUD completo es:
 
 - `POST /entidades`: crea y persiste una entidad; responde `201`.
 - `GET /entidades`, `GET /entidades/{id}` y `GET /entidades/nombre/{nombre}`: consultan.
@@ -549,12 +808,19 @@ concreta. Por eso un mismo `POST /entidades` puede crear cualquiera de los tres 
 
 Invariantes que aplica el servicio antes de guardar:
 
-- nombre obligatorio y único;
+- `tipo`, `nombre`, `vida`, `x`, `y` y `z` son obligatorios; si falta uno responde `400`
+  con `DatosInvalidosException` (un JSON mal formado o con un tipo equivocado también);
+- nombre no vacío y único;
 - `vidaMaxima > 0` (si no viene, se toma igual a `vida`);
 - `vida >= 0` y `vida <= vidaMaxima`;
 - al crear, `vida > 0`;
 - el subtipo de una fila existente no cambia en un `PUT`;
-- en un `Jugador`, `nivel` y `experiencia` no pueden ser negativos.
+- **Creeper:** `detonado` y `vida` no son independientes. En Minecraft un Creeper que detona
+  explota una sola vez y muere, así que «detonado y con vida» se rechaza al crear y al
+  actualizar. Un Creeper no se crea detonado, un `PUT` no lo detona (eso solo lo hace la
+  simulación) y uno detonado no vuelve a estar sin detonar;
+- **Creeper y Zombie:** muertos no reviven con un `PUT` (el `Jugador` sí puede reaparecer);
+- **Jugador:** `nivel >= 0` y `experiencia` entre 0 y 99, porque al llegar a 100 sube de nivel.
 
 La configuración está en `minecraft/src/main/resources/application.properties`. Cada propiedad
 y lo que hace:
@@ -571,15 +837,18 @@ y lo que hace:
 | `spring.jpa.show-sql=true` | Muestra en la consola el SQL que Hibernate ejecuta, útil para ver la persistencia durante la clase. |
 | `spring.jpa.open-in-view=false` | Cierra la sesión JPA al terminar el controller, para que ninguna vista o respuesta dependa de una sesión abierta. |
 | `spring.h2.console.enabled=true` | Habilita la consola web de H2 para mirar las tablas desde el navegador. |
-| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8080/h2-console`. |
+| `spring.h2.console.path=/h2-console` | Publica la consola H2 en la ruta `http://localhost:8083/h2-console`. |
 
 La consola H2 queda disponible en:
 
-- URL: `http://localhost:8080/h2-console`
+- URL: `http://localhost:8083/h2-console`
 - JDBC URL: `jdbc:h2:file:./data/entidades`
 - Usuario: `sa`
 - Contraseña: vacía
-- Tablas: `ENTIDADES` y `SIMULACIONES_EXPLOSION`
+- Tablas: `ENTIDADES`, `EXPLOSIONES`, `EXPLOSION_IMPACTOS` y `EMBOSCADAS`
+
+Si quedó una base de una versión anterior en `minecraft/data/`, conviene borrar esa carpeta
+antes de arrancar: la tabla vieja `SIMULACIONES_EXPLOSION` ya no se usa.
 
 La ruta relativa `./data/entidades` se resuelve desde la carpeta `minecraft`, que es donde se
 ejecuta Maven. Esa carpeta está ignorada en `.gitignore` porque es un archivo local generado.
@@ -588,59 +857,80 @@ bloquear ni modificar la base real del proyecto.
 
 ## Simulación de explosiones
 
-La simulación usa tres clases del modelo y después guarda el estado final de las tres:
+La simulación trabaja sobre las entidades **guardadas en H2**. Primero se crean con el CRUD
+(`POST /entidades`) y después se detona un Creeper guardado indicando su id:
 
-| Clase | Rol en la simulación |
-|---|---|
-| `Creeper` | Es la fuente de la explosión. Se autodestruye y daña a las entidades dentro de su radio de 3 bloques. |
-| `Zombie` | Entidad hostil ubicada a 2 bloques del Creeper: queda dentro del radio y recibe 25 de daño. |
-| `Jugador` | Entidad ubicada a 5 bloques del Creeper: queda fuera del radio y no recibe daño. |
+```bash
+curl -X POST http://localhost:8083/simulacion/explosion \
+  -H "Content-Type: application/json" -d '{"creeperId": 1}'
+```
 
-La lista de alcanzables se maneja como `List<Entidad>`, así que la explosión no pregunta por el
-tipo concreto de cada víctima: recorre la lista y cada objeto responde con su propia vida y
-posición. La lógica de la detonación está en `Creeper.detonar(...)`. El servicio
-`SimulacionExplosionServiceImpl` arma el escenario, ejecuta la regla, persiste el estado final
-de las tres entidades (`Creeper Simulado`, `Zombie Simulado` y `Steve Simulado`) y guarda una
-fila en `SIMULACIONES_EXPLOSION` con la foto completa del resultado.
+`SimulacionExplosionServiceImpl.simular(creeperId)`:
 
-### Las dos reglas del dominio
+1. carga la entidad por id (si no existe, `404`; si no es un Creeper, `400`);
+2. aplica las dos reglas (abajo);
+3. recorre las demás entidades guardadas que están vivas y le quita 25 de vida a cada una que
+   esté a 3 bloques o menos del Creeper (el radio y el daño los da el modelo `Creeper`);
+4. marca al Creeper como detonado y con vida 0 (`CreeperEntity.registrarDetonacion()`);
+5. guarda una fila en `EXPLOSIONES` y una fila por entidad en `EXPLOSION_IMPACTOS`.
 
-1. **Un Creeper solo puede detonar si está vivo:** si recibe daño letal antes de la explosión, el dominio rechaza la detonación con `CreeperMuertoException`.
-2. **Un Creeper solo puede detonar una vez:** un segundo intento sobre el mismo Creeper se rechaza con `CreeperYaDetonadoException`.
+Todo va en una transacción: si una regla falla, se lanza la excepción antes de tocar nada y la
+base queda igual.
 
-Las dos reglas ya existían en el comportamiento de `Creeper.explotar(...)`; la nueva
-`Creeper.detonar(...)` las hace explícitas con excepciones de dominio propias sin cambiar el
-comportamiento anterior de `explotar(...)`.
+### Las dos reglas
+
+1. **Un Creeper solo puede detonar si está vivo:** un Creeper guardado con vida 0 (por ejemplo,
+   uno que murió por daño) responde `422` con `CreeperMuertoException`.
+2. **Un Creeper solo puede detonar una vez:** un segundo `POST` con el mismo `creeperId`
+   encuentra en H2 `detonado: true` y responde `409` con `CreeperYaDetonadoException`.
+
+Las dos reglas viven en el service, no en el dominio: `Creeper.explotar(...)` solo cambia el
+estado (daña a las cercanas, queda detonado y muere).
+
+### Consultar las dos reglas sin persistir
+
+Irina (A2) y Sol (A3) consultan las dos reglas juntas en `POST /explosiones/validar`. El service
+`ReglasCreeperService` evalúa los datos del cuerpo: no usa repositorios, no lee ni escribe H2 y el
+controller solo delega. `saludCreeper` y `yaDetonado` son opcionales (por defecto, vivo y sin
+detonar); cualquier otro campo se ignora, así que cada compañera puede mandar su propio formato:
+
+```bash
+curl -X POST http://localhost:8083/explosiones/validar \
+  -H "Content-Type: application/json" \
+  -d '{"saludCreeper": 20, "yaDetonado": false, "tiempoExplosion": 3,
+       "creeper": {"x": 0, "y": 64, "z": 0},
+       "objetivos": [{"tipo": "jugador", "salud": 20,
+                      "posicion": {"x": 2, "y": 64, "z": 0}}]}'
+```
+
+```json
+{"aceptada": true, "mensaje": "El Creeper está vivo y todavía no detonó."}
+```
+
+Con `saludCreeper: 0` responde `422` (`CreeperMuertoException`); con `yaDetonado: true`, `409`
+(`CreeperYaDetonadoException`). Las pruebas de `ValidacionExplosionControllerTest` comprueban los
+tres casos y que el número de filas de H2 no cambia.
 
 ### Endpoints
 
 | Método | Ruta | Uso |
 |---|---|---|
-| `POST` | `/simulacion/explosion` | Ejecuta y persiste la simulación; responde `201`. |
+| `POST` | `/simulacion/explosion` | Cuerpo `{"creeperId": n}`. Detona el Creeper guardado y persiste el resultado; responde `201`. |
 | `GET` | `/simulacion/explosion` | Devuelve la última simulación guardada. |
 | `GET` | `/simulacion/explosion/{id}` | Devuelve una simulación por id; si no existe responde `404`. |
 | `GET` | `/simulacion/explosiones` | Lista todas las simulaciones guardadas. |
 
-Parámetros del `POST`:
-
-| Parámetro | Por defecto | Uso |
-|---|---|---|
-| `vidaCreeper` | `20` | Vida inicial del Creeper. Con `0` o menos se prueba la regla del Creeper muerto. |
-| `repetirDetonacion` | `false` | Con `true` se simula un segundo intento sobre el mismo Creeper para probar la regla de una sola detonación. |
-
-Ejemplo exitoso:
-
-```bash
-curl -X POST http://localhost:8080/simulacion/explosion
-```
+Ejemplo exitoso, con un Creeper en `(0, 64, 0)`, un Zombie en `(2, 64, 0)` y un Jugador en
+`(5, 64, 0)` creados con el CRUD:
 
 ```json
 {
   "simulacionId": 1,
-  "fecha": "2026-11-09T20:24:26.123",
+  "fecha": "2026-11-19T21:10:02.512",
   "radioExplosion": 3.0,
   "creeper": {
-    "nombre": "Creeper Simulado",
+    "id": 1,
+    "nombre": "Creeper Insomnia",
     "vidaInicial": 20,
     "vidaFinal": 0,
     "detonado": true,
@@ -651,8 +941,9 @@ curl -X POST http://localhost:8080/simulacion/explosion
   },
   "afectados": [
     {
+      "id": 2,
       "tipo": "Zombie",
-      "nombre": "Zombie Simulado",
+      "nombre": "Zombie Insomnia",
       "vidaInicial": 20,
       "vidaFinal": 0,
       "distanciaAlCreeper": 2.0,
@@ -661,8 +952,9 @@ curl -X POST http://localhost:8080/simulacion/explosion
   ],
   "noAfectados": [
     {
+      "id": 3,
       "tipo": "Jugador",
-      "nombre": "Steve Simulado",
+      "nombre": "Steve Insomnia",
       "vidaInicial": 20,
       "vidaFinal": 20,
       "distanciaAlCreeper": 5.0,
@@ -672,9 +964,8 @@ curl -X POST http://localhost:8080/simulacion/explosion
 }
 ```
 
-Después del `POST`, un `GET /simulacion/explosion/{simulacionId}` devuelve el mismo resultado
-leído de H2, y `GET /entidades/nombre/Creeper Simulado` muestra que la entidad persistida quedó
-con vida `0` y `detonado: true`.
+Después del `POST`, `GET /simulacion/explosion/1` devuelve el mismo resultado leído de H2, y
+`GET /entidades/1` muestra al Creeper con vida `0` y `detonado: true`.
 
 ### Jerarquía de excepciones y handlers
 
@@ -687,36 +978,37 @@ MinecraftException
 ```
 
 `MinecraftExceptionHandler` usa `@RestControllerAdvice` y tiene un `@ExceptionHandler` por cada
-excepción concreta. No hay un handler genérico de `Exception`, para que un error de programación
-no se convierta en un `400` y siga viéndose como un `500`. Todas las respuestas de error tienen
-la misma forma (`timestamp`, `status`, `error`, `tipo`, `mensaje`).
+excepción concreta. Además traduce un JSON ilegible o un parámetro de URL con tipo equivocado a
+`400` con `"tipo": "DatosInvalidosException"`, para que un cuerpo incompleto no termine en el
+error genérico de Spring. No hay un handler genérico de `Exception`, para que un error de
+programación siga viéndose como un `500`. Todas las respuestas de error tienen la misma forma
+(`timestamp`, `status`, `error`, `tipo`, `mensaje`).
 
-Creeper muerto (`POST /simulacion/explosion?vidaCreeper=0`):
+Creeper muerto (vida 0):
 
 ```json
 {
   "status": 422,
   "error": "Unprocessable Entity",
   "tipo": "CreeperMuertoException",
-  "mensaje": "Creeper no puede detonar: está muerto."
+  "mensaje": "Creeper Insomnia no puede detonar: está muerto."
 }
 ```
 
-Creeper ya detonado (`POST /simulacion/explosion?repetirDetonacion=true`):
+Creeper ya detonado (segundo intento con el mismo id):
 
 ```json
 {
   "status": 409,
   "error": "Conflict",
   "tipo": "CreeperYaDetonadoException",
-  "mensaje": "Creeper ya detonó y no puede volver a explotar."
+  "mensaje": "Creeper Insomnia ya detonó y no puede volver a explotar."
 }
 ```
 
-Datos inválidos (`POST /entidades` con `vida` negativa) responde `400` con
-`"tipo": "DatosInvalidosException"`, y un id inexistente responde `404` con
-`"tipo": "RecursoNoEncontradoException"`. La colección de Insomnia tiene un pedido para cada
-uno de esos casos.
+Datos inválidos (`POST /entidades` con `vida` negativa, sin `z`, o un Creeper con
+`detonado: true` y `vida: 5`) responde `400` con `"tipo": "DatosInvalidosException"`, y un id
+inexistente responde `404` con `"tipo": "RecursoNoEncontradoException"`.
 
 ### Interface `UICapable`
 
@@ -766,19 +1058,21 @@ con familias distintas: la implementan los hostiles (`Creeper`, `Zombie`, `Esque
 
 **¿Quién sostiene las reglas numéricas del juego? ¿Qué prueba de Insomnia muestra que un `POST` ilegal deja la base igual que antes?**
 
-El dominio sostiene las reglas de vida (`Entidad.recibirDanio`, `curar`, `vidaMaxima`) y el
-servicio de CRUD valida los invariantes antes de llamar a `save(...)`: nombre obligatorio y
-único, `vidaMaxima > 0`, `0 <= vida <= vidaMaxima`, `vida > 0` al crear y valores no negativos
-en `nivel` y `experiencia`. El pedido **12 - Error: POST ilegal (400)** manda `vida: -5`; el
-handler responde `400` con `DatosInvalidosException` y la prueba automatizada comprueba que el
-contador de filas no cambió.
+La capa `service`. El dominio y las Entity solo guardan el estado; `EntidadCrudServiceImpl`
+valida los invariantes antes de llamar a `save(...)`: campos obligatorios, nombre único,
+`vidaMaxima > 0`, `0 <= vida <= vidaMaxima`, `vida > 0` al crear, «Creeper detonado ⇒ vida 0»,
+muertos que no reviven, `nivel >= 0` y `experiencia` entre 0 y 99. Los pedidos de error de la
+colección (`vida: -5` y el Creeper «detonado y con vida») responden `400` con
+`DatosInvalidosException`, y la prueba automatizada comprueba que el contador de filas no cambió.
 
 **`PUT` y `PATCH`: ¿reemplazan el recurso entero o un subconjunto? ¿Qué pasa con un campo omitido?**
 
 Se implementó `PUT`, que reemplaza el recurso completo: el cuerpo trae todos los datos de la
-entidad y `copiarDatosDesde(...)` pisa los campos comunes y los propios del subtipo. Un campo
-omitido queda con el valor por defecto del tipo (`0`, `false` o `null`), no conserva el valor
-anterior; por eso la colección de Insomnia manda el objeto completo también en la actualización.
+entidad, el service valida que el paso del estado guardado al nuevo sea posible y recién ahí
+`copiarDatosDesde(...)` pisa los campos comunes y los propios del subtipo. Un campo obligatorio
+omitido (`tipo`, `nombre`, `vida`, `x`, `y`, `z`) responde `400`; los opcionales toman su valor
+por defecto (`vidaMaxima = vida`, `false`, `0`), no conservan el valor anterior. Por eso la
+colección de Insomnia manda el objeto completo también en la actualización.
 No se agregó `PATCH` porque el enunciado permite uno de los dos y `PUT` deja la operación clara.
 
 **`DELETE`: ¿qué significa borrar en el modelo? ¿Ese verbo HTTP habla con un mensaje del dominio?**
@@ -791,12 +1085,11 @@ Cuando borra bien responde `204`, y un `GET` posterior devuelve `404`.
 
 **¿Qué dos hechos del juego cambian el estado de más de un objeto a la vez? ¿Cómo se llama el recurso HTTP de la simulación? ¿Un `GET` posterior muestra el resultado ya persistido?**
 
-La explosión de un Creeper vivo cambia el estado de tres objetos: el Creeper muere y se marca
-como detonado, el Zombie dentro del radio de 3 bloques recibe 25 de daño y muere, y el Jugador
-fuera del radio conserva su vida. El recurso HTTP es `POST /simulacion/explosion`; después,
+La explosión de un Creeper guardado cambia el estado de varias filas a la vez: el Creeper queda
+detonado y con vida 0, y cada entidad guardada que esté a 3 bloques o menos pierde 25 de vida.
+El recurso HTTP es `POST /simulacion/explosion` con `{"creeperId": n}`; después,
 `GET /simulacion/explosion/{id}`, `GET /simulacion/explosion` y `GET /simulacion/explosiones`
-leen el resultado desde H2, y `GET /entidades/nombre/Creeper Simulado` muestra el estado final
-de la entidad persistida.
+leen el resultado desde H2, y `GET /entidades/{id}` muestra el estado final de cada entidad.
 
 **¿Cómo se llama cada clase de la jerarquía y por qué? ¿Un recurso inexistente y una regla de juego incumplida son tipos distintos? ¿Qué lleva el JSON de error?**
 
@@ -811,56 +1104,49 @@ cada hija.
 **¿Por qué separar `domain` de `entity`?**
 
 Porque el dominio modela el juego y no debe depender de JPA ni de Jackson. `Entidad` y sus
-hijas sirven para el demo de consola y para la simulación, mientras que `EntidadEntity` y sus
-hijas son el mapeo de la tabla. Así las reglas del juego no se mezclan con detalles de
-persistencia.
+hijas sirven para el demo de consola, para `/comportamiento`, `/ui` y `/esqueleto`, mientras
+que `EntidadEntity` y sus hijas son el mapeo de la tabla. Ninguna de las dos capas valida: las
+validaciones, las reglas y las excepciones están en `service`.
 
-**¿Por qué la simulación guarda también las entidades y no solo el resultado?**
+**¿Por qué la simulación guarda la foto además de cambiar las entidades?**
 
-Porque el pedido es que la simulación se pueda consultar después y que el estado final de las
-entidades quede persistido. Guardar la foto en `SIMULACIONES_EXPLOSION` permite responder un
-`GET` sin volver a ejecutar la explosión, y guardar las entidades permite ver el efecto en el
-CRUD.
+Porque el pedido es que la simulación se pueda consultar después. Las entidades guardadas
+cambian (el Creeper queda detonado, las alcanzadas pierden vida), y la foto en `EXPLOSIONES`
+y `EXPLOSION_IMPACTOS` permite responder un `GET` con la vida que tenía cada una antes y
+después, sin volver a ejecutar la explosión.
 
 **¿Qué pasa si el controller arma el JSON a mano?**
 
 Se pierde el polimorfismo: habría que preguntar por el tipo con `if` o `instanceof`. Con
-`@JsonTypeInfo` y `@JsonSubTypes`, Jackson elige la clase concreta a partir de `"tipo"` y el
-controller solo devuelve `EntidadEntity`.
+`@JsonTypeInfo`, Jackson escribe `"tipo"` según la clase concreta y el controller solo devuelve
+`EntidadEntity`.
 
 ## Colección Insomnia
 
-La colección exportable está en
-[`docs/insomnia/minecraft-explosiones.json`](docs/insomnia/minecraft-explosiones.json).
+La colección está en [`docs/insomnia/minecraft-poo09.json`](docs/insomnia/minecraft-poo09.json).
 
-Para importarla:
+1. Abrir Insomnia → `Application` → `Import` → `From File` y elegir el archivo.
+2. Elegir el entorno **Grupo en una máquina**: `a1_url`, `a2_url` y `a3_url` apuntan a los
+   puertos 8083, 8082 y 8080, y los ids corresponden a una base vacía.
+3. Arrancar A2 y A3 primero y A1 después (ver «Cómo arrancar los tres servicios»).
+4. Ejecutar las carpetas en orden.
 
-1. Abrir Insomnia.
-2. Ir a `Application` → `Import` → `From File`.
-3. Elegir `docs/insomnia/minecraft-explosiones.json`.
-4. Seleccionar el environment `Base local` y verificar que `base_url` sea
-   `http://localhost:8080`.
-5. Arrancar la aplicación con `./mvnw spring-boot:run` y ejecutar las solicitudes en orden.
+| Carpeta | Qué tiene |
+|---|---|
+| 0 - OpenAPI | El OpenAPI propio (JSON y YAML) y el de A2 y A3. |
+| 1 - Preparar | Crea en A1 los Creepers y Jugadores del escenario (ids 1 a 6). |
+| 2 - Escenario | Feliz (`201`) y su `GET`; rechazo de A2 con el jugador a 10 bloques (`422`, `rechazadoPor: A2`) y el `GET` que muestra el Creeper sin cambios; rechazo de A3 (`422`, `rechazadoPor: A3`); la lista; y mi regla cortando un segundo intento (`409`). |
+| 3 - Mis reglas | Las dos rutas de `/reglas` que consumen A2 y A3, con su caso que acepta y su caso que rechaza. |
+| 4 - POO-08 | CRUD, simulación sobre un Creeper guardado, `409` al repetirla, `422` con un Creeper muerto, `400` del Creeper «detonado y con vida», de la vida negativa y del cuerpo sin `z`, y `404`. |
 
-La colección incluye:
+Las respuestas de ejemplo del feliz y de cada rechazo están en
+[`docs/insomnia/respuestas/`](docs/insomnia/respuestas/), por si un compañero no está en línea
+durante la corrección.
 
-- simulación exitosa y sus tres consultas posteriores (`GET` por id, última y lista);
-- error de Creeper muerto (`422`);
-- error de Creeper ya detonado (`409`);
-- CRUD: listar, crear, obtener por nombre, actualizar por nombre y eliminar por nombre;
-- POST ilegal (`400`, `DatosInvalidosException`);
-- id inexistente (`404`, `RecursoNoEncontradoException`);
-- `GET /ui` para ver la interface `UICapable` en acción.
-
-Para el CRUD, si se ejecuta `Crear entidad` más de una vez, el nombre duplicado responde `400`.
-Eliminar la entidad antes de volver a crearla, o cambiar `entidad_nombre` en el environment.
-Para `Consultar simulación por id`, copiar el `simulacionId` que devuelve la simulación exitosa
-en la variable `simulacion_id` del environment.
-
-**Aclaración de verificación:** la colección se entrega lista para importar, pero en esta
-entrega las pruebas automatizadas se ejecutaron con Maven y MockMvc, y la aplicación se verificó
-con `curl` y una consulta directa a H2. No se afirma que las solicitudes se hayan ejecutado desde
-la interfaz de Insomnia.
+**Cómo se verificó:** las solicitudes de la colección se ejecutaron todas, en orden, con un
+script que lee el archivo exportado y las manda al servicio levantado con
+`./mvnw spring-boot:run`, con dos servidores de prueba en los puertos de A2 y A3. Todas dieron
+el código esperado. No se afirma que se hayan ejecutado desde la interfaz de Insomnia.
 
 ## Pruebas
 
@@ -868,20 +1154,30 @@ la interfaz de Insomnia.
 ./mvnw test
 ```
 
-67 pruebas. Sobre el dominio: los límites de vida y el ocultamiento de estado
-(`EntidadTest`), el radio y la unicidad de la explosión (`CreeperTest`), la huida y
-el borde exacto de peligro (`EntidadPasivaTest`), la munición, el alcance del
-esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el ataque y la reacción
-del Enderman (`EndermanTest`), el inventario y la experiencia (`JugadorTest`), y que la
-jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`). Sobre la entrada HTTP,
-`ApiControllerTest` levanta el contexto con MockMvc y prueba las rutas anteriores, incluido
-que un dato inválido termine en `400` y no en un `500`.
+70 pruebas. Sobre el dominio: el ocultamiento de estado (`EntidadTest`), el radio de la
+explosión (`CreeperTest`), la huida y el borde exacto de peligro (`EntidadPasivaTest`), la
+munición, el alcance del esqueleto y las dos versiones de `disparar()` (`EsqueletoTest`), el
+ataque y la reacción del Enderman (`EndermanTest`), el inventario y la experiencia
+(`JugadorTest`), y que la jerarquía se use sin preguntar por el tipo (`PolimorfismoTest`).
+Desde la corrección de POO-08 el dominio no valida, así que las pruebas de datos inválidos
+están sobre la API. `ApiControllerTest` prueba las rutas del modelo, incluido que un dato
+inválido termine en `400` y no en un `500`.
 
-Las pruebas de esta entrega son:
+Pruebas de POO-08 y POO-09:
 
-- `SimulacionExplosionServiceImplTest`: caso exitoso persistido y las dos excepciones de dominio.
-- `SimulacionExplosionControllerTest`: POST exitoso, GET por id, última, lista, `422` y `409` con su JSON.
-- `EntidadCrudControllerTest`: CRUD completo, subtipos, POST ilegal, id inexistente y cambio de tipo prohibido.
+- `EntidadCrudControllerTest`: CRUD completo, subtipos, POST ilegal, id inexistente, cambio de
+  tipo prohibido, Creeper «detonado y con vida», Zombie muerto que no revive y cuerpo
+  incompleto o mal formado.
+- `SimulacionExplosionServiceImplTest` y `SimulacionExplosionControllerTest`: la simulación usa
+  las entidades guardadas con el CRUD, un segundo intento sobre el mismo Creeper da `409`, un
+  Creeper muerto da `422` y nada de eso guarda filas nuevas.
+- `ReglasYOpenApiTest`: las dos rutas de `/reglas` y que el OpenAPI describa el CRUD, la
+  simulación y los errores de las dos reglas.
+- `ValidacionExplosionControllerTest`: `POST /explosiones/validar` con 200/409/422, valores por
+  defecto y ninguna fila nueva en H2.
+- `EmboscadaControllerTest`: el escenario con dos servidores HTTP de prueba como A2 y A3; ahora
+  comprueba las rutas y los cuerpos reales del OpenAPI y que un `tiempoTranscurrido` negativo se
+  rechaza en el service antes de llamar a nadie.
 
 ## Bitácora y documentación
 
@@ -890,6 +1186,7 @@ Las pruebas de esta entrega son:
   tocando la jerarquía.
 - **[`docs/ESPECIFICACIONES-poo-08.md`](docs/ESPECIFICACIONES-poo-08.md)** — consignas de
   POO-08 y dónde se cumple cada una.
+- **[`docs/openapi/`](docs/openapi/)** — copia exportada del OpenAPI (JSON y YAML).
 
 ## Resumen de la evolución del proyecto
 
@@ -919,11 +1216,16 @@ Las pruebas de esta entrega son:
    como padre y `CreeperEntity`, `ZombieEntity` y `JugadorEntity` como hijas. El CRUD valida
    los invariantes y usa `@JsonTypeInfo` / `@JsonSubTypes` para discriminar el `"tipo"`. La
    simulación persiste el estado final de las tres entidades y guarda una foto en
-   `SIMULACIONES_EXPLOSION`, con `GET` por id, última y lista. La jerarquía de excepciones
+   `SIMULACIONES_EXPLOSION` (en POO-09 pasó a `EXPLOSIONES`), con `GET` por id, última y lista. La jerarquía de excepciones
    quedó con `MinecraftException` como base y un handler por tipo: `404`, `400`, `422` y
    `409`.
+10. **POO-09.** Se cerraron las observaciones de la corrección de POO-08 (dominio sin
+    validaciones, Entity sin setters públicos, simulación sobre las entidades guardadas,
+    diagrama y ortografía). Se publicó el OpenAPI con springdoc y las dos reglas en
+    `/reglas`, se agregaron los clientes HTTP hacia A2 y A3 y el escenario «emboscada del
+    Creeper», que guarda la jugada solo si las dos reglas ajenas aceptan.
 
-Estado final verificado: `./mvnw test` → **67 pruebas**, BUILD SUCCESS.
+Estado final verificado: `./mvnw test` → **70 pruebas**, BUILD SUCCESS.
 
 ## Licencia
 

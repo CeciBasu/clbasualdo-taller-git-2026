@@ -1,0 +1,49 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-23T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2024.1.0",
+  "resources": [
+    {
+      "_id": "env_minecraft_grupo_maquina",
+      "parentId": null,
+      "_type": "environment",
+      "name": "Grupo en una máquina",
+      "data": {
+        "a1_url": "http://localhost:8083",
+        "a2_url": "http://localhost:8082",
+        "a3_url": "http://localhost:8080",
+        "creeper_id": "1",
+        "jugador_id": "2",
+        "creeper_lejano_id": "3",
+        "jugador_lejano_id": "4",
+        "creeper_a3_id": "5",
+        "jugador_a3_id": "6",
+        "emboscada_id": "1",
+        "simulacion_id": "2",
+        "creeper_poo08_id": "7",
+        "creeper_herido_id": "9"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "a1_url",
+          "a2_url",
+          "a3_url",
+          "creeper_id",
+          "jugador_id",
+          "creeper_lejano_id",
+          "jugador_lejano_id",
+          "creeper_a3_id",
+          "jugador_a3_id",
+          "emboscada_id",
+          "simulacion_id",
+          "creeper_poo08_id",
+          "creeper_herido_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    }
+  ]
+}

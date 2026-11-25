@@ -14,12 +14,12 @@ import py.edu.uc.lp3.clbasualdo.minecraft.domain.Zombie;
 import py.edu.uc.lp3.clbasualdo.minecraft.service.ComportamientoService;
 
 /**
- * Descripcion:
- * Implementacion del servicio de comportamiento.
+ * Descripción:
+ * Implementación del servicio de comportamiento.
  *
  * Responsabilidad:
  * Armar la lista con una entidad de cada tipo, todas como Entidad, para que
- * cada una responda su propia reaccion.
+ * cada una responda su propia reacción.
  */
 @Service
 public class ComportamientoServiceImpl implements ComportamientoService {

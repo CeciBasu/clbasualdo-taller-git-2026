@@ -2,104 +2,132 @@ package py.edu.uc.lp3.clbasualdo.minecraft.service.entidad;
 
 import java.util.List;
 
+import py.edu.uc.lp3.clbasualdo.minecraft.dto.EntidadRequest;
 import py.edu.uc.lp3.clbasualdo.minecraft.entity.EntidadEntity;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.DatosInvalidosException;
+import py.edu.uc.lp3.clbasualdo.minecraft.exceptions.RecursoNoEncontradoException;
 
 /**
- * Descripcion:
+ * Descripción:
  * Contrato de la capa de negocios para el CRUD de la familia de entidades.
  *
  * Responsabilidad:
- * Definir las operaciones CRUD con validaciones de negocio, delegando la
- * persistencia al repositorio Spring Data JPA.
+ * Validar los datos y las combinaciones posibles en el juego antes de guardar, y
+ * ofrecer las consultas y bajas por id y por nombre.
  */
 public interface EntidadCrudService {
 
     /**
-     * Descripcion:
-     * Crea una nueva entidad aplicando validaciones de negocio.
+     * Descripción:
+     * Valida el pedido, construye la entidad del subtipo pedido y la guarda.
      *
-     * Parametros:
-     * entidad - Datos de la entidad a crear.
-     *
-     * Retorno:
-     * La entidad creada y persistida.
-     */
-    EntidadEntity crear(EntidadEntity entidad);
-
-    /**
-     * Descripcion:
-     * Actualiza una entidad existente buscada por su id.
-     *
-     * Parametros:
-     * id - Id de la entidad a actualizar.
-     * entidad - Nuevos datos de la entidad.
+     * Parámetros:
+     * pedido - Datos recibidos.
      *
      * Retorno:
-     * La entidad actualizada y persistida.
+     * La entidad guardada, con su id.
+     *
+     * Errores:
+     * DatosInvalidosException - Si un dato falta, es inválido o la combinación es imposible.
      */
-    EntidadEntity actualizar(Long id, EntidadEntity entidad);
+    EntidadEntity crear(EntidadRequest pedido) throws DatosInvalidosException;
 
     /**
-     * Descripcion:
-     * Actualiza una entidad existente buscada por su nombre.
+     * Descripción:
+     * Reemplaza los datos de una entidad buscada por id.
      *
-     * Parametros:
-     * nombre - Nombre de la entidad a actualizar.
-     * entidad - Nuevos datos de la entidad.
+     * Parámetros:
+     * id - Id de la entidad.
+     * pedido - Datos nuevos.
      *
      * Retorno:
-     * La entidad actualizada y persistida.
+     * La entidad actualizada.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
+     * DatosInvalidosException - Si el cambio no es legal.
      */
-    EntidadEntity actualizarPorNombre(String nombre, EntidadEntity entidad);
+    EntidadEntity actualizar(Long id, EntidadRequest pedido)
+            throws RecursoNoEncontradoException, DatosInvalidosException;
 
     /**
-     * Descripcion:
-     * Obtiene una entidad por su id.
+     * Descripción:
+     * Reemplaza los datos de una entidad buscada por nombre.
      *
-     * Parametros:
-     * id - Id de la entidad a buscar.
+     * Parámetros:
+     * nombre - Nombre de la entidad.
+     * pedido - Datos nuevos.
+     *
+     * Retorno:
+     * La entidad actualizada.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
+     * DatosInvalidosException - Si el cambio no es legal.
+     */
+    EntidadEntity actualizarPorNombre(String nombre, EntidadRequest pedido)
+            throws RecursoNoEncontradoException, DatosInvalidosException;
+
+    /**
+     * Descripción:
+     * Busca una entidad por id.
+     *
+     * Parámetros:
+     * id - Id de la entidad.
      *
      * Retorno:
      * La entidad encontrada.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
      */
-    EntidadEntity obtenerPorId(Long id);
+    EntidadEntity obtenerPorId(Long id) throws RecursoNoEncontradoException;
 
     /**
-     * Descripcion:
-     * Obtiene una entidad por su nombre.
+     * Descripción:
+     * Busca una entidad por nombre.
      *
-     * Parametros:
-     * nombre - Nombre de la entidad a buscar.
+     * Parámetros:
+     * nombre - Nombre de la entidad.
      *
      * Retorno:
      * La entidad encontrada.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
      */
-    EntidadEntity obtenerPorNombre(String nombre);
+    EntidadEntity obtenerPorNombre(String nombre) throws RecursoNoEncontradoException;
 
     /**
-     * Descripcion:
-     * Lista todas las entidades persistidas.
+     * Descripción:
+     * Lista todas las entidades guardadas.
      *
      * Retorno:
-     * Lista con todas las entidades.
+     * La lista de entidades.
      */
     List<EntidadEntity> listar();
 
     /**
-     * Descripcion:
-     * Elimina una entidad por su id.
+     * Descripción:
+     * Elimina una entidad por id.
      *
-     * Parametros:
-     * id - Id de la entidad a eliminar.
+     * Parámetros:
+     * id - Id de la entidad.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
      */
-    void eliminar(Long id);
+    void eliminar(Long id) throws RecursoNoEncontradoException;
 
     /**
-     * Descripcion:
-     * Elimina una entidad por su nombre.
+     * Descripción:
+     * Elimina una entidad por nombre.
      *
-     * Parametros:
-     * nombre - Nombre de la entidad a eliminar.
+     * Parámetros:
+     * nombre - Nombre de la entidad.
+     *
+     * Errores:
+     * RecursoNoEncontradoException - Si no existe.
      */
-    void eliminarPorNombre(String nombre);
+    void eliminarPorNombre(String nombre) throws RecursoNoEncontradoException;
 }

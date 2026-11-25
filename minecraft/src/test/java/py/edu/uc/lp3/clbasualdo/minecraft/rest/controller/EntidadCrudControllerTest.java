@@ -22,13 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Descripcion:
- * Prueba de integracion del CRUD de la familia de entidades sobre H2.
+ * Descripción:
+ * Prueba de integración del CRUD de la familia de entidades sobre H2.
  *
  * Responsabilidad:
  * Verificar que las operaciones GET, POST, PUT y DELETE de /entidades sigan
  * funcionando con Spring Data JPA, que el JSON discrimine el subtipo y que un
- * POST ilegal no agrande la coleccion.
+ * POST ilegal no agrande la colección.
  */
 @SpringBootTest(properties = {
         "spring.datasource.url=jdbc:h2:mem:crudtest;DB_CLOSE_DELAY=-1",
@@ -41,12 +41,12 @@ class EntidadCrudControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    /** Repositorio para verificar que la base no crecio con datos invalidos. */
+    /** Repositorio para verificar que la base no creció con datos inválidos. */
     @Autowired
     private EntidadJpaRepository entidadJpaRepository;
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea un Zombie, lo consulta por id y por nombre, lo actualiza y lo elimina.
      */
     @Test
@@ -123,7 +123,7 @@ class EntidadCrudControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea un Creeper y un Jugador para comprobar que la misma tabla guarda
      * subtipos distintos y que el JSON los discrimina con "tipo".
      */
@@ -176,8 +176,8 @@ class EntidadCrudControllerTest {
     }
 
     /**
-     * Descripcion:
-     * Un POST con vida negativa, con vida mayor a la maxima o con nombre repetido
+     * Descripción:
+     * Un POST con vida negativa, con vida mayor a la máxima o con nombre repetido
      * responde 400 y deja la cantidad de filas igual que antes.
      */
     @Test
@@ -246,13 +246,13 @@ class EntidadCrudControllerTest {
                 .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"));
 
         assertEquals(antes + 1, entidadJpaRepository.count(),
-                "solo la creacion valida debe agregar una fila");
+                "solo la creación válida debe agregar una fila");
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Un id inexistente responde 404 tanto en GET como en DELETE, con el tipo de
-     * excepcion propio del recurso no encontrado.
+     * excepción propio del recurso no encontrado.
      */
     @Test
     void unIdInexistenteDevuelve404() throws Exception {
@@ -266,7 +266,7 @@ class EntidadCrudControllerTest {
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Un PUT no puede convertir una fila de un subtipo en otro.
      */
     @Test
@@ -309,5 +309,116 @@ class EntidadCrudControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"))
                 .andExpect(jsonPath("$.mensaje").value(containsString("tipo")));
+    }
+
+    /**
+     * Descripción:
+     * Un Creeper «detonado y con vida» es un estado imposible en el juego: un Creeper que
+     * detona explota una sola vez y muere. El service lo rechaza al crear y al actualizar,
+     * y la tabla no cambia.
+     */
+    @Test
+    void unCreeperDetonadoYConVidaSeRechaza() throws Exception {
+        long antes = entidadJpaRepository.count();
+
+        mockMvc.perform(post("/entidades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Creeper", "nombre": "Creeper Imposible", "vida": 5,
+                                 "vidaMaxima": 20, "x": 0, "y": 64, "z": 0, "detonado": true}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"))
+                .andExpect(jsonPath("$.mensaje").value(containsString("detonado")));
+        assertEquals(antes, entidadJpaRepository.count(), "el Creeper imposible no se guarda");
+
+        MvcResult creada = mockMvc.perform(post("/entidades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Creeper", "nombre": "Creeper Legal", "vida": 20,
+                                 "x": 0, "y": 64, "z": 0}
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Number id = JsonPath.read(creada.getResponse().getContentAsString(), "$.id");
+
+        mockMvc.perform(put("/entidades/{id}", id.longValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Creeper", "nombre": "Creeper Legal", "vida": 5,
+                                 "vidaMaxima": 20, "x": 0, "y": 64, "z": 0, "detonado": true}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"));
+
+        mockMvc.perform(put("/entidades/{id}", id.longValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Creeper", "nombre": "Creeper Legal", "vida": 0,
+                                 "vidaMaxima": 20, "x": 0, "y": 64, "z": 0, "detonado": true}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value(containsString("simulación")));
+
+        mockMvc.perform(get("/entidades/{id}", id.longValue()))
+                .andExpect(jsonPath("$.vida").value(20))
+                .andExpect(jsonPath("$.detonado").value(false));
+    }
+
+    /**
+     * Descripción:
+     * Un Zombie muerto no vuelve a la vida con un PUT.
+     */
+    @Test
+    void unZombieMuertoNoRevive() throws Exception {
+        MvcResult creada = mockMvc.perform(post("/entidades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Zombie", "nombre": "Zombie Herido", "vida": 20, "x": 0, "y": 64, "z": 0}
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Number id = JsonPath.read(creada.getResponse().getContentAsString(), "$.id");
+        String conVida = """
+                {"tipo": "Zombie", "nombre": "Zombie Herido", "vida": %d, "vidaMaxima": 20, "x": 0, "y": 64, "z": 0}
+                """;
+
+        mockMvc.perform(put("/entidades/{id}", id.longValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(conVida.formatted(0)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(put("/entidades/{id}", id.longValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(conVida.formatted(10)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensaje").value(containsString("no puede volver a la vida")));
+    }
+
+    /**
+     * Descripción:
+     * Un cuerpo incompleto (sin z) o mal formado responde 400 con DatosInvalidosException,
+     * no con el error genérico de JSON.
+     */
+    @Test
+    void unCuerpoIncompletoOMalFormadoEsDatoInvalido() throws Exception {
+        mockMvc.perform(post("/entidades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"tipo": "Zombie", "nombre": "Zombie Sin Z", "vida": 20, "x": 0, "y": 64}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"))
+                .andExpect(jsonPath("$.mensaje").value(containsString("\"z\"")));
+
+        mockMvc.perform(post("/entidades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"tipo\": \"Zombie\", \"vida\": \"mucha\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"));
+
+        mockMvc.perform(get("/entidades/{id}", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.tipo").value("DatosInvalidosException"));
     }
 }

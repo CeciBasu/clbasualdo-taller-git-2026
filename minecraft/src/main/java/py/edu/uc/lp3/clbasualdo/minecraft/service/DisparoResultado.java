@@ -1,7 +1,7 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.service;
 
 /**
- * Descripcion:
+ * Descripción:
  * Record que guarda el resultado de pedirle al esqueleto los dos disparos de la
  * sobrecarga de disparar().
  *
@@ -10,18 +10,18 @@ package py.edu.uc.lp3.clbasualdo.minecraft.service;
  * para que el controller no tenga que preguntar por las flechas ni por el alcance.
  */
 public record DisparoResultado(
-        /** Nombre del esqueleto que disparo. */
+        /** Nombre del esqueleto que disparó. */
         String nombre,
-        /** Flechas que tenia antes de los dos disparos. */
+        /** Flechas que tenía antes de los dos disparos. */
         int flechasIniciales,
-        /** Flechas que le quedan despues de los dos disparos. */
+        /** Flechas que le quedan después de los dos disparos. */
         int flechasRestantes,
-        /** Distancia maxima a la que el esqueleto puede disparar. */
+        /** Distancia máxima a la que el esqueleto puede disparar. */
         double rango,
-        /** Distancia que se le pidio para el segundo disparo. */
+        /** Distancia que se le pidió para el segundo disparo. */
         double distanciaPedida,
-        /** Texto que devolvio disparar(), la version sin distancia. */
+        /** Texto que devolvió disparar(), la versión sin distancia. */
         String disparoSinDistancia,
-        /** Texto que devolvio disparar(double), la version con distancia. */
+        /** Texto que devolvió disparar(double), la versión con distancia. */
         String disparoConDistancia) {
 }

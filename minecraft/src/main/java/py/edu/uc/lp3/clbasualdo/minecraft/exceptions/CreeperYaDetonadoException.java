@@ -1,32 +1,32 @@
 package py.edu.uc.lp3.clbasualdo.minecraft.exceptions;
 
 /**
- * Descripcion:
- * Excepcion que se lanza cuando se intenta detonar un Creeper que ya exploto.
+ * Descripción:
+ * Excepción que se lanza cuando se intenta detonar un Creeper que ya explotó.
  *
  * Responsabilidad:
- * Avisar que se violo la regla de que un Creeper solo puede detonar una vez.
+ * Avisar que se violó la regla de que un Creeper solo puede detonar una vez.
  */
 public class CreeperYaDetonadoException extends MinecraftException {
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el error con el mensaje del dominio.
      *
-     * Parametros:
-     * mensaje - Explicacion de lo que salio mal.
+     * Parámetros:
+     * mensaje - Explicación de lo que salió mal.
      */
     public CreeperYaDetonadoException(String mensaje) {
         super(mensaje);
     }
 
     /**
-     * Descripcion:
+     * Descripción:
      * Crea el error con su mensaje y la causa original.
      *
-     * Parametros:
-     * mensaje - Explicacion de lo que salio mal.
-     * causa - El error que lo provoco.
+     * Parámetros:
+     * mensaje - Explicación de lo que salió mal.
+     * causa - El error que lo provocó.
      */
     public CreeperYaDetonadoException(String mensaje, Throwable causa) {
         super(mensaje, causa);
